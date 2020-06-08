@@ -10,7 +10,7 @@ export default {
   components: { iFrame },
   data() {
     return {
-      url: 'https://mrbird.cc'
+      url: 'https://chachae.cn'
     }
   },
   methods: {
