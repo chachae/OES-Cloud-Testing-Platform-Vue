@@ -1,176 +1,174 @@
 <template>
   <div class="app-container">
-    <div class="filter-container">
-      <el-input
-        v-model="queryParams.paperName"
-        :placeholder="$t('table.paper.paperName')"
-        class="filter-item search-item"
-      />
-      <el-button class="filter-item" type="primary" plain @click="search">
-        {{ $t('table.search') }}
-      </el-button>
-      <el-button class="filter-item" type="warning" plain @click="reset">
-        {{ $t('table.reset') }}
-      </el-button>
-      <el-dropdown
-        v-has-any-permission="['paper:view','paper:add','question:paper']"
-        trigger="click"
-        class="filter-item"
-      >
-        <el-button>
-          {{ $t('table.more') }}<i class="el-icon-arrow-down el-icon--right" />
+    <div v-show="paperIndexShow">
+      <div class="filter-container">
+        <el-input
+          v-model="queryParams.paperName"
+          :placeholder="$t('table.paper.paperName')"
+          class="filter-item search-item"
+        />
+        <el-button class="filter-item" type="primary" plain @click="search">
+          {{ $t('table.search') }}
         </el-button>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item v-has-permission="['paper:add']" @click.native="add">{{ $t('table.add') }}
-          </el-dropdown-item>
-          <el-dropdown-item v-has-permission="['paper:delete']" @click.native="batchDelete">{{ $t('table.delete') }}
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
+        <el-button class="filter-item" type="warning" plain @click="reset">
+          {{ $t('table.reset') }}
+        </el-button>
+        <el-dropdown
+          v-has-any-permission="['paper:view','paper:add','question:paper']"
+          trigger="click"
+          class="filter-item"
+        >
+          <el-button>
+            {{ $t('table.more') }}<i class="el-icon-arrow-down el-icon--right" />
+          </el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item v-has-permission="['paper:add']" @click.native="add">{{ $t('table.add') }}
+            </el-dropdown-item>
+            <el-dropdown-item v-has-permission="['paper:delete']" @click.native="batchDelete">{{ $t('table.delete') }}
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </div>
+      <el-table
+        ref="table"
+        :key="tableKey"
+        :data="list"
+        border
+        fit
+        style="width: 100%;"
+        @selection-change="onSelectChange"
+        @sort-change="sortChange"
+      >
+        <el-table-column type="selection" align="center" width="40px" />
+        <el-table-column
+          :label="$t('table.paper.paperName')"
+          prop="paperName"
+          :show-overflow-tooltip="true"
+          align="center"
+          min-width="90px"
+        >
+          <template slot-scope="scope">
+            <span>{{ scope.row.paperName }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          :label="$t('table.paper.courseName')"
+          prop="paperName"
+          :show-overflow-tooltip="true"
+          align="center"
+          min-width="90px"
+        >
+          <template slot-scope="scope">
+            <span>{{ scope.row.courseName }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          :label="$t('table.paper.type')"
+          prop="type"
+          :show-overflow-tooltip="true"
+          align="center"
+          min-width="50px"
+        >
+          <template slot-scope="scope">
+            <el-tag :type=" scope.row.type | typeFilter ">
+              {{ transType(scope.row.type) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column
+          :label="$t('table.paper.paperScore')"
+          prop="paperScore"
+          :show-overflow-tooltip="true"
+          align="center"
+          min-width="50px"
+        >
+          <template slot-scope="scope">
+            <span>{{ scope.row.paperScore }} 分</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          :label="$t('table.paper.status')"
+          prop="status"
+          :show-overflow-tooltip="true"
+          align="center"
+          min-width="50px"
+        >
+          <template slot-scope="{row}">
+            <el-switch
+              v-model="row.status"
+              :active-text="$t('common.active')"
+              :inactive-text="$t('common.inactive')"
+              :active-value="1"
+              :inactive-value="0"
+              :disabled="row.isEnd"
+              @change="updateStatus(row)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column
+          :label="$t('table.paper.minute')"
+          prop="minute"
+          :show-overflow-tooltip="true"
+          align="center"
+          min-width="50px"
+        >
+          <template slot-scope="scope">
+            <span>{{ scope.row.minute }} 分钟</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          :label="$t('table.operation')"
+          align="center"
+          min-width="100px"
+          class-name="small-padding fixed-width"
+        >
+          <template slot-scope="{row}">
+            <i
+              v-hasPermission="['paper:view']"
+              class="el-icon-view table-operation"
+              style="color: #87d068;"
+              @click="view(row)"
+            />
+            <i
+              v-hasPermission="['paper:update']"
+              class="el-icon-setting table-operation"
+              style="color: #2db7f5;"
+              @click="edit(row)"
+            />
+            <i
+              v-has-permission="['paper:delete']"
+              class="el-icon-delete table-operation"
+              style="color: #f50;"
+              @click="singleDelete(row)"
+            />
+            <el-link v-has-no-permission="['paper:delete']" class="no-perm">
+              {{ $t('tips.noPermission') }}
+            </el-link>
+          </template>
+        </el-table-column>
+      </el-table>
+      <pagination
+        v-show="total>0"
+        :total="total"
+        :page.sync="pagination.num"
+        :limit.sync="pagination.size"
+        @pagination="search"
+      />
     </div>
-    <el-table
-      ref="table"
-      :key="tableKey"
-      :data="list"
-      border
-      fit
-      style="width: 100%;"
-      @selection-change="onSelectChange"
-      @sort-change="sortChange"
-    >
-      <el-table-column type="selection" align="center" width="40px" />
-      <el-table-column
-        :label="$t('table.paper.paperName')"
-        prop="paperName"
-        :show-overflow-tooltip="true"
-        align="center"
-        min-width="90px"
-      >
-        <template slot-scope="scope">
-          <span>{{ scope.row.paperName }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        :label="$t('table.paper.courseName')"
-        prop="paperName"
-        :show-overflow-tooltip="true"
-        align="center"
-        min-width="90px"
-      >
-        <template slot-scope="scope">
-          <span>{{ scope.row.courseName }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        :label="$t('table.paper.type')"
-        prop="type"
-        :show-overflow-tooltip="true"
-        align="center"
-        min-width="50px"
-      >
-        <template slot-scope="scope">
-          <el-tag :type=" scope.row.type | typeFilter ">
-            {{ transType(scope.row.type) }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column
-        :label="$t('table.paper.paperScore')"
-        prop="paperScore"
-        :show-overflow-tooltip="true"
-        align="center"
-        min-width="50px"
-      >
-        <template slot-scope="scope">
-          <span>{{ scope.row.paperScore }} 分</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        :label="$t('table.paper.status')"
-        prop="status"
-        :show-overflow-tooltip="true"
-        align="center"
-        min-width="50px"
-      >
-        <template slot-scope="{row}">
-          <el-switch
-            v-model="row.status"
-            :active-text="$t('common.active')"
-            :inactive-text="$t('common.inactive')"
-            :active-value="1"
-            :inactive-value="0"
-            :disabled="row.isEnd"
-            @change="updateStatus(row)"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column
-        :label="$t('table.paper.minute')"
-        prop="minute"
-        :show-overflow-tooltip="true"
-        align="center"
-        min-width="50px"
-      >
-        <template slot-scope="scope">
-          <span>{{ scope.row.minute }} 分钟</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        :label="$t('table.paper.creatorName')"
-        prop="creatorName"
-        align="center"
-        min-width="50px"
-      >
-        <template slot-scope="scope">
-          <span>{{ scope.row.creatorName }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        :label="$t('table.operation')"
-        align="center"
-        min-width="100px"
-        class-name="small-padding fixed-width"
-      >
-        <template slot-scope="{row}">
-          <i
-            v-hasPermission="['paper:view']"
-            class="el-icon-view table-operation"
-            style="color: #87d068;"
-            @click="view(row)"
-          />
-          <i
-            v-hasPermission="['paper:update']"
-            class="el-icon-setting table-operation"
-            style="color: #2db7f5;"
-            @click="edit(row)"
-          />
-          <i
-            v-has-permission="['paper:delete']"
-            class="el-icon-delete table-operation"
-            style="color: #f50;"
-            @click="singleDelete(row)"
-          />
-          <el-link v-has-no-permission="['paper:delete']" class="no-perm">
-            {{ $t('tips.noPermission') }}
-          </el-link>
-        </template>
-      </el-table-column>
-    </el-table>
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="pagination.num"
-      :limit.sync="pagination.size"
-      @pagination="search"
+    <paper-view
+      v-show="paperViewShow"
+      ref="view"
+      @close="viewClose"
     />
   </div>
 </template>
 <script>
 import Pagination from '@/components/Pagination'
+import PaperView from './View'
 
 export default {
   name: 'QuestionMange',
-  components: { Pagination },
+  components: { Pagination, PaperView },
   filters: {
     typeFilter(type) {
       const map = {
@@ -187,7 +185,8 @@ export default {
         title: ''
       },
       tableKey: 0,
-      questionViewVisible: false,
+      paperViewShow: false,
+      paperIndexShow: true,
       loading: false,
       list: null,
       total: 0,
@@ -195,6 +194,7 @@ export default {
       sort: {},
       selection: [],
       courses: [],
+      types: [],
       pagination: {
         size: 10,
         num: 1
@@ -209,6 +209,7 @@ export default {
   mounted() {
     this.fetch()
     this.initCourses()
+    this.initTypes()
   },
   methods: {
     onSelectChange(selection) {
@@ -220,8 +221,11 @@ export default {
       this.dialog.isVisible = true
     },
     view(row) {
-      this.$refs.view.setQuestion(row)
-      this.questionViewVisible = true
+      this.$refs.view.setPaper(row)
+      this.$refs.view.setTypes(this.types)
+      this.paperViewShow = true
+      this.paperIndexShow = false
+      console.log(row)
     },
     edit(row) {
       this.$refs.edit.setQuestion(row)
@@ -232,6 +236,17 @@ export default {
     initCourses() {
       this.$get('examination/course/options').then((r) => {
         this.courses = r.data.data
+      }).catch((error) => {
+        console.error(error)
+        this.$message({
+          message: this.$t('tips.getDataFail'),
+          type: 'error'
+        })
+      })
+    },
+    initTypes() {
+      this.$get('examination/type/options').then((r) => {
+        this.types = r.data.data
       }).catch((error) => {
         console.error(error)
         this.$message({
@@ -257,7 +272,8 @@ export default {
       })
     },
     viewClose() {
-      this.questionViewVisible = false
+      this.paperViewShow = false
+      this.paperIndexShow = true
     },
     editClose() {
       this.dialog.isVisible = false

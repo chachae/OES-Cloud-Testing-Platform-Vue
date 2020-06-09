@@ -337,9 +337,6 @@ export default {
       this.$refs.table.clearFilter()
       this.search()
     },
-    transTime(time) {
-      return `${time} ms`
-    },
     sortChange(val, a) {
       this.sort.field = val.prop
       this.sort.order = val.order

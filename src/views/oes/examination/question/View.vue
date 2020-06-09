@@ -8,7 +8,7 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <h3>{{ $t('common.question.baseData') }}</h3>
+          <h3>{{ $t('common.baseData') }}</h3>
         </div>
       </el-col>
     </el-row>
@@ -60,7 +60,7 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <h3>{{ $t('common.question.mainData') }}</h3>
+          <h3>{{ $t('common.questionData') }}</h3>
         </div>
       </el-col>
     </el-row>

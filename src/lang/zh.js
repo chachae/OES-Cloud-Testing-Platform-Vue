@@ -422,9 +422,7 @@ export default {
       medium: '中等',
       hard: '困难',
       right: '正确',
-      wrong: '错误',
-      baseData: '基本信息',
-      mainData: '题目信息'
+      wrong: '错误'
     },
     aboutMe: '关于我',
     changeAvatar: '更换头像',
@@ -446,6 +444,7 @@ export default {
     allProject: '所有项目',
     noDept: '暂无部门',
     noRole: '暂无角色',
+    noAnalysis: '暂无解析',
     firstLogin: '第一次登录系统',
     todayIp: '今日IP',
     todayVisit: '今日访问',
@@ -471,6 +470,9 @@ export default {
     signLogin: '注册并登录',
     current: '当前',
     socialAccount: '账号',
-    socialTips: '尚未绑定任何系统账户，您可以绑定系统账户或者注册一个新的账户并绑定。'
+    socialTips: '尚未绑定任何系统账户，您可以绑定系统账户或者注册一个新的账户并绑定。',
+    baseData: '基本信息',
+    questionData: '题目信息',
+    unknown: '未知'
   }
 }
