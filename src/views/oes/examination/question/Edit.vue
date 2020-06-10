@@ -245,7 +245,7 @@ export default {
       screenWidth: 0,
       width: this.initWidth(),
       rules: {
-        courseId: { required: true, message: this.$t('rules.require'), trigger: 'change' },
+        courseId: { required: true, message: this.$t('rules.require'), trigger: 'blur' },
         questionName: [
           { required: true, message: this.$t('rules.require'), trigger: 'blur' },
           { min: 3, max: 100, message: this.$t('rules.range3to100'), trigger: 'blur' }

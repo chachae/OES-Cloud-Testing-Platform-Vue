@@ -22,7 +22,7 @@
             {{ $t('table.more') }}<i class="el-icon-arrow-down el-icon--right" />
           </el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item v-has-permission="['paper:add']" @click.native="add">{{ $t('table.add') }}
+            <el-dropdown-item v-has-permission="['paper:add']" @click.native="randomAdd">{{ $t('table.randomPaper') }}
             </el-dropdown-item>
             <el-dropdown-item v-has-permission="['paper:delete']" @click.native="batchDelete">{{ $t('table.delete') }}
             </el-dropdown-item>
@@ -133,7 +133,7 @@
               v-hasPermission="['paper:update']"
               class="el-icon-setting table-operation"
               style="color: #2db7f5;"
-              @click="edit(row)"
+              @click="randomAdd(row)"
             />
             <i
               v-has-permission="['paper:delete']"
@@ -154,7 +154,15 @@
         :limit.sync="pagination.size"
         @pagination="search"
       />
+      <paper-random-add
+        ref="random"
+        :dialog-visible="dialog.isVisible"
+        :title="dialog.title"
+        @success="editSuccess"
+        @close="editClose"
+      />
     </div>
+    <!-- paper view -->
     <paper-view
       v-show="paperViewShow"
       ref="view"
@@ -165,10 +173,11 @@
 <script>
 import Pagination from '@/components/Pagination'
 import PaperView from './View'
+import PaperRandomAdd from './Random'
 
 export default {
   name: 'QuestionMange',
-  components: { Pagination, PaperView },
+  components: { PaperRandomAdd, Pagination, PaperView },
   filters: {
     typeFilter(type) {
       const map = {
@@ -187,6 +196,7 @@ export default {
       tableKey: 0,
       paperViewShow: false,
       paperIndexShow: true,
+      randomViewVisible: false,
       loading: false,
       list: null,
       total: 0,
@@ -215,6 +225,12 @@ export default {
     onSelectChange(selection) {
       this.selection = selection
     },
+    randomAdd() {
+      this.$refs.random.setCourses(this.courses)
+      this.$refs.random.setTypes(this.types)
+      this.dialog.title = this.$t('common.add')
+      this.dialog.isVisible = true
+    },
     add() {
       this.$refs.edit.setCourses(this.courses)
       this.dialog.title = this.$t('common.add')
@@ -227,11 +243,11 @@ export default {
       this.paperIndexShow = false
       console.log(row)
     },
-    edit(row) {
-      this.$refs.edit.setQuestion(row)
-      this.$refs.edit.setCourses(this.courses)
-      this.dialog.title = this.$t('common.edit')
-      this.dialog.isVisible = true
+    editClose() {
+      this.dialog.isVisible = false
+    },
+    editSuccess() {
+      this.search()
     },
     initCourses() {
       this.$get('examination/course/options').then((r) => {
@@ -274,12 +290,6 @@ export default {
     viewClose() {
       this.paperViewShow = false
       this.paperIndexShow = true
-    },
-    editClose() {
-      this.dialog.isVisible = false
-    },
-    editSuccess() {
-      this.search()
     },
     singleDelete(row) {
       this.$refs.table.toggleRowSelection(row, true)

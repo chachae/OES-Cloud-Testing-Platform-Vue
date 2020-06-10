@@ -135,6 +135,7 @@ export default {
       paperScore: '试卷分值',
       startTime: '开始时间',
       endTime: '结束时间',
+      time: '起止时间',
       minute: '考试时长',
       status: '试卷状态',
       isRandom: '是否随机生成',
@@ -148,7 +149,9 @@ export default {
       paperQuestions: '试题信息',
       fullName: '出题老师',
       typeName: '题目类型',
-      consumption: '使用次数'
+      consumption: '使用次数',
+      nums: '题目数量',
+      scores: '题目分值'
     },
     course: {
       courseId: '课程编号',
@@ -271,6 +274,7 @@ export default {
     reset: '重置',
     more: '更多操作',
     add: '添加',
+    randomPaper: '随机组卷',
     export: '导出',
     import: '导入',
     templateDownload: '模板下载',
@@ -366,7 +370,11 @@ export default {
     invalidInteger: '请输入大于零的整数',
     invalidURL: '不是有效的URL',
     leastOne: '至少填写一项',
-    invalidChoice: '不是有效的选项'
+    invalidChoice: '不是有效的选项',
+    invalidNum: '不是有效的值',
+    invalidFutureTime: '请设置一个未来的时间',
+    invalidEndTime: '开始时间不能晚于结束时间',
+    invalidSameDay: '请设置时间在同一天内'
   },
   common: {
     system: '分布式微服务高校在线考试系统',
@@ -418,6 +426,7 @@ export default {
       food: '食品类'
     },
     question: {
+      avg: '平均',
       easy: '简单',
       medium: '中等',
       hard: '困难',
