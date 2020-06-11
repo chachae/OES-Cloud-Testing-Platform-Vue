@@ -133,7 +133,7 @@
               v-hasPermission="['paper:update']"
               class="el-icon-setting table-operation"
               style="color: #2db7f5;"
-              @click="randomAdd(row)"
+              @click="edit(row)"
             />
             <i
               v-has-permission="['paper:delete']"
@@ -156,7 +156,7 @@
       />
       <paper-random-add
         ref="random"
-        :dialog-visible="dialog.isVisible"
+        :dialog-visible="dialog.isRandomVisible"
         :title="dialog.title"
         @success="editSuccess"
         @close="editClose"
@@ -168,16 +168,25 @@
       ref="view"
       @close="viewClose"
     />
+    <!-- paper edit -->
+    <paper-edit
+      ref="edit"
+      :dialog-visible="dialog.isEditVisible"
+      :title="dialog.title"
+      @success="editSuccess"
+      @close="editClose"
+    />
   </div>
 </template>
 <script>
 import Pagination from '@/components/Pagination'
 import PaperView from './View'
 import PaperRandomAdd from './Random'
+import PaperEdit from './Edit'
 
 export default {
   name: 'QuestionMange',
-  components: { PaperRandomAdd, Pagination, PaperView },
+  components: { PaperRandomAdd, PaperEdit, Pagination, PaperView },
   filters: {
     typeFilter(type) {
       const map = {
@@ -190,14 +199,14 @@ export default {
   data() {
     return {
       dialog: {
-        isVisible: false,
+        isEditVisible: false,
+        isRandomVisible: false,
         title: ''
       },
       tableKey: 0,
       paperViewShow: false,
       paperIndexShow: true,
       randomViewVisible: false,
-      loading: false,
       list: null,
       total: 0,
       queryParams: {},
@@ -229,22 +238,28 @@ export default {
       this.$refs.random.setCourses(this.courses)
       this.$refs.random.setTypes(this.types)
       this.dialog.title = this.$t('common.add')
-      this.dialog.isVisible = true
+      this.dialog.isRandomVisible = true
     },
-    add() {
-      this.$refs.edit.setCourses(this.courses)
-      this.dialog.title = this.$t('common.add')
-      this.dialog.isVisible = true
+    edit(row) {
+      const paper = { ...row }
+      let deptIds = []
+      if (row.deptIds && typeof row.deptIds === 'string') {
+        deptIds = row.deptIds.split(',')
+        paper.deptIds = deptIds
+      }
+      this.dialog.title = this.$t('common.edit')
+      this.$refs.edit.setPaper(paper)
+      this.dialog.isEditVisible = true
     },
     view(row) {
       this.$refs.view.setPaper(row)
       this.$refs.view.setTypes(this.types)
       this.paperViewShow = true
       this.paperIndexShow = false
-      console.log(row)
     },
     editClose() {
-      this.dialog.isVisible = false
+      this.dialog.isEditVisible = false
+      this.dialog.isRandomVisible = false
     },
     editSuccess() {
       this.search()
@@ -277,14 +292,12 @@ export default {
     fetch(params = {}) {
       params.pageSize = this.pagination.size
       params.pageNum = this.pagination.num
-      this.loading = true
       this.$get('examination/paper', {
         ...params
       }).then((r) => {
         const data = r.data.data
         this.total = data.total
         this.list = data.rows
-        this.loading = false
       })
     },
     viewClose() {
@@ -308,11 +321,11 @@ export default {
         cancelButtonText: this.$t('common.cancel'),
         type: 'warning'
       }).then(() => {
-        const questionIds = []
+        const paperIds = []
         this.selection.forEach((l) => {
-          questionIds.push(l.questionId)
+          paperIds.push(l.paperId)
         })
-        this.delete(questionIds)
+        this.delete(paperIds)
       }).catch(() => {
         this.clearSelections()
       })
@@ -320,9 +333,8 @@ export default {
     clearSelections() {
       this.$refs.table.clearSelection()
     },
-    delete(questionIds) {
-      this.loading = true
-      this.$delete(`examination/question/${questionIds}`).then(() => {
+    delete(paperIds) {
+      this.$delete(`examination/paper/${paperIds}`).then(() => {
         this.$message({
           message: this.$t('tips.deleteSuccess'),
           type: 'success'

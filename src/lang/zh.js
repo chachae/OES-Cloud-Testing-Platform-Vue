@@ -151,7 +151,9 @@ export default {
       typeName: '题目类型',
       consumption: '使用次数',
       nums: '题目数量',
-      scores: '题目分值'
+      scores: '题目分值',
+      termId: '学期编号',
+      termName: '学期'
     },
     course: {
       courseId: '课程编号',

@@ -5,7 +5,7 @@
     top="50px"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
-    :visible.sync="isVisible"
+    :visible.sync="isRandomVisible"
   >
     <el-form ref="form" :model="paper" :rules="rules" label-position="right" label-width="100px">
       <el-form-item :label="$t('table.paper.paperName')" prop="paperName">
@@ -93,7 +93,7 @@
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button type="warning" plain :loading="buttonLoading" @click="isVisible = false">
+      <el-button type="warning" plain :loading="buttonLoading" @click="isRandomVisible = false">
         {{ $t('common.cancel') }}
       </el-button>
       <el-button type="primary" plain :loading="buttonLoading" @click="submitForm">
@@ -210,7 +210,7 @@ export default {
     currentUser() {
       return this.$store.state.account.user
     },
-    isVisible: {
+    isRandomVisible: {
       get() {
         return this.dialogVisible
       },
@@ -294,7 +294,7 @@ export default {
           this.paper.creatorId = this.currentUser.userId
           this.$post('examination/paper/random', { ...this.paper }).then(() => {
             // this.buttonLoading = false
-            this.isVisible = false
+            this.isRandomVisible = false
             this.$message({
               message: this.$t('tips.createSuccess'),
               type: 'success'

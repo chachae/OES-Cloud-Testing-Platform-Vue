@@ -12,13 +12,13 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-off" /> <span>{{ $t('table.paper.paperId') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.paperId') +'：' }}</span>
           {{ paper.paperId }}
         </div>
       </el-col>
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-off" /> <span>{{ $t('table.paper.paperName') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.paperName') +'：' }}</span>
           {{ paper.paperName }}
         </div>
       </el-col>
@@ -26,13 +26,13 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-off" /> <span>{{ $t('table.paper.courseName') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.courseName') +'：' }}</span>
           {{ paper.courseName }}
         </div>
       </el-col>
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-off" /> <span>{{ $t('table.paper.deptName') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.deptName') +'：' }}</span>
           {{ paper.deptName }}
         </div>
       </el-col>
@@ -40,13 +40,13 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-off" /> <span>{{ $t('table.paper.minute') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.minute') +'：' }}</span>
           {{ paper.minute }} 分钟
         </div>
       </el-col>
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-off" /> <span>{{ $t('table.paper.deptNames') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.deptNames') +'：' }}</span>
           <el-tooltip placement="top" :content="paper.deptNames" :enterable="false">
             <span>{{ paper.deptNames | ellipsis }}</span>
           </el-tooltip>
@@ -56,13 +56,13 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-off" /> <span>{{ $t('table.paper.paperScore') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.paperScore') +'：' }}</span>
           {{ paper.paperScore }}
         </div>
       </el-col>
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-off" /> <span>{{ $t('table.paper.type') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.type') +'：' }}</span>
           {{ transType(paper.type) }}
         </div>
       </el-col>
@@ -70,13 +70,13 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-off" /> <span>{{ $t('table.paper.startTime') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.startTime') +'：' }}</span>
           {{ paper.startTime | parseTime('{y}-{m}-{d} {h}:{i}:{s}') }}
         </div>
       </el-col>
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-off" /> <span>{{ $t('table.paper.endTime') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.endTime') +'：' }}</span>
           {{ paper.endTime }}
         </div>
       </el-col>
@@ -84,14 +84,28 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-off" /> <span>{{ $t('table.paper.status') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.status') +'：' }}</span>
           {{ transStatus(paper.status) }}
         </div>
       </el-col>
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-off" /> <span>{{ $t('table.paper.creatorName') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.creatorName') +'：' }}</span>
           {{ paper.creatorName }}
+        </div>
+      </el-col>
+    </el-row>
+    <el-row :gutter="10">
+      <el-col :xs="24" :sm="12">
+        <div class="view-item">
+          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.createTime') +'：' }}</span>
+          {{ paper.createTime }}
+        </div>
+      </el-col>
+      <el-col :xs="24" :sm="12">
+        <div class="view-item">
+          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.termName') +'：' }}</span>
+          {{ paper.termName }}
         </div>
       </el-col>
     </el-row>
@@ -155,7 +169,7 @@ export default {
   name: 'PaperView',
   filters: {
     ellipsis(value) {
-      if (!value) return ''
+      if (!value) return '暂未指派班级'
       if (value.length > 20) {
         return value.slice(0, 20) + '......'
       }
@@ -255,6 +269,7 @@ export default {
       margin: 7px;
       i {
         font-size: .120rem;
+        color: #E6A23C;
       }
       span {
         margin-left: 5px;
