@@ -155,6 +155,12 @@ export default {
       termId: '学期编号',
       termName: '学期'
     },
+    term: {
+      termId: '学期编号',
+      termName: '学期名称',
+      createTime: '操作时间',
+      updateTime: '更新时间'
+    },
     course: {
       courseId: '课程编号',
       courseName: '课程名称',
@@ -361,6 +367,7 @@ export default {
     usernameExist: '该用户名已存在',
     typeNameExist: '该试题类型名已存在',
     courseNameExist: '该课程名已存在',
+    termNameExist: '该学期名已存在',
     clientIdExist: '该Client ID已存在',
     roleNameExist: '该角色名称已存在',
     noMoreThan3: '长度不能超过3个字符',
