@@ -15,11 +15,11 @@
         :on-error="uploadError"
         :on-progress="uploadProgress"
       >
-        <el-button class="filter-item" icon="el-icon-upload2" type="success" plain>
+        <el-button class="filter-item" icon="el-icon-upload2" type="success">
           {{ $t('table.import') }}
         </el-button>
       </el-upload>
-      <el-button class="filter-item" icon="el-icon-download" type="info" plain @click="exportExcel">
+      <el-button class="filter-item" icon="el-icon-download" type="info" @click="exportExcel">
         {{ $t('table.export') }}
       </el-button>
     </div>
