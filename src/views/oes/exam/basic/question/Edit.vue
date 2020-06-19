@@ -363,7 +363,7 @@ export default {
                 this.question.optionD = this.question.optionE = this.question.optionF = null
             }
             this.question.creatorId = this.currentUser.userId
-            this.$post('examination/question', { ...this.question }).then(() => {
+            this.$post('exam-basic/question', { ...this.question }).then(() => {
               this.buttonLoading = false
               this.isVisible = false
               this.$message({
@@ -375,7 +375,7 @@ export default {
           } else {
             // update
             this.question.createTime = this.question.updateTime = null
-            this.$put('examination/question', { ...this.question }).then(() => {
+            this.$put('exam-basic/question', { ...this.question }).then(() => {
               this.buttonLoading = false
               this.isVisible = false
               this.$message({

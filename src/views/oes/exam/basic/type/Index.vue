@@ -188,7 +188,7 @@ export default {
       params.pageSize = this.pagination.size
       params.pageNum = this.pagination.num
       this.loading = true
-      this.$get('examination/type', {
+      this.$get('exam-basic/type', {
         ...params
       }).then((r) => {
         const data = r.data.data
@@ -251,7 +251,7 @@ export default {
     },
     delete(typeIds) {
       this.loading = true
-      this.$delete(`examination/type/${typeIds}`).then(() => {
+      this.$delete(`exam-basic/type/${typeIds}`).then(() => {
         this.$message({
           message: this.$t('tips.deleteSuccess'),
           type: 'success'

@@ -154,7 +154,7 @@ export default {
           this.paper.deptIds = this.$refs.deptTree.getCheckedKeys()
           this.paper.startTime = this.paper.endTime = this.paper.createTime =
             this.paper.updateTime = this.paper.paperQuestions = null
-          this.$put('examination/paper', { ...this.paper }).then(() => {
+          this.$put('exam-basic/paper', { ...this.paper }).then(() => {
             this.buttonLoading = false
             this.isEditVisible = false
             this.$message({

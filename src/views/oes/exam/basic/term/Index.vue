@@ -2,23 +2,10 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input
-        v-model="queryParams.courseName"
-        :placeholder="$t('table.course.courseName')"
+        v-model="queryParams.termName"
+        :placeholder="$t('table.term.termName')"
         class="filter-item search-item"
       />
-      <el-select
-        v-model="queryParams.deptId"
-        class="filter-item search-item"
-        value=""
-        :placeholder="$t('table.course.deptName')"
-      >
-        <el-option
-          v-for="item in depts"
-          :key="item.deptId"
-          :label="item.deptName"
-          :value="item.deptId"
-        />
-      </el-select>
       <el-button class="filter-item" type="primary" plain @click="search">
         {{ $t('table.search') }}
       </el-button>
@@ -26,7 +13,7 @@
         {{ $t('table.reset') }}
       </el-button>
       <el-dropdown
-        v-has-any-permission="['course:view','course:add','course:delete']"
+        v-has-any-permission="['term:view','term:add','term:delete']"
         trigger="click"
         class="filter-item"
       >
@@ -34,11 +21,11 @@
           {{ $t('table.more') }}<i class="el-icon-arrow-down el-icon--right" />
         </el-button>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item v-has-permission="['course:add']" @click.native="add">{{ $t('table.add') }}
+          <el-dropdown-item v-has-permission="['term:add']" @click.native="add">{{ $t('table.add') }}
           </el-dropdown-item>
-          <el-dropdown-item v-has-permission="['course:delete']" @click.native="batchDelete">{{ $t('table.delete') }}
+          <el-dropdown-item v-has-permission="['term:delete']" @click.native="batchDelete">{{ $t('table.delete') }}
           </el-dropdown-item>
-          <el-dropdown-item v-has-permission="['course:export']" @click.native="exportExcel">{{ $t('table.export') }}
+          <el-dropdown-item v-has-permission="['term:export']" @click.native="exportExcel">{{ $t('table.export') }}
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -50,50 +37,36 @@
       border
       fit
       style="width: 100%;"
-      @selection-change="onSelectChange"
-      @sort-change="sortChange"
     >
       <el-table-column type="selection" align="center" width="40px" />
       <el-table-column
-        :label="$t('table.course.courseId')"
-        prop="courseId"
+        :label="$t('table.term.termId')"
+        prop="termId"
         :show-overflow-tooltip="true"
         align="center"
         min-width="100px"
       >
         <template slot-scope="scope">
-          <span>{{ scope.row.courseId }}</span>
+          <span>{{ scope.row.termId }}</span>
         </template>
       </el-table-column>
       <el-table-column
-        :label="$t('table.course.courseName')"
-        prop="courseName"
+        :label="$t('table.term.termName')"
+        prop="termName"
         :show-overflow-tooltip="true"
         align="center"
         min-width="120px"
       >
         <template slot-scope="scope">
-          <span>{{ scope.row.courseName }}</span>
+          <span>{{ scope.row.termName }}</span>
         </template>
       </el-table-column>
       <el-table-column
-        :label="$t('table.course.deptName')"
-        prop="deptName"
-        :show-overflow-tooltip="true"
-        align="center"
-        min-width="100px"
-      >
-        <template slot-scope="scope">
-          <span>{{ scope.row.deptName }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        :label="$t('table.course.createTime')"
+        :label="$t('table.term.createTime')"
         prop="createTime"
         :show-overflow-tooltip="true"
         align="center"
         min-width="150px"
-        sortable="custom"
       >
         <template slot-scope="scope">
           <span>{{ scope.row.createTime }}</span>
@@ -107,18 +80,18 @@
       >
         <template slot-scope="{row}">
           <i
-            v-hasPermission="['course:update']"
+            v-hasPermission="['term:update']"
             class="el-icon-setting table-operation"
             style="color: #2db7f5;"
             @click="edit(row)"
           />
           <i
-            v-has-permission="['course:delete']"
+            v-has-permission="['term:delete']"
             class="el-icon-delete table-operation"
             style="color: #f50;"
             @click="singleDelete(row)"
           />
-          <el-link v-has-no-permission="['course:delete']" class="no-perm">
+          <el-link v-has-no-permission="['term:delete']" class="no-perm">
             {{ $t('tips.noPermission') }}
           </el-link>
         </template>
@@ -131,7 +104,7 @@
       :limit.sync="pagination.size"
       @pagination="search"
     />
-    <course-edit
+    <term-edit
       ref="edit"
       :dialog-visible="dialog.isVisible"
       :title="dialog.title"
@@ -143,11 +116,11 @@
 <script>
 
 import Pagination from '@/components/Pagination'
-import CourseEdit from './Edit'
+import TermEdit from './Edit'
 
 export default {
-  name: 'CourseMange',
-  components: { Pagination, CourseEdit },
+  name: 'TermMange',
+  components: { Pagination, TermEdit },
   data() {
     return {
       dialog: {
@@ -162,7 +135,6 @@ export default {
       queryParams: {},
       sort: {},
       selection: [],
-      depts: [],
       pagination: {
         size: 10,
         num: 1
@@ -171,12 +143,8 @@ export default {
   },
   mounted() {
     this.fetch()
-    this.initDept()
   },
   methods: {
-    onSelectChange(selection) {
-      this.selection = selection
-    },
     transScore(score) {
       return score + '分'
     },
@@ -187,31 +155,13 @@ export default {
         ...this.queryParams
       }, `log_${new Date().getTime()}.xlsx`)
     },
-    initDept() {
-      this.$get('system/dept/options?parentId=0').then((r) => {
-        this.depts = r.data.data
-      }).catch((error) => {
-        console.error(error)
-        this.$message({
-          message: this.$t('tips.getDataFail'),
-          type: 'error'
-        })
-      })
-    },
     add() {
-      this.$refs.edit.setDepts(this.depts)
       this.dialog.title = this.$t('common.add')
       this.dialog.isVisible = true
     },
     edit(row) {
-      const course = { ...row }
-      let teacherIds = []
-      if (row.teacherIds && typeof row.teacherIds === 'string') {
-        teacherIds = row.teacherIds.split(',')
-        course.teacherIds = teacherIds
-      }
-      this.$refs.edit.setDepts(this.depts)
-      this.$refs.edit.setCourse(course)
+      const term = { ...row }
+      this.$refs.edit.setTerm(term)
       this.dialog.title = this.$t('common.edit')
       this.dialog.isVisible = true
     },
@@ -219,7 +169,7 @@ export default {
       params.pageSize = this.pagination.size
       params.pageNum = this.pagination.num
       this.loading = true
-      this.$get('examination/course', {
+      this.$get('exam-basic/term', {
         ...params
       }).then((r) => {
         const data = r.data.data
@@ -254,11 +204,11 @@ export default {
         cancelButtonText: this.$t('common.cancel'),
         type: 'warning'
       }).then(() => {
-        const courseIds = []
+        const termIds = []
         this.selection.forEach((l) => {
-          courseIds.push(l.courseId)
+          termIds.push(l.termId)
         })
-        this.delete(courseIds)
+        this.delete(termIds)
         this.clearSelections()
       }).catch(() => {
         this.clearSelections()
@@ -267,9 +217,9 @@ export default {
     clearSelections() {
       this.$refs.table.clearSelection()
     },
-    delete(courseId) {
+    delete(termId) {
       this.loading = true
-      this.$delete(`examination/course/${courseId}`).then(() => {
+      this.$delete(`exam-basic/term/${termId}`).then(() => {
         this.$message({
           message: this.$t('tips.deleteSuccess'),
           type: 'success'
@@ -288,14 +238,6 @@ export default {
       this.sort = {}
       this.$refs.table.clearSort()
       this.$refs.table.clearFilter()
-      this.search()
-    },
-    transTime(time) {
-      return `${time} ms`
-    },
-    sortChange(val, a) {
-      this.sort.field = val.prop
-      this.sort.order = val.order
       this.search()
     }
   }

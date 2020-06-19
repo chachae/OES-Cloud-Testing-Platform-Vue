@@ -24,6 +24,19 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item :label="$t('table.term.termName')" prop="termId">
+        <el-select
+          v-model="paper.termId"
+          style="width:100%"
+        >
+          <el-option
+            v-for="item in terms"
+            :key="item.termId"
+            :label="item.termName"
+            :value="item.termId"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item :label="$t('table.question.typeName')" prop="typeIds">
         <el-select
           v-model="paper.typeIds"
@@ -124,12 +137,15 @@ export default {
       initFlag: false,
       courses: [],
       types: [],
+      terms: [],
       buttonLoading: false,
       screenWidth: 0,
       width: this.initWidth(),
       paper: this.initPaper(),
       rules: {
+        typeIds: { required: true, message: this.$t('rules.require'), trigger: 'blur' },
         paperName: { required: true, message: this.$t('rules.require'), trigger: 'blur' },
+        termId: { required: true, message: this.$t('rules.require'), trigger: 'blur' },
         courseId: { required: true, message: this.$t('rules.require'), trigger: 'change' },
         typeId: { required: true, message: this.$t('rules.require'), trigger: 'change' },
         difficult: { required: true, message: this.$t('rules.require'), trigger: 'blur' },
@@ -264,6 +280,9 @@ export default {
     setCourses(val) {
       this.courses = { ...val }
     },
+    setTerms(val) {
+      this.terms = { ...val }
+    },
     setTypes(val) {
       this.types = { ...val }
     },
@@ -292,7 +311,7 @@ export default {
           this.paper.minute = this.calMinute
           this.paper.paperScore = this.calPaperScore
           this.paper.creatorId = this.currentUser.userId
-          this.$post('examination/paper/random', { ...this.paper }).then(() => {
+          this.$post('exam-basic/paper/random', { ...this.paper }).then(() => {
             // this.buttonLoading = false
             this.isRandomVisible = false
             this.$message({

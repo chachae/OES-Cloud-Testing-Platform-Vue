@@ -242,7 +242,7 @@ export default {
       this.dialog.isVisible = true
     },
     initCourses() {
-      this.$get('examination/course/options').then((r) => {
+      this.$get('exam-basic/course/options').then((r) => {
         this.courses = r.data.data
       }).catch((error) => {
         console.error(error)
@@ -253,7 +253,7 @@ export default {
       })
     },
     initTypes() {
-      this.$get('examination/type/options').then((r) => {
+      this.$get('exam-basic/type/options').then((r) => {
         this.types = r.data.data
       }).catch((error) => {
         console.error(error)
@@ -267,7 +267,7 @@ export default {
       params.pageSize = this.pagination.size
       params.pageNum = this.pagination.num
       this.loading = true
-      this.$get('examination/question', {
+      this.$get('exam-basic/question', {
         ...params
       }).then((r) => {
         const data = r.data.data
@@ -316,7 +316,7 @@ export default {
     },
     delete(questionIds) {
       this.loading = true
-      this.$delete(`examination/question/${questionIds}`).then(() => {
+      this.$delete(`exam-basic/question/${questionIds}`).then(() => {
         this.$message({
           message: this.$t('tips.deleteSuccess'),
           type: 'success'

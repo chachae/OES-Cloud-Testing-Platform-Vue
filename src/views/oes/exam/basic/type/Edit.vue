@@ -7,35 +7,21 @@
     :close-on-press-escape="false"
     :visible.sync="isVisible"
   >
-    <el-form ref="form" :model="course" :rules="rules" label-position="right" label-width="100px">
-      <el-form-item v-show="course.courseId !== ''" :label="$t('table.course.courseId')" prop="courseId">
-        <el-input v-model="course.courseId" :readonly="true" />
+    <el-form ref="form" :model="type" :rules="rules" label-position="right" label-width="100px">
+      <el-form-item v-show="type.typeId !== ''" :label="$t('table.type.typeId')" prop="typeId">
+        <el-input v-model="type.typeId" :readonly="true" />
       </el-form-item>
       <el-form-item
-        :label="$t('table.course.courseName')"
-        prop="courseName"
+        :label="$t('table.type.typeName')"
+        prop="typeName"
       >
-        <el-input v-model="course.courseName" :readonly="course.courseId === '' ? false : 'readonly'" />
+        <el-input v-model="type.typeName" :readonly="type.typeId.toString().length === 0 ? false : 'readonly'" />
       </el-form-item>
-      <el-form-item :label="$t('table.course.deptName')" prop="deptId">
-        <el-select v-model="course.deptId" value="" placeholder="" style="width:100%">
-          <el-option
-            v-for="item in depts"
-            :key="item.deptId"
-            :label="item.deptName"
-            :value="item.deptId"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item :label="$t('table.course.teacherIds')" prop="teacherIds">
-        <el-cascader
-          v-model="course.teacherIds"
-          value=""
-          :options="teachers"
-          :props="{ multiple: true,emitPath: false }"
-          :show-all-levels="false"
-          style="width:100%"
-        />
+      <el-form-item
+        :label="$t('table.type.score')"
+        prop="score"
+      >
+        <el-input v-model="type.score" />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -53,7 +39,7 @@
 import { isIntegerGreaterThanZero } from '@/utils/my-validate'
 
 export default {
-  name: 'CourseEdit',
+  name: 'TypeEdit',
   props: {
     dialogVisible: {
       type: Boolean,
@@ -67,25 +53,19 @@ export default {
   data() {
     return {
       initFlag: false,
-      course: this.initCourse(),
-      depts: [],
-      teachers: [],
-      queryParams: {
-        parentId: 0,
-        roleId: 6
-      },
+      type: this.initType(),
       buttonLoading: false,
       screenWidth: 0,
       width: this.initWidth(),
       rules: {
-        courseName: [
+        typeName: [
           { required: true, message: this.$t('rules.require'), trigger: 'blur' },
-          { min: 2, max: 20, message: this.$t('rules.range2to20'), trigger: 'blur' },
+          { min: 2, max: 10, message: this.$t('rules.range2to10'), trigger: 'blur' },
           { validator: (rule, value, callback) => {
-            if (!this.course.courseId) {
-              this.$get(`examination/course/check/${value}`).then((r) => {
+            if (!this.type.typeId) {
+              this.$get(`exam-basic/type/check/${value}`).then((r) => {
                 if (!r.data) {
-                  callback(this.$t('rules.courseNameExist'))
+                  callback(this.$t('rules.typeNameExist'))
                 } else {
                   callback()
                 }
@@ -95,8 +75,6 @@ export default {
             }
           }, trigger: 'blur' }
         ],
-        teacherIds: { required: true, message: this.$t('rules.require'), trigger: 'change' },
-        deptId: { required: true, message: this.$t('rules.require'), trigger: 'change' },
         score: [
           { validator: (rule, value, callback) => {
             if (value === null || value === '') {
@@ -114,9 +92,6 @@ export default {
     }
   },
   computed: {
-    currentUser() {
-      return this.$store.state.account.user
-    },
     isVisible: {
       get() {
         return this.dialogVisible
@@ -128,7 +103,6 @@ export default {
     }
   },
   mounted() {
-    this.initTeacher()
     window.onresize = () => {
       return (() => {
         this.width = this.initWidth()
@@ -136,13 +110,11 @@ export default {
     }
   },
   methods: {
-    initCourse() {
+    initType() {
       return {
-        courseId: '',
-        courseName: '',
-        deptId: '',
-        teacherIds: [],
-        creatorId: ''
+        typeId: '',
+        typeName: '',
+        score: ''
       }
     },
     initWidth() {
@@ -158,32 +130,16 @@ export default {
     close() {
       this.$emit('close')
     },
-    setCourse(val) {
-      this.course = { ...val }
-    },
-    setDepts(val) {
-      this.depts = { ...val }
-    },
-    initTeacher() {
-      this.$get('system/user/options', { ...this.queryParams }).then((r) => {
-        this.teachers = r.data.data
-      }).catch((error) => {
-        console.error(error)
-        this.$message({
-          message: this.$t('tips.getDataFail'),
-          type: 'error'
-        })
-      })
+    setType(val) {
+      this.type = { ...val }
     },
     submitForm() {
       this.$refs.form.validate((valid) => {
         if (valid) {
           this.buttonLoading = false
-          if (!this.course.courseId) {
+          if (!this.type.typeId) {
             // create
-            this.course.courseId = null
-            this.course.creatorId = this.currentUser.userId
-            this.$post('examination/course', { ...this.course }).then(() => {
+            this.$post('exam-basic/type', { ...this.type }).then(() => {
               this.buttonLoading = false
               this.isVisible = false
               this.$message({
@@ -194,8 +150,8 @@ export default {
             })
           } else {
             // update
-            this.course.createTime = this.course.updateTime = null
-            this.$put('examination/course', { ...this.course }).then(() => {
+            this.type.createTime = this.type.updateTime = null
+            this.$put('exam-basic/type', { ...this.type }).then(() => {
               this.buttonLoading = false
               this.isVisible = false
               this.$message({
@@ -214,7 +170,7 @@ export default {
       // 先清除校验，再清除表单，不然有奇怪的bug
       this.$refs.form.clearValidate()
       this.$refs.form.resetFields()
-      this.course = this.initCourse()
+      this.type = this.initType()
     }
   }
 }

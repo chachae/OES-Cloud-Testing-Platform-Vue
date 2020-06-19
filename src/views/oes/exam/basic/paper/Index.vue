@@ -7,6 +7,18 @@
           :placeholder="$t('table.paper.paperName')"
           class="filter-item search-item"
         />
+        <el-select
+          v-model="queryParams.termId"
+          :placeholder="$t('table.term.termName')"
+          class="filter-item search-item"
+        >
+          <el-option
+            v-for="item in terms"
+            :key="item.termId"
+            :label="item.termName"
+            :value="item.termId"
+          />
+        </el-select>
         <el-button class="filter-item" type="primary" plain @click="search">
           {{ $t('table.search') }}
         </el-button>
@@ -214,6 +226,7 @@ export default {
       selection: [],
       courses: [],
       types: [],
+      terms: [],
       pagination: {
         size: 10,
         num: 1
@@ -229,6 +242,7 @@ export default {
     this.fetch()
     this.initCourses()
     this.initTypes()
+    this.initTerms()
   },
   methods: {
     onSelectChange(selection) {
@@ -237,6 +251,7 @@ export default {
     randomAdd() {
       this.$refs.random.setCourses(this.courses)
       this.$refs.random.setTypes(this.types)
+      this.$refs.random.setTerms(this.terms)
       this.dialog.title = this.$t('common.add')
       this.dialog.isRandomVisible = true
     },
@@ -265,7 +280,7 @@ export default {
       this.search()
     },
     initCourses() {
-      this.$get('examination/course/options').then((r) => {
+      this.$get('exam-basic/course/options').then((r) => {
         this.courses = r.data.data
       }).catch((error) => {
         console.error(error)
@@ -276,8 +291,19 @@ export default {
       })
     },
     initTypes() {
-      this.$get('examination/type/options').then((r) => {
+      this.$get('exam-basic/type/options').then((r) => {
         this.types = r.data.data
+      }).catch((error) => {
+        console.error(error)
+        this.$message({
+          message: this.$t('tips.getDataFail'),
+          type: 'error'
+        })
+      })
+    },
+    initTerms() {
+      this.$get('exam-basic/term/options').then((r) => {
+        this.terms = r.data.data
       }).catch((error) => {
         console.error(error)
         this.$message({
@@ -292,7 +318,7 @@ export default {
     fetch(params = {}) {
       params.pageSize = this.pagination.size
       params.pageNum = this.pagination.num
-      this.$get('examination/paper', {
+      this.$get('exam-basic/paper', {
         ...params
       }).then((r) => {
         const data = r.data.data
@@ -334,7 +360,7 @@ export default {
       this.$refs.table.clearSelection()
     },
     delete(paperIds) {
-      this.$delete(`examination/paper/${paperIds}`).then(() => {
+      this.$delete(`exam-basic/paper/${paperIds}`).then(() => {
         this.$message({
           message: this.$t('tips.deleteSuccess'),
           type: 'success'
@@ -343,7 +369,7 @@ export default {
       })
     },
     updateStatus(row) {
-      this.$put(`examination/paper`, { paperId: row.paperId, status: row.status }).then(() => {
+      this.$put(`exam-basic/paper`, { paperId: row.paperId, status: row.status }).then(() => {
         this.$message({
           message: this.$t('tips.updateSuccess'),
           type: 'success'
