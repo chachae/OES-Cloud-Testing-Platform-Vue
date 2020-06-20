@@ -10,10 +10,10 @@
       <el-input v-model="queryParams.ip" :placeholder="$t('table.blackList.ip')" class="filter-item search-item" />
       <el-input v-model="queryParams.requestUri" :placeholder="$t('table.blackList.requestUri')" class="filter-item search-item" />
       <el-input v-model="queryParams.requestMethod" :placeholder="$t('table.blackList.requestMethod')" class="filter-item search-item" />
-      <el-button class="filter-item" type="primary" plain @click="search">
+      <el-button class="filter-item" type="primary" @click="search">
         {{ $t('table.search') }}
       </el-button>
-      <el-button class="filter-item" type="warning" plain @click="reset">
+      <el-button class="filter-item" type="warning" @click="reset">
         {{ $t('table.reset') }}
       </el-button>
       <el-dropdown trigger="click" class="filter-item">

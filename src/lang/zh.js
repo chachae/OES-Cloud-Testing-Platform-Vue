@@ -171,6 +171,25 @@ export default {
       updateTime: '更新时间',
       teacherIds: '指派教师'
     },
+    answer: {
+      answerId: '答案编号',
+      deptName: '班级',
+      answerContent: '学生答案',
+      studentId: '学生编号',
+      studentName: '学生姓名',
+      paperId: '试卷编号',
+      termName: '学期',
+      paperName: '试卷名称',
+      questionId: '题目编号',
+      questionName: '题干信息',
+      rightKey: '正确答案',
+      status: '题目状态',
+      score: '题目得分',
+      createTime: '操作时间',
+      updateTime: '更新时间',
+      correct: '已批改',
+      notCorrect: '未批改'
+    },
     job: {
       beanName: 'Bean名称',
       methodName: '方法名称',
@@ -352,6 +371,7 @@ export default {
   },
   rules: {
     require: '不能为空',
+    range1to5: '长度在 1 到 5 个字符',
     range1to20: '长度在 1 到 20 个字符',
     range2to10: '长度在 2 到 10 个字符',
     range2to20: '长度在 2 到 20 个字符',
@@ -367,6 +387,7 @@ export default {
     usernameExist: '该用户名已存在',
     typeNameExist: '该试题类型名已存在',
     courseNameExist: '该课程名已存在',
+    scoreOverStep: '分数超出当前题目分值',
     termNameExist: '该学期名已存在',
     clientIdExist: '该Client ID已存在',
     roleNameExist: '该角色名称已存在',
