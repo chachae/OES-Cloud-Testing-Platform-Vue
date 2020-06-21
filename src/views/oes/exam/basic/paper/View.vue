@@ -57,7 +57,7 @@
       <el-col :xs="24" :sm="12">
         <div class="view-item">
           <i class="el-icon-star-on" /> <span>{{ $t('table.paper.paperScore') +'：' }}</span>
-          {{ paper.paperScore }}
+          {{ paper.paperScore }} 分
         </div>
       </el-col>
       <el-col :xs="24" :sm="12">
@@ -117,49 +117,43 @@
         </div>
       </el-col>
     </el-row>
-    <el-row v-for="questions in paper.paperQuestions" :key="questions.typeId" :gutter="10">
-      <el-col :xs="24" :sm="12">
+    <el-row v-for="(questions) in paper.paperQuestions" :key="questions.typeId" :gutter="10">
+      <el-col :xs="24" :sm="24">
         <div class="view-item">
-          <h3>{{ transQuestionType(questions.typeId) }}</h3>
+          <h3>{{ transQuestionType(questions.typeId) }}  ({{ calTypeScore(questions.typeId) }} 分)</h3>
         </div>
       </el-col>
-      <el-col v-for="(question,index) in questions.list" :key="question.questionId" :xs="24" :sm="24">
-        <div class="view-item">
-          <h4>{{ index + 1 +'：' }} {{ question.questionName }}</h4>
-        </div>
-        <!-- 选择题选项template -->
-        <template v-if="isChoice(questions.typeId)">
+      <el-row :gutter="10">
+        <el-col v-for="(question,questionIndex) in questions.list" :key="question.questionId" :xs="24" :sm="24">
           <div class="view-item">
-            A. {{ question.optionA }}
+            <h4>{{ questionIndex + 1 +'：' }} {{ question.questionName }}</h4>
           </div>
+          <!-- 选择题选项template -->
+          <template v-if="isChoice(questions.typeId)">
+            <div class="view-item">
+              A. {{ question.optionA }}
+            </div>
+            <div class="view-item">
+              B. {{ question.optionB }}
+            </div>
+            <div class="view-item">
+              C. {{ question.optionC }}
+            </div>
+            <div class="view-item">
+              D. {{ question.optionD }}
+            </div>
+            <div v-if="isMultiChoice() && this.question.optionE !== ''" class="view-item">
+              E. {{ question.optionE }}
+            </div>
+            <div v-if="isMultiChoice() && this.question.optionF !== ''" class="view-item">
+              F. {{ question.optionF }}
+            </div>
+          </template>
           <div class="view-item">
-            B. {{ question.optionB }}
+            {{ $t('table.question.rightKey') }} : {{ question.rightKey }}
           </div>
-          <div class="view-item">
-            C. {{ question.optionC }}
-          </div>
-          <div class="view-item">
-            D. {{ question.optionD }}
-          </div>
-          <div v-if="isMultiChoice() && this.question.optionE !== ''" class="view-item">
-            E. {{ question.optionE }}
-          </div>
-          <div v-if="isMultiChoice() && this.question.optionF !== ''" class="view-item">
-            F. {{ question.optionF }}
-          </div>
-          <br>
-        </template>
-        <div class="view-item">
-          <el-collapse accordion>
-            <el-collapse-item :title="$t('table.question.rightKey')">
-              <div>{{ question.rightKey }}</div>
-            </el-collapse-item>
-            <el-collapse-item :title="$t('table.question.analysis')">
-              <div>{{ checkAnalysis(question.analysis) }}</div>
-            </el-collapse-item>
-          </el-collapse>
-        </div>
-      </el-col>
+        </el-col>
+      </el-row>
     </el-row>
   </div>
 </template>
@@ -187,6 +181,7 @@ export default {
       screenWidth: 0,
       width: this.initWidth(),
       types: {},
+      paperType: {},
       paper: []
     }
   },
@@ -226,11 +221,19 @@ export default {
     setTypes(val) {
       this.types = { ...val }
     },
+    initPaperType(val) {
+      this.paperType = { ...val }
+    },
     goBack() {
       this.$emit('close')
     },
     transType(type) {
       return type === 1 ? this.$t('common.paperType.normal') : this.$t('common.paperType.imitate')
+    },
+    calTypeScore(typeId) {
+      for (const index in this.paperType) {
+        if (this.paperType[index].typeId === typeId) { return this.paperType[index].num * this.paperType[index].score }
+      }
     },
     transStatus(status) {
       return status === 1 ? this.$t('common.active') : this.$t('common.inactive')

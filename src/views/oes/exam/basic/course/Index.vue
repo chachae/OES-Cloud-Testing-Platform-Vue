@@ -107,18 +107,29 @@
       >
         <template slot-scope="{row}">
           <i
+            v-if="row.deptId === currentUser.deptId"
             v-hasPermission="['course:update']"
             class="el-icon-setting table-operation"
             style="color: #2db7f5;"
             @click="edit(row)"
           />
           <i
+            v-if="row.deptId === currentUser.deptId"
             v-has-permission="['course:delete']"
             class="el-icon-delete table-operation"
             style="color: #f50;"
             @click="singleDelete(row)"
           />
-          <el-link v-has-no-permission="['course:delete']" class="no-perm">
+          <el-link
+            v-if="row.deptId !== currentUser.deptId"
+            class="no-perm"
+          >
+            {{ $t('tips.noPermission') }}
+          </el-link>
+          <el-link
+            v-has-no-permission="['course:delete']"
+            class="no-perm"
+          >
             {{ $t('tips.noPermission') }}
           </el-link>
         </template>
@@ -167,6 +178,11 @@ export default {
         size: 10,
         num: 1
       }
+    }
+  },
+  computed: {
+    currentUser() {
+      return this.$store.state.account.user
     }
   },
   mounted() {

@@ -267,7 +267,12 @@ export default {
       this.dialog.isEditVisible = true
     },
     view(row) {
-      this.$refs.view.setPaper(row)
+      const paper = { ...row }
+      this.$get(`exam-basic/paper/type/options?paperId=${paper.paperId}`).then((r) => {
+        const paperType = { ...r.data.data }
+        this.$refs.view.initPaperType(paperType)
+      })
+      this.$refs.view.setPaper(paper)
       this.$refs.view.setTypes(this.types)
       this.paperViewShow = true
       this.paperIndexShow = false

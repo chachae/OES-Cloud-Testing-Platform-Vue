@@ -153,7 +153,10 @@ export default {
       nums: '题目数量',
       scores: '题目分值',
       termId: '学期编号',
-      termName: '学期'
+      termName: '学期信息',
+      unStart: '未开始',
+      between: '进行中',
+      end: '已结束'
     },
     term: {
       termId: '学期编号',

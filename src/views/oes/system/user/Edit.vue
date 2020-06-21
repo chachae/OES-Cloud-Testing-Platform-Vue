@@ -46,7 +46,6 @@
         <el-tree
           ref="deptTree"
           :data="deptTree"
-          :check-strictly="true"
           :default-checked-keys="user.deptIdsArr"
           show-checkbox
           accordion
