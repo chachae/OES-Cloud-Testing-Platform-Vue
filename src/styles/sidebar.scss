@@ -81,7 +81,7 @@
     }
     & .el-submenu .el-menu-item {
       min-width: $sideBarWidth !important;
-      background-color: $subMenuBg;
+      background-color: $subMenuBg !important;
       padding-left: 63px !important;
       &:hover {
         background-color: $subMenuHover !important;
@@ -107,6 +107,10 @@
 
         .svg-icon {
           margin-left: 20px;
+        }
+
+        .sub-el-icon {
+          margin-left: 19px;
         }
       }
     }

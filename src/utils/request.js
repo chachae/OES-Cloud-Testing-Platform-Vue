@@ -91,7 +91,7 @@ service.interceptors.response.use((config) => {
         })
         break
       default:
-        if (errorMessage === 'refresh token无效') {
+        if (errorMessage === '刷新令牌已过期，请重新登录') {
           MessageBox.alert('登录已过期，请重新登录', '温馨提示', {
             confirmButtonText: '确定',
             showClose: false,
