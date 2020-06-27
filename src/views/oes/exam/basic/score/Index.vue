@@ -2,20 +2,20 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input
-        v-model="queryParams.studentName"
-        :placeholder="$t('table.answer.studentName')"
+        v-model="queryParams.key"
+        :placeholder="$t('table.score.key')"
         class="filter-item search-item"
       />
       <el-input
         v-model="queryParams.deptName"
-        :placeholder="$t('table.answer.deptName')"
+        :placeholder="$t('table.score.deptName')"
         class="filter-item search-item"
       />
       <el-select
         v-model="queryParams.termId"
         class="filter-item search-item"
         value=""
-        :placeholder="$t('table.answer.termName')"
+        :placeholder="$t('table.score.termName')"
       >
         <el-option
           v-for="item in terms"
@@ -27,10 +27,10 @@
       <el-select
         v-model="queryParams.status"
         class="filter-item search-item"
-        :placeholder="$t('table.answer.status')"
+        :placeholder="$t('table.score.status')"
       >
-        <el-option value="1" :label="$t('table.answer.correct')" />
-        <el-option value="0" :label="$t('table.answer.notCorrect')" />
+        <el-option value="1" :label="$t('table.score.ok')" />
+        <el-option value="0" :label="$t('table.score.bad')" />
       </el-select>
       <el-button class="filter-item" type="primary" @click="search">
         {{ $t('table.search') }}
@@ -38,6 +38,21 @@
       <el-button class="filter-item" type="warning" @click="reset">
         {{ $t('table.reset') }}
       </el-button>
+      <el-dropdown
+        v-has-any-permission="['score:view','score:add','score:delete']"
+        trigger="click"
+        class="filter-item"
+      >
+        <el-button>
+          {{ $t('table.more') }}<i class="el-icon-arrow-down el-icon--right" />
+        </el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item v-has-permission="['score:delete']">{{ $t('table.delete') }}
+          </el-dropdown-item>
+          <el-dropdown-item v-has-permission="['score:export']" @click.native="exportExcel">{{ $t('table.export') }}
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
     </div>
     <el-table
       ref="table"
@@ -48,7 +63,7 @@
       style="width: 100%;"
     >
       <el-table-column
-        :label="$t('table.answer.paperName')"
+        :label="$t('table.score.paperName')"
         prop="paperName"
         :show-overflow-tooltip="true"
         align="center"
@@ -59,7 +74,18 @@
         </template>
       </el-table-column>
       <el-table-column
-        :label="$t('table.answer.termName')"
+        :label="$t('table.score.courseName')"
+        prop="times"
+        :show-overflow-tooltip="true"
+        align="center"
+        min-width="80px"
+      >
+        <template slot-scope="scope">
+          <span>{{ scope.row.courseName }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+        :label="$t('table.score.termName')"
         prop="termName"
         :show-overflow-tooltip="true"
         align="center"
@@ -70,75 +96,67 @@
         </template>
       </el-table-column>
       <el-table-column
-        :label="$t('table.answer.questionName')"
-        prop="questionName"
-        :show-overflow-tooltip="true"
-        align="center"
-        min-width="100px"
-      >
-        <template slot-scope="scope">
-          <span>{{ scope.row.questionName }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
         :label="$t('table.answer.studentName')"
         prop="studentName"
         :show-overflow-tooltip="true"
         align="center"
-        min-width="80px"
+        min-width="60px"
       >
         <template slot-scope="scope">
-          <span>{{ scope.row.studentName }}</span>
+          <span>{{ scope.row.fullName }}</span>
         </template>
       </el-table-column>
       <el-table-column
-        :label="$t('table.answer.status')"
+        :label="$t('table.score.status')"
         prop="status"
         :show-overflow-tooltip="true"
         align="center"
-        min-width="80px"
+        min-width="50px"
       >
         <template slot-scope="{row}">
           <el-tag :type="row.status | statusFilter">
-            {{ row.status === 1 ? $t('table.answer.correct'): $t('table.answer.notCorrect') }}
+            {{ row.status === 1 ? $t('table.score.ok'): $t('table.score.bad') }}
           </el-tag>
         </template>
       </el-table-column>
       <el-table-column
-        :label="$t('table.answer.answerContent')"
-        prop="answerContent"
+        :label="$t('table.score.times')"
+        prop="times"
         :show-overflow-tooltip="true"
         align="center"
         min-width="80px"
       >
         <template slot-scope="scope">
-          <span>{{ scope.row.answerContent }}</span>
+          <span>{{ !scope.row.times ? $t('table.score.hasNothing') :scope.row.times }}</span>
         </template>
       </el-table-column>
       <el-table-column
-        :label="$t('table.course.createTime')"
-        prop="createTime"
+        :label="$t('table.score.status')"
+        prop="status"
         :show-overflow-tooltip="true"
         align="center"
-        min-width="100px"
+        min-width="50px"
       >
-        <template slot-scope="scope">
-          <span>{{ scope.row.createTime }}</span>
+        <template slot-scope="{row}">
+          <el-switch
+            v-model="row.status"
+            :active-text="$t('table.score.ok')"
+            :inactive-text="$t('table.score.bad')"
+            :active-value="1"
+            :inactive-value="0"
+            @change="updateStatus(row)"
+          />
         </template>
       </el-table-column>
       <el-table-column
-        :label="$t('table.operation')"
+        :label="$t('table.score.studentScore')"
+        prop="times"
+        :show-overflow-tooltip="true"
         align="center"
-        min-width="110px"
-        class-name="small-padding fixed-width"
+        min-width="80px"
       >
-        <template slot-scope="{row}">
-          <i
-            v-hasPermission="['answer:update']"
-            class="el-icon-setting table-operation"
-            style="color: #2db7f5;"
-            @click="edit(row)"
-          />
+        <template slot-scope="scope">
+          <span>{{ scope.row.studentScore }} 分</span>
         </template>
       </el-table-column>
     </el-table>
@@ -149,40 +167,27 @@
       :limit.sync="pagination.size"
       @pagination="search"
     />
-    <course-edit
-      ref="edit"
-      :dialog-visible="dialog.isVisible"
-      :title="dialog.title"
-      @success="editSuccess"
-      @close="editClose"
-    />
   </div>
 </template>
 <script>
 
 import Pagination from '@/components/Pagination'
-import CourseEdit from './Edit'
 
 export default {
-  name: 'AnswerMange',
-  components: { Pagination, CourseEdit },
+  name: 'ScoreMange',
+  components: { Pagination },
   filters: {
     statusFilter(status) {
       const map = {
         1: 'success',
-        0: 'warning'
+        0: 'danger'
       }
       return map[status]
     }
   },
   data() {
     return {
-      dialog: {
-        isVisible: false,
-        title: ''
-      },
       tableKey: 0,
-      userViewVisible: false,
       loading: false,
       list: null,
       total: 0,
@@ -218,17 +223,20 @@ export default {
         })
       })
     },
-    edit(row) {
-      const answer = { ...row }
-      this.$refs.edit.setAnswer(answer)
-      this.dialog.title = this.$t('common.edit')
-      this.dialog.isVisible = true
+    updateStatus(row) {
+      this.$put(`exam-basic/score`, { scoreId: row.scoreId, status: row.status }).then(() => {
+        this.$message({
+          message: this.$t('tips.updateSuccess'),
+          type: 'success'
+        })
+        this.search()
+      })
     },
     fetch(params = {}) {
       params.pageSize = this.pagination.size
       params.pageNum = this.pagination.num
       this.loading = true
-      this.$get('exam-basic/answer', {
+      this.$get('exam-basic/score', {
         ...params
       }).then((r) => {
         const data = r.data.data
@@ -236,22 +244,6 @@ export default {
         this.list = data.rows
         this.loading = false
       })
-    },
-    viewClose() {
-      this.userViewVisible = false
-    },
-    editClose() {
-      this.dialog.isVisible = false
-    },
-    editSuccess() {
-      this.search()
-    },
-    singleDelete(row) {
-      this.$refs.table.toggleRowSelection(row, true)
-      this.batchDelete()
-    },
-    clearSelections() {
-      this.$refs.table.clearSelection()
     },
     search() {
       this.fetch({

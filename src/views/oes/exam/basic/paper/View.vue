@@ -1,10 +1,16 @@
 <template>
   <div class="paper-view">
-    <el-page-header :content="paper.paperName" :visible.sync="isVisible" @back="goBack" />
-    <el-divider />
-    <el-row :gutter="10">
+    <el-page-header style="padding: 1rem;" :content="paper.paperName" :visible.sync="isVisible" @back="goBack" />
+    <el-alert
+      style="padding: 1rem;"
+      title="请各位老师或试卷管理员，保管好试卷信息，切勿泄露试卷信息！️️"
+      type="warning"
+      show-icon
+      :closable="false"
+    />
+    <el-row :gutter="10" style="">
       <el-col :xs="24" :sm="12">
-        <div class="view-item">
+        <div class="paper-view">
           <h3>{{ $t('common.baseData') }}</h3>
         </div>
       </el-col>
@@ -110,51 +116,54 @@
       </el-col>
     </el-row>
     <el-divider />
-    <el-row :gutter="10">
-      <el-col :xs="24" :sm="12">
-        <div class="view-item">
-          <h3>{{ $t('common.questionData') }}</h3>
-        </div>
-      </el-col>
-    </el-row>
-    <el-row v-for="(questions) in paper.paperQuestions" :key="questions.typeId" :gutter="10">
-      <el-col :xs="24" :sm="24">
-        <div class="view-item">
-          <h3>{{ transQuestionType(questions.typeId) }}  ({{ calTypeScore(questions.typeId) }} 分)</h3>
-        </div>
-      </el-col>
+
+    <aside>
       <el-row :gutter="10">
-        <el-col v-for="(question,questionIndex) in questions.list" :key="question.questionId" :xs="24" :sm="24">
+        <el-col :xs="24" :sm="12">
           <div class="view-item">
-            <h4>{{ questionIndex + 1 +'：' }} {{ question.questionName }}</h4>
-          </div>
-          <!-- 选择题选项template -->
-          <template v-if="isChoice(questions.typeId)">
-            <div class="view-item">
-              A. {{ question.optionA }}
-            </div>
-            <div class="view-item">
-              B. {{ question.optionB }}
-            </div>
-            <div class="view-item">
-              C. {{ question.optionC }}
-            </div>
-            <div class="view-item">
-              D. {{ question.optionD }}
-            </div>
-            <div v-if="isMultiChoice() && this.question.optionE !== ''" class="view-item">
-              E. {{ question.optionE }}
-            </div>
-            <div v-if="isMultiChoice() && this.question.optionF !== ''" class="view-item">
-              F. {{ question.optionF }}
-            </div>
-          </template>
-          <div class="view-item">
-            {{ $t('table.question.rightKey') }} : {{ question.rightKey }}
+            <h3>{{ $t('common.questionData') }}</h3>
           </div>
         </el-col>
       </el-row>
-    </el-row>
+      <el-row v-for="(questions) in paper.paperQuestions" :key="questions.typeId" :gutter="10">
+        <el-col :xs="24" :sm="24">
+          <div class="view-item">
+            <h3>{{ transQuestionType(questions.typeId) }}  ({{ calTypeScore(questions.typeId) }} 分)</h3>
+          </div>
+        </el-col>
+        <el-row :gutter="10">
+          <el-col v-for="(question,questionIndex) in questions.list" :key="question.questionId" :xs="24" :sm="24">
+            <div class="view-item">
+              <h4>{{ questionIndex + 1 +'：' }} {{ question.questionName }}</h4>
+            </div>
+            <!-- 选择题选项template -->
+            <template v-if="isChoice(questions.typeId)">
+              <div class="view-item">
+                A. {{ question.optionA }}
+              </div>
+              <div class="view-item">
+                B. {{ question.optionB }}
+              </div>
+              <div class="view-item">
+                C. {{ question.optionC }}
+              </div>
+              <div class="view-item">
+                D. {{ question.optionD }}
+              </div>
+              <div v-if="isMultiChoice() && this.question.optionE !== ''" class="view-item">
+                E. {{ question.optionE }}
+              </div>
+              <div v-if="isMultiChoice() && this.question.optionF !== ''" class="view-item">
+                F. {{ question.optionF }}
+              </div>
+            </template>
+            <div class="view-item">
+              {{ $t('table.question.rightKey') }} : {{ question.rightKey }}
+            </div>
+          </el-col>
+        </el-row>
+      </el-row>
+    </aside>
   </div>
 </template>
 

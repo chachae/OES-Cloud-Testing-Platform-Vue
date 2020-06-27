@@ -112,7 +112,7 @@
               :inactive-text="$t('common.inactive')"
               :active-value="1"
               :inactive-value="0"
-              :disabled="row.isEnd"
+              :disabled="row.isStart"
               @change="updateStatus(row)"
             />
           </template>

@@ -2,6 +2,8 @@
   <div class="navbar">
     <hamburger id="hamburger-container" :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
 
+    <breadcrumb id="breadcrumb-container" class="breadcrumb-container" />
+
     <div class="right-menu">
       <template v-if="device!=='mobile'">
         <search id="header-search" class="right-menu-item" />
@@ -42,15 +44,17 @@
 </template>
 
 <script>
-import Hamburger from '@/components/Hamburger'
 // import LangSelect from '@/components/LangSelect'
+import Breadcrumb from '@/components/Breadcrumb'
 import db from '@/utils/localstorage'
+import Hamburger from '@/components/Hamburger'
 import Screenfull from '@/components/Screenfull'
 import Search from '@/components/HeaderSearch'
 
 export default {
   components: {
     Hamburger,
+    Breadcrumb,
     // LangSelect,
     Screenfull,
     Search

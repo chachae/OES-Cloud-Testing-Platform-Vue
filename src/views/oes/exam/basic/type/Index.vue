@@ -33,7 +33,6 @@
       fit
       style="width: 100%;"
       @selection-change="onSelectChange"
-      @sort-change="sortChange"
     >
       <el-table-column type="selection" align="center" width="40px" />
       <el-table-column
@@ -77,7 +76,6 @@
         :show-overflow-tooltip="true"
         align="center"
         min-width="150px"
-        sortable="custom"
       >
         <template slot-scope="scope">
           <span>{{ scope.row.createTime }}</span>
@@ -150,7 +148,6 @@ export default {
       list: null,
       total: 0,
       queryParams: {},
-      sort: {},
       selection: [],
       pagination: {
         size: 10,
@@ -261,24 +258,16 @@ export default {
     },
     search() {
       this.fetch({
-        ...this.queryParams,
-        ...this.sort
+        ...this.queryParams
       })
     },
     reset() {
       this.queryParams = {}
-      this.sort = {}
-      this.$refs.table.clearSort()
       this.$refs.table.clearFilter()
       this.search()
     },
     transTime(time) {
       return `${time} ms`
-    },
-    sortChange(val, a) {
-      this.sort.field = val.prop
-      this.sort.order = val.order
-      this.search()
     }
   }
 }

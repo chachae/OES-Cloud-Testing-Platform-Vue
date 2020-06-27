@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'oes-vue',
+  title: 'OES分布式在线考试系统',
   // 获取令牌时，请求头信息(Basic Base64.encode(client_id:client_secret))
   authorizationValue: 'Basic b2VzOjEyMzQ1Ng==',
   // 社交登录后台地址

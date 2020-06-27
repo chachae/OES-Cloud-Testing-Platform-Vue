@@ -30,10 +30,13 @@
       <el-form-item
         :label="$t('table.answer.answerContent')"
         prop="answerContent"
-        type="textarea"
-        :autosize="{ minRows: 1, maxRows: 6}"
       >
-        <el-input v-model="answer.answerContent" :readonly="true" />
+        <el-input
+          v-model="answer.answerContent"
+          :readonly="true"
+          type="textarea"
+          :autosize="{ minRows: 1, maxRows: 6}"
+        />
       </el-form-item>
       <el-form-item :label="$t('table.answer.score')" prop="score">
         <el-input

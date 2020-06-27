@@ -193,6 +193,24 @@ export default {
       correct: '已批改',
       notCorrect: '未批改'
     },
+    score: {
+      scoreId: '分数编号',
+      key: '姓名或学号',
+      studentScore: '成绩',
+      studentId: '学生编号',
+      times: '考试用时',
+      paperName: '试卷名称',
+      paperScore: '试卷总分',
+      createTime: '操作时间',
+      updateTime: '更新时间',
+      courseName: '课程',
+      termName: '学期',
+      deptName: '班级或部门',
+      status: '成绩状态',
+      ok: '有效',
+      bad: '无效',
+      hasNothing: '暂无'
+    },
     job: {
       beanName: 'Bean名称',
       methodName: '方法名称',
@@ -233,6 +251,28 @@ export default {
       perm: '权限',
       createTime: '创建时间',
       password: '密码'
+    },
+    exam: {
+      step1: '步骤 1',
+      step2: '步骤 2',
+      step3: '步骤 3',
+      step4: '步骤 4',
+      readPledge: '点击"考试承诺书"阅读承若书后完成第一步任务',
+      checkDevice: '点击"检测设备"进行考前设备检测',
+      pledgeTips: '考试承诺书',
+      tips: '考试温馨提示',
+      pledge: {
+        a: '期末考试将至，为创造诚信、公平、公正的考试环境，我班全体同学承诺如下：',
+        b: '一、主动自愿签订诚信考试承诺书，严格遵照承诺书上承诺去准备每一场考试，杜绝考试作弊行为，做诚实守信的学生！',
+        c: '二、正确认识考试对评价自己的重要性。充分利用个人时间，认真复习，满怀信心地迎接考试。',
+        d: '三、严格按照学院《考试规则》认真复习每一门功课，精心准备每一场考试，考出自己真实水平。做到我班期末考试“零作弊、零违纪”。',
+        e: '四、尊重每一位监考老师，严格遵守考试、考场规则，杜绝一切考试作弊行为。',
+        f: '五、树立与不良风气作斗争的勇气和决心，敢于检举揭发考试作弊行为。'
+      },
+      hasSubmit: '你已经参加过本场考试，无法再次进入',
+      concurrent: '提交速度过快',
+      description: '本在线考试系统会不定时监控考生的考试动态和考生的作答行为，不限于动态人脸识别、鼠标偏移检测等。请同学们务必遵守诚信考试' +
+        '规约，切勿有作弊的念头，以免被系统认定为作弊行为而引起不必要的后果，系统会强制提交存在作弊行为考生的试卷，因此，请同学们务必诚信作答。'
     },
     routeLog: {
       tips: '网关转发请求日志，这些为未被限流或黑名单规则拦截的请求',
@@ -326,7 +366,7 @@ export default {
     sidebarLogo: '侧边栏 Logo'
   },
   system: {
-    title: 'OES 在线考试系统'
+    title: 'OES 在线考试系统 V3'
   },
   tips: {
     usernameShouldNotBeEmpty: '用户名不能为空',
@@ -339,6 +379,7 @@ export default {
     createSuccess: '新增成功',
     updateSuccess: '修改成功',
     deleteSuccess: '删除成功',
+    noPledgeSelected: '请先阅读考试承诺书并勾选"我已阅读"',
     noDataSelected: '请先选择需要操作的数据',
     containDefaultTypeId: '包含默认试题类型，操作已取消',
     confirmDelete: '选中数据将被永久删除, 是否继续？',
