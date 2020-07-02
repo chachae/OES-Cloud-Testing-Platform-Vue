@@ -21,6 +21,7 @@
         <el-button>
           {{ $t('table.more') }}<i class="el-icon-arrow-down el-icon--right" />
         </el-button>
+        <!-- 工具条 -->
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item v-has-permission="['user:add']" @click.native="add">{{ $t('table.add') }}</el-dropdown-item>
           <el-dropdown-item v-has-permission="['user:delete']" @click.native="batchDelete">{{ $t('table.delete') }}</el-dropdown-item>
@@ -29,7 +30,7 @@
         </el-dropdown-menu>
       </el-dropdown>
     </div>
-
+    <!-- 表单 -->
     <el-table
       ref="table"
       :key="tableKey"
@@ -96,7 +97,9 @@
         </template>
       </el-table-column>
     </el-table>
+    <!-- 分页 -->
     <pagination v-show="total>0" :total="total" :page.sync="pagination.num" :limit.sync="pagination.size" @pagination="search" />
+    <!-- 编辑 -->
     <user-edit
       ref="edit"
       :dialog-visible="dialog.isVisible"
@@ -104,6 +107,7 @@
       @success="editSuccess"
       @close="editClose"
     />
+    <!-- 查看 -->
     <user-view
       ref="view"
       :dialog-visible="userViewVisible"
@@ -116,11 +120,13 @@
 import Pagination from '@/components/Pagination'
 import UserEdit from './Edit'
 import UserView from './View'
+import UserAPI from '@/api/system/user'
 
 export default {
   name: 'UserManage',
   components: { Pagination, UserEdit, UserView },
   filters: {
+    // 性别 tag 转换
     sexFilter(status) {
       const map = {
         0: '',
@@ -129,6 +135,7 @@ export default {
       }
       return map[status]
     },
+    // 状态 tag 转换
     statusFilter(status) {
       const map = {
         0: 'danger',
@@ -166,6 +173,7 @@ export default {
     this.fetch()
   },
   methods: {
+    // 转换性别数字表示
     transSex(sex) {
       switch (sex) {
         case '0':
@@ -207,6 +215,7 @@ export default {
       this.$refs.table.clearFilter()
       this.search()
     },
+    // 导出用户数据的 Excel 文档
     exportExcel() {
       this.$download('system/user/excel', {
         pageSize: this.pagination.size,
@@ -214,10 +223,12 @@ export default {
         ...this.queryParams
       }, `user_${new Date().getTime()}.xlsx`)
     },
+    // 打开增加用户模态框
     add() {
       this.dialog.title = this.$t('common.add')
       this.dialog.isVisible = true
     },
+    // 用户密码重置
     resetPassword() {
       if (!this.selection.length) {
         this.$message({
@@ -235,9 +246,7 @@ export default {
         this.selection.forEach((u) => {
           userNames.push(u.username)
         })
-        this.$put('system/user/password/reset', {
-          usernames: userNames.join(',')
-        }).then(() => {
+        UserAPI.resetPassword(userNames).then(() => {
           this.$message({
             message: this.$t('tips.resetPasswordSuccess'),
             type: 'success'
@@ -248,10 +257,12 @@ export default {
         this.clearSelections()
       })
     },
+    // 单个删除
     singleDelete(row) {
       this.$refs.table.toggleRowSelection(row, true)
       this.batchDelete()
     },
+    // 批量删除
     batchDelete() {
       if (!this.selection.length) {
         this.$message({
@@ -290,9 +301,14 @@ export default {
     clearSelections() {
       this.$refs.table.clearSelection()
     },
+    view(row) {
+      this.$refs.view.setUser(row)
+      this.userViewVisible = true
+    },
+    // 删除用户
     delete(userIds) {
       this.loading = true
-      this.$delete(`system/user/${userIds}`).then(() => {
+      UserAPI.del(userIds).then(() => {
         this.$message({
           message: this.$t('tips.deleteSuccess'),
           type: 'success'
@@ -300,17 +316,14 @@ export default {
         this.search()
       })
     },
-    view(row) {
-      this.$refs.view.setUser(row)
-      this.userViewVisible = true
-    },
+    // 编辑用户
     edit(row) {
       let roleId = []
       if (row.roleId && typeof row.roleId === 'string') {
         roleId = row.roleId.split(',')
         row.roleId = roleId
       }
-      this.$get(`system/user/${row.userId}`).then((r) => {
+      UserAPI.get(row.userId).then((r) => {
         row.deptIds = r.data.data
         this.$refs.edit.setUser(row)
         this.dialog.title = this.$t('common.edit')
@@ -325,9 +338,7 @@ export default {
         params.createTimeTo = this.queryParams.timeRange[1]
       }
       this.loading = true
-      this.$get('system/user', {
-        ...params
-      }).then((r) => {
+      UserAPI.page('system/user').then((r) => {
         const data = r.data.data
         this.total = data.total
         this.list = data.rows

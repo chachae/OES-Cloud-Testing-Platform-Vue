@@ -28,7 +28,7 @@ export default {
       'rgb(114, 46, 209)'
     ],
     color: db.get('COLOR', 'rgb(24, 144, 255)'),
-    theme: '#1890FF'
+    theme: '#409EFF'
   },
   mutations: {
     toggleSidebar: state => {

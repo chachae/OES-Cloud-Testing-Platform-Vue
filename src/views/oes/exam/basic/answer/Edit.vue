@@ -39,13 +39,12 @@
         />
       </el-form-item>
       <el-form-item :label="$t('table.answer.score')" prop="score">
-        <el-input
+        <el-input-number
           v-model="answer.score"
+          :min="1"
           :readonly="answer.status === 1"
-          maxlength="3"
-        >
-          <template slot="append">分</template>
-        </el-input>
+          :max="100"
+        />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">

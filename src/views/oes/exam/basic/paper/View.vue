@@ -117,53 +117,57 @@
     </el-row>
     <el-divider />
 
-    <aside>
+    <div class="paper-view">
       <el-row :gutter="10">
         <el-col :xs="24" :sm="12">
-          <div class="view-item">
+          <div class="paper-view">
             <h3>{{ $t('common.questionData') }}</h3>
           </div>
         </el-col>
       </el-row>
-      <el-row v-for="(questions) in paper.paperQuestions" :key="questions.typeId" :gutter="10">
-        <el-col :xs="24" :sm="24">
-          <div class="view-item">
-            <h3>{{ transQuestionType(questions.typeId) }}  ({{ calTypeScore(questions.typeId) }} 分)</h3>
-          </div>
+      <el-row :gutter="10">
+        <el-col v-for="(questions) in paper.paperQuestions" :key="questions.typeId" style="padding-bottom: 1rem" :xs="24" :sm="24">
+          <el-card class="box-card" style="background-color: #eef1f6; padding: 1rem;">
+            <el-col :xs="24" :sm="24">
+              <div class="view-item">
+                <h3>{{ transQuestionType(questions.typeId) }}  ({{ calTypeScore(questions.typeId) }} 分)</h3>
+              </div>
+            </el-col>
+            <el-row :gutter="10">
+              <el-col v-for="(question,questionIndex) in questions.list" :key="question.questionId" :xs="24" :sm="24">
+                <div class="view-item">
+                  <h4>{{ questionIndex + 1 +'：' }} {{ question.questionName }}</h4>
+                </div>
+                <!-- 选择题选项template -->
+                <template v-if="isChoice(questions.typeId)">
+                  <div class="view-item">
+                    A. {{ question.optionA }}
+                  </div>
+                  <div class="view-item">
+                    B. {{ question.optionB }}
+                  </div>
+                  <div class="view-item">
+                    C. {{ question.optionC }}
+                  </div>
+                  <div class="view-item">
+                    D. {{ question.optionD }}
+                  </div>
+                  <div v-if="isMultiChoice() && this.question.optionE !== ''" class="view-item">
+                    E. {{ question.optionE }}
+                  </div>
+                  <div v-if="isMultiChoice() && this.question.optionF !== ''" class="view-item">
+                    F. {{ question.optionF }}
+                  </div>
+                </template>
+                <div class="view-item">
+                  {{ $t('table.question.rightKey') }} : {{ question.rightKey }}
+                </div>
+              </el-col>
+            </el-row>
+          </el-card>
         </el-col>
-        <el-row :gutter="10">
-          <el-col v-for="(question,questionIndex) in questions.list" :key="question.questionId" :xs="24" :sm="24">
-            <div class="view-item">
-              <h4>{{ questionIndex + 1 +'：' }} {{ question.questionName }}</h4>
-            </div>
-            <!-- 选择题选项template -->
-            <template v-if="isChoice(questions.typeId)">
-              <div class="view-item">
-                A. {{ question.optionA }}
-              </div>
-              <div class="view-item">
-                B. {{ question.optionB }}
-              </div>
-              <div class="view-item">
-                C. {{ question.optionC }}
-              </div>
-              <div class="view-item">
-                D. {{ question.optionD }}
-              </div>
-              <div v-if="isMultiChoice() && this.question.optionE !== ''" class="view-item">
-                E. {{ question.optionE }}
-              </div>
-              <div v-if="isMultiChoice() && this.question.optionF !== ''" class="view-item">
-                F. {{ question.optionF }}
-              </div>
-            </template>
-            <div class="view-item">
-              {{ $t('table.question.rightKey') }} : {{ question.rightKey }}
-            </div>
-          </el-col>
-        </el-row>
       </el-row>
-    </aside>
+    </div>
   </div>
 </template>
 
@@ -287,5 +291,8 @@ export default {
         margin-left: 5px;
       }
     }
+  }
+  .box-card {
+    margin-bottom: 10px;
   }
 </style>

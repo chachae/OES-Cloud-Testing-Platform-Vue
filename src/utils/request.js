@@ -136,6 +136,9 @@ const request = {
     })
   },
   post(url, params) {
+    if (Object.is(params, undefined)) {
+      params = ''
+    }
     return service.post(url, params, {
       transformRequest: [(params) => {
         return tansParams(params)

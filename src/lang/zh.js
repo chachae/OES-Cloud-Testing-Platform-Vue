@@ -81,6 +81,16 @@ export default {
       webServerRedirectUri: '重定向地址',
       autoapprove: '自动授权'
     },
+    oss: {
+      qiniu: {
+        name: '文件名',
+        suffix: '类型',
+        bucket: '空间名称',
+        size: '文件大小',
+        type: '空间类型',
+        updateTime: '创建日期'
+      }
+    },
     systemLog: {
       username: '操作人',
       operation: '操作描述',
@@ -373,6 +383,7 @@ export default {
     passwordShouldNotBeEmpty: '密码不能为空',
     switchLanguageSuccess: '切换语言成功',
     loginSuccess: '登录成功',
+    syncSuccess: '同步成功',
     loginFail: '登录失败',
     defaultPassword: '用户的默认密码为123456',
     getDataFail: '获取数据失败',
@@ -423,6 +434,7 @@ export default {
     range3to20: '长度在 3 到 20 个字符',
     range4to10: '长度在 4 到 10 个字符',
     range6to20: '长度在 6 到 20 个字符',
+    range15to18: '长度在 15 到 18 个字符',
     range1to100: '长度在 1 到 100 个字符',
     range3to100: '长度在 3 到 100 个字符',
     range1to250: '长度在 3 到 250 个字符',
@@ -448,7 +460,8 @@ export default {
     invalidNum: '不是有效的值',
     invalidFutureTime: '请设置一个未来的时间',
     invalidEndTime: '开始时间不能晚于结束时间',
-    invalidSameDay: '请设置时间在同一天内'
+    invalidSameDay: '请设置时间在同一天内',
+    invalid2thIdCard: '请输入一个有效的身份证号码'
   },
   common: {
     system: '分布式微服务高校在线考试系统',
@@ -469,6 +482,9 @@ export default {
     confirm: '确定',
     cancel: '取消',
     add: '新增',
+    synchronized: '同步',
+    config: '配置',
+    upload: '上传',
     edit: '修改',
     yes: '是',
     no: '否',
@@ -535,6 +551,7 @@ export default {
     you: '您',
     total: '总数',
     visitTitle: '近十天系统访问记录',
+    identify: '身份认证',
     timeline: '登录时间',
     account: '账号信息',
     password: '个人密码',

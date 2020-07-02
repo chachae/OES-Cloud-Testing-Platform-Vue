@@ -7,6 +7,11 @@
         class="filter-item search-item"
       />
       <el-input
+        v-model="queryParams.paperName"
+        :placeholder="$t('table.paper.paperName')"
+        class="filter-item search-item"
+      />
+      <el-input
         v-model="queryParams.deptName"
         :placeholder="$t('table.score.deptName')"
         class="filter-item search-item"

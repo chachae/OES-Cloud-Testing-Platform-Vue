@@ -100,6 +100,7 @@
 import echarts from 'echarts'
 import { parseTime } from '@/utils'
 import countTo from 'vue-count-to'
+import dashboard from '@/api/dashboard'
 import resize from '@/components/Charts/mixins/resize'
 
 export default {
@@ -196,7 +197,7 @@ export default {
       return `${time}, ${this.user.username}, ${welcomeArr[index]}`
     },
     initIndexData: function() {
-      this.$get('system/user/index').then((r) => {
+      dashboard.get().then((r) => {
         const data = r.data.data
         this.todayIp = data.todayIp
         this.totalVisit = data.totalVisitCount

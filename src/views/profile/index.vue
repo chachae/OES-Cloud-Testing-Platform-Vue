@@ -8,6 +8,9 @@
         <el-col :span="16" :xs="24">
           <el-card>
             <el-tabs v-model="activeTab">
+              <el-tab-pane :label="$t('common.identify')" name="identify">
+                <identify :user="user" />
+              </el-tab-pane>
               <el-tab-pane :label="$t('common.timeline')" name="timeline">
                 <timeline />
               </el-tab-pane>
@@ -26,6 +29,7 @@
 </template>
 
 <script>
+import Identify from './components/Identify'
 import UserCard from './components/UserCard'
 import Password from './components/Password'
 import Timeline from './components/Timeline'
@@ -33,7 +37,7 @@ import Account from './components/Account'
 
 export default {
   name: 'Profile',
-  components: { UserCard, Password, Timeline, Account },
+  components: { Identify, UserCard, Password, Timeline, Account },
   data() {
     return {
       activeTab: ''
@@ -45,7 +49,7 @@ export default {
     }
   },
   created() {
-    this.activeTab = 'timeline'
+    this.activeTab = 'identify'
   }
 }
 </script>

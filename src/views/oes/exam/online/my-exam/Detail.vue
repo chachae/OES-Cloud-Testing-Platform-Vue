@@ -2,14 +2,14 @@
   <div class="paper-view" :visible.sync="isDetailShow">
     <el-page-header style="padding: 1rem;" :content="exam.paperName" :visible.sync="isDetailShow" @back="goBack" />
     <aside>
-      <span>
-        <el-link class="no-perm">
-          {{ $t('table.exam.tips') }}：{{ $t('table.exam.description') }}<br>
-          距离本场考试截止还有：{{ day }}天{{ hr }}:{{ min }}:{{ sec }}
-        </el-link>
-      </span>
+      <p>
+        {{ $t('table.exam.tips') }}：{{ $t('table.exam.description') }}
+      </p>
+      <p>
+        距离本场考试截止还有：{{ day }}天{{ hr }}:{{ min }}:{{ sec }}
+      </p>
     </aside>
-    <div v-if="checkShow" style="height: 200px" class="filter-container">
+    <div v-if="checkShow" style="height: 200px" class="paper-view">
       <el-steps direction="vertical" :active="active" finish-status="success">
         <el-step
           :title="$t('table.exam.step1')"
@@ -27,88 +27,86 @@
       <el-button v-if="active === 2" class="filter-item" type="success" plain @click="getExamPaper()">进入考试
       </el-button>
     </div>
-    <div>
-      <div v-show="paperShow">
-        <el-row :gutter="10">
-          <el-col v-for="questions in paperQuestion" :key="questions.typeId" :xs="24" :sm="24">
-            <el-card class="filter-item box-card">
-              <el-col :xs="24" :sm="24">
+    <div v-show="paperShow" class="paper-view">
+      <el-row :gutter="10">
+        <el-col v-for="questions in paperQuestion" :key="questions.typeId" style="padding-bottom: 1rem" :xs="24" :sm="24">
+          <el-card class="box-card" style="background-color: #eef1f6; padding: 1rem;">
+            <el-col :xs="24" :sm="24">
+              <div>
+                <h3>{{ transQuestionType(questions.typeId) }} ({{ calTypeScore(questions.typeId) }} 分)</h3>
+              </div>
+            </el-col>
+            <el-row :gutter="10">
+              <el-col v-for="(question,questionIndex) in questions.list" :key="question.questionId" :xs="24" :sm="24">
                 <div>
-                  <h3>{{ transQuestionType(questions.typeId) }} ({{ calTypeScore(questions.typeId) }} 分)</h3>
+                  <h4>{{ questionIndex + 1 +'：' }} {{ question.questionName }}</h4>
                 </div>
+                <!-- 判断template -->
+                <template v-if="isCheck(questions.typeId)">
+                  <el-radio-group v-model="question.answerContent" @change="updateChoice(question)">
+                    <el-radio label="1">正确</el-radio>
+                    <el-radio label="0">错误</el-radio>
+                  </el-radio-group>
+                </template>
+                <!-- 单项选择题选项template -->
+                <template v-if="isChoice(questions.typeId)">
+                  <el-radio-group v-model="question.answerContent" @change="updateChoice(question)">
+                    <div class="box-card">
+                      <el-radio label="A">A. {{ question.optionA }}</el-radio>
+                    </div>
+                    <div class="box-card">
+                      <el-radio label="B">B. {{ question.optionB }}</el-radio>
+                    </div>
+                    <div class="box-card">
+                      <el-radio label="C">C. {{ question.optionC }}</el-radio>
+                    </div>
+                    <div class="box-card">
+                      <el-radio label="D">D. {{ question.optionD }}</el-radio>
+                    </div>
+                  </el-radio-group>
+                </template>
+                <!-- 多项选择题选项template -->
+                <template v-if="isMultiChoice(questions.typeId)">
+                  <el-checkbox-group v-model="question.answerContent" @change="updateChoice(question)">
+                    <div class="box-card">
+                      <el-checkbox label="A">A. {{ question.optionA }}</el-checkbox>
+                    </div>
+                    <div class="box-card">
+                      <el-checkbox label="B">B. {{ question.optionB }}</el-checkbox>
+                    </div>
+                    <div class="box-card">
+                      <el-checkbox label="C">C. {{ question.optionC }}</el-checkbox>
+                    </div>
+                    <div class="box-card">
+                      <el-checkbox label="D">D. {{ question.optionD }}</el-checkbox>
+                    </div>
+                    <div v-if="isMultiChoice() && this.question.optionE !== ''">
+                      <div class="box-card">
+                        <el-checkbox label="E">E. {{ question.optionE }}</el-checkbox>
+                      </div>
+                    </div>
+                    <div v-if="isMultiChoice() && this.question.optionF !== ''">
+                      <div class="box-card">
+                        <el-checkbox label="F">F. {{ question.optionF }}</el-checkbox>
+                      </div>
+                    </div>
+                  </el-checkbox-group>
+                </template>
+                <template v-if="!isChoice(questions.typeId) && !isMultiChoice(questions.typeId) && !isCheck(questions.typeId)">
+                  <el-input
+                    v-model="question.answerContent"
+                    type="textarea"
+                    :autosize="{ minRows: 1, maxRows: 6}"
+                    :maxlength="400"
+                    :clearable="true"
+                    @change="updateChoice(question)"
+                  />
+                </template>
               </el-col>
-              <el-row :gutter="10">
-                <el-col v-for="(question,questionIndex) in questions.list" :key="question.questionId" :xs="24" :sm="24">
-                  <div>
-                    <h4>{{ questionIndex + 1 +'：' }} {{ question.questionName }}</h4>
-                  </div>
-                  <template v-if="!isChoice(questions.typeId) && !isMultiChoice(questions.typeId) && !isCheck(questions.typeId)">
-                    <el-input
-                      v-model="question.answerContent"
-                      type="textarea"
-                      :autosize="{ minRows: 1, maxRows: 6}"
-                      :maxlength="400"
-                      :clearable="true"
-                      @change="updateChoice(question)"
-                    />
-                  </template>
-                  <!-- 判断template -->
-                  <template v-if="isCheck(questions.typeId)">
-                    <el-radio-group v-model="question.answerContent" @change="updateChoice(question)">
-                      <el-radio label="1">正确</el-radio>
-                      <el-radio label="0">错误</el-radio>
-                    </el-radio-group>
-                  </template>
-                  <!-- 单项选择题选项template -->
-                  <template v-if="isChoice(questions.typeId)">
-                    <el-radio-group v-model="question.answerContent" @change="updateChoice(question)">
-                      <div class="box-card">
-                        <el-radio label="A">A. {{ question.optionA }}</el-radio>
-                      </div>
-                      <div class="box-card">
-                        <el-radio label="B">B. {{ question.optionB }}</el-radio>
-                      </div>
-                      <div class="box-card">
-                        <el-radio label="C">C. {{ question.optionC }}</el-radio>
-                      </div>
-                      <div class="box-card">
-                        <el-radio label="D">D. {{ question.optionD }}</el-radio>
-                      </div>
-                    </el-radio-group>
-                  </template>
-                  <!-- 多项选择题选项template -->
-                  <template v-if="isMultiChoice(questions.typeId)">
-                    <el-checkbox-group v-model="question.answerContent" @change="updateChoice(question)">
-                      <div class="box-card">
-                        <el-checkbox label="A">A. {{ question.optionA }}</el-checkbox>
-                      </div>
-                      <div class="box-card">
-                        <el-checkbox label="B">B. {{ question.optionB }}</el-checkbox>
-                      </div>
-                      <div class="box-card">
-                        <el-checkbox label="C">C. {{ question.optionC }}</el-checkbox>
-                      </div>
-                      <div class="box-card">
-                        <el-checkbox label="D">D. {{ question.optionD }}</el-checkbox>
-                      </div>
-                      <div v-if="isMultiChoice() && this.question.optionE !== ''">
-                        <div class="box-card">
-                          <el-checkbox label="E">E. {{ question.optionE }}</el-checkbox>
-                        </div>
-                      </div>
-                      <div v-if="isMultiChoice() && this.question.optionF !== ''">
-                        <div class="box-card">
-                          <el-checkbox label="F">F. {{ question.optionF }}</el-checkbox>
-                        </div>
-                      </div>
-                    </el-checkbox-group>
-                  </template>
-                </el-col>
-              </el-row>
-            </el-card>
-          </el-col>
-        </el-row>
-      </div>
+            </el-row>
+          </el-card>
+        </el-col>
+      </el-row>
       <div class="filter-container">
         <el-button v-show="paperShow" type="success" @click="submitExam()">提交</el-button>
       </div>
@@ -355,10 +353,6 @@ export default {
         margin-left: 5px;
       }
     }
-  }
-  .item {
-    display: flex;
-    flex-wrap: wrap;
   }
   .app-container {
     display: inline-block;
