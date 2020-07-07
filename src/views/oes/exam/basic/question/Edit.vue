@@ -43,6 +43,9 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item v-if="isChoice()" :label="$t('table.question.optionNum')" prop="optionNum">
+        <el-input-number v-model="optionNum" :min="3" :max="6" label="选项数量" />
+      </el-form-item>
       <el-form-item :label="$t('table.question.questionName')" prop="questionName">
         <el-input
           v-model=" question.questionName "
@@ -53,105 +56,59 @@
           maxlength="100"
         />
       </el-form-item>
-      <!-- 选项开始 -->
-      <template v-if="isChoice()">
-        <el-form-item :label="$t('table.question.optionA')" prop="optionA">
-          <el-input
-            v-model=" question.optionA "
-            placeholder=""
-            :readonly="question.consumption !== 0"
-            maxlength="20"
-            show-word-limit
-          />
-        </el-form-item>
+      <!-- 增加题目选项开始 -->
+      <template v-if="question.questionId === '' && isChoice()">
         <el-form-item
-          v-show="question.optionA !== ''"
-          :label="$t('table.question.optionB')"
-          prop="optionB"
-          show-word-limit
+          v-for="(item,index) in optionNum"
+          :key="index"
+          :label="choicesTitle[index]"
+          :prop="`options.${index}`"
+          :rules="rules.options"
         >
           <el-input
-            v-model=" question.optionB "
-            placeholder=""
-            :readonly="question.consumption !== 0"
-            maxlength="20"
+            v-model="question.options[index]"
+            :placeholder="choicesTitle[index]"
+            maxlength="100"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item
-          v-show="question.optionB !== ''"
-          :label="$t('table.question.optionC')"
-          prop="optionC"
-          maxlength="20"
-          show-word-limit
-        >
-          <el-input
-            v-model=" question.optionC "
-            placeholder=""
-            :readonly="question.consumption !== 0"
-            maxlength="20"
-            show-word-limit
-          />
-        </el-form-item>
-        <el-form-item
-          v-show="question.optionC !== ''"
-          :label="$t('table.question.optionD')"
-          prop="optionD"
-          maxlength="20"
-          show-word-limit
-        >
-          <el-input
-            v-model=" question.optionD "
-            placeholder=""
-            :readonly="question.consumption !== 0"
-            maxlength="20"
-            show-word-limit
-          />
-        </el-form-item>
-        <el-form-item
-          v-show="isMultiChoice() && question.optionD !== ''"
-          :label="$t('table.question.optionE')"
-          prop="optionE"
-          maxlength="20"
-          show-word-limit
-        >
-          <el-input
-            v-model=" question.optionE "
-            placeholder=""
-            :readonly="question.consumption !== 0"
-            maxlength="20"
-            show-word-limit
-          />
-        </el-form-item>
-        <el-form-item
-          v-show="isMultiChoice() && question.optionE !== ''"
-          :label="$t('table.question.optionF')"
-          prop="optionF"
-          maxlength="20"
-          show-word-limit
-        >
-          <el-input
-            v-model=" question.optionF "
-            placeholder=""
-            :readonly="question.consumption !== 0"
-            maxlength="20"
-            show-word-limit
-          />
-        </el-form-item>
-        <!-- 选项结束 -->
       </template>
-
+      <!-- 选项开始 -->
+      <template v-if="question.questionId !== '' && isChoice()">
+        <el-form-item
+          v-for="(item,index) in question.options"
+          :key="index"
+          :label="choicesTitle[index]"
+          :prop="`options.${index}`"
+          :rules="rules.options"
+        >
+          <el-input
+            v-model="question.options[index]"
+            :placeholder="choicesTitle[index]"
+            maxlength="100"
+            show-word-limit
+          />
+        </el-form-item>
+      </template>
       <el-form-item :label="$t('table.question.rightKey')" prop="rightKey">
         <!-- 答案框（分为选择题、判断题、其他） -->
         <!-- 选择 -->
         <template v-if="isChoice()">
-          <el-input
+          <el-select
+            v-if="question.options.length > 0"
             v-model="question.rightKey"
-            placeholder="多选题使用英文逗号隔开，如：A,B,C"
-            :readonly="question.consumption !== 0"
-            :maxlength="isMultiChoice() ? 10 : 1"
-            show-word-limit
-          />
+            value=""
+            placeholder=""
+            style="width:100%"
+            :multiple="isMultiChoice()"
+          >
+            <el-option
+              v-for="(item,index) in question.options"
+              :key="index"
+              :label="choicesTitle[index]"
+              :value="choices[index]"
+            />
+          </el-select>
         </template>
         <!-- 判断 -->
         <template v-else-if="isJudge()">
@@ -188,7 +145,7 @@
           type="textarea"
           :autosize="{ minRows: 3, maxRows: 6}"
           placeholder=""
-          maxlength="100"
+          maxlength="250"
           show-word-limit
         />
       </el-form-item>
@@ -234,9 +191,11 @@ export default {
       initFlag: false,
       courses: [],
       types: [],
+      optionNum: '',
       question: this.initQuestion(),
       judges: [{ value: '1', label: this.$t('common.question.right') }, { value: '0', label: this.$t('common.question.wrong') }],
       choices: ['A', 'B', 'C', 'D', 'E', 'F'],
+      choicesTitle: ['选项 A', '选项 B', '选项 C', '选项 D', '选项 E', '选项 F'],
       queryParams: {
         parentId: 0,
         roleId: 6
@@ -250,28 +209,11 @@ export default {
           { required: true, message: this.$t('rules.require'), trigger: 'blur' },
           { min: 3, max: 100, message: this.$t('rules.range3to100'), trigger: 'blur' }
         ],
-        rightKey: [
-          { required: true, message: this.$t('rules.require'), trigger: 'blur' },
-          { min: 1, max: 250, message: this.$t('rules.range1to250'), trigger: 'blur' },
-          { validator: (rule, value, callback) => {
-            if (value === null || value === '') {
-              callback()
-            } else if (this.question.typeId === 1 && this.choices.indexOf(value) === -1) {
-              callback(new Error(this.$t('rules.invalidChoice')))
-            } else if (this.question.typeId === 2) {
-              value.split(',').forEach((r) => {
-                if (this.choices.indexOf(r) === -1) callback(new Error(this.$t('rules.invalidChoice')))
-              })
-            } else {
-              callback()
-            }
-          }, trigger: 'blur'
-          }
-        ],
-        analysis: { min: 3, max: 100, message: this.$t('rules.range3to100'), trigger: 'blur' },
+        rightKey: { required: true, message: this.$t('rules.require'), trigger: 'blur' },
+        analysis: { min: 1, max: 250, message: this.$t('rules.range1to250'), trigger: 'blur' },
         difficult: { required: true, message: this.$t('rules.require'), trigger: 'blur' },
         typeId: { required: true, message: this.$t('rules.require'), trigger: 'blur' },
-        optionA: { required: true, message: this.$t('rules.require'), trigger: 'blur' }
+        options: [{ required: true, message: this.$t('rules.require'), trigger: 'blur' }]
       }
     }
   },
@@ -308,12 +250,7 @@ export default {
         analysis: '',
         fullName: '',
         difficult: 1,
-        optionA: '',
-        optionB: '',
-        optionC: '',
-        optionD: '',
-        optionE: '',
-        optionF: '',
+        options: [],
         consumption: 0,
         creatorId: '',
         rightKey: ''
@@ -331,6 +268,9 @@ export default {
     },
     close() {
       this.$emit('close')
+    },
+    printOptions() {
+      console.log(this.question.options)
     },
     setQuestion(val) {
       this.question = { ...val }
@@ -355,15 +295,11 @@ export default {
         if (valid) {
           this.buttonLoading = false
           if (!this.question.questionId) {
-            // create
-            if (this.question.typeId === 1) {
-              this.question.optionE = this.question.optionF = null
-            } else if (this.question.typeId !== 1 && this.question.typeId !== 2) {
-              this.question.optionA = this.question.optionB = this.question.optionC =
-                this.question.optionD = this.question.optionE = this.question.optionF = null
-            }
             this.question.creatorId = this.currentUser.userId
-            this.$post('exam-basic/question', { ...this.question }).then(() => {
+            this.$post('exam-basic/question',
+              { ...this.question,
+                options: JSON.stringify(this.question.options)
+              }).then(() => {
               this.buttonLoading = false
               this.isVisible = false
               this.$message({

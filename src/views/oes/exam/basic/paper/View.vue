@@ -1,30 +1,29 @@
 <template>
   <div class="paper-view">
     <el-page-header style="padding: 1rem;" :content="paper.paperName" :visible.sync="isVisible" @back="goBack" />
-    <el-alert
+    <aside
       style="padding: 1rem;"
-      title="请各位老师或试卷管理员，保管好试卷信息，切勿泄露试卷信息！️️"
       type="warning"
-      show-icon
-      :closable="false"
-    />
-    <el-row :gutter="10" style="">
+    >
+      请各位老师或平台管理员，务必对试卷信息进行严格保密，切勿泄露试卷内容！️️
+    </aside>
+    <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="paper-view">
-          <h3>{{ $t('common.baseData') }}</h3>
+          <h3>试卷信息</h3>
         </div>
       </el-col>
     </el-row>
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.paperId') +'：' }}</span>
-          {{ paper.paperId }}
+          <i class="el-icon-star-on" /> <span>试卷编号：</span>
+          NO.{{ paper.paperId }}
         </div>
       </el-col>
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.paperName') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>试卷名称：</span>
           {{ paper.paperName }}
         </div>
       </el-col>
@@ -32,13 +31,13 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.courseName') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>课程名称：</span>
           {{ paper.courseName }}
         </div>
       </el-col>
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.deptName') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>开课学院：</span>
           {{ paper.deptName }}
         </div>
       </el-col>
@@ -46,15 +45,15 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.minute') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>考试时长：</span>
           {{ paper.minute }} 分钟
         </div>
       </el-col>
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.deptNames') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>考试班级：</span>
           <el-tooltip placement="top" :content="paper.deptNames" :enterable="false">
-            <span>{{ paper.deptNames | ellipsis }}</span>
+            <span>{{ paper.deptNames }}</span>
           </el-tooltip>
         </div>
       </el-col>
@@ -62,13 +61,13 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.paperScore') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>卷面分值：</span>
           {{ paper.paperScore }} 分
         </div>
       </el-col>
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.type') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>试卷类型：</span>
           {{ transType(paper.type) }}
         </div>
       </el-col>
@@ -76,13 +75,13 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.startTime') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>开考时间：</span>
           {{ paper.startTime | parseTime('{y}-{m}-{d} {h}:{i}:{s}') }}
         </div>
       </el-col>
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.endTime') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>结束时间：</span>
           {{ paper.endTime }}
         </div>
       </el-col>
@@ -90,13 +89,13 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.status') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>试卷状态：</span>
           {{ transStatus(paper.status) }}
         </div>
       </el-col>
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.creatorName') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>出卷教师：</span>
           {{ paper.creatorName }}
         </div>
       </el-col>
@@ -104,19 +103,18 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.createTime') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>创建时间：</span>
           {{ paper.createTime }}
         </div>
       </el-col>
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-star-on" /> <span>{{ $t('table.paper.termName') +'：' }}</span>
+          <i class="el-icon-star-on" /> <span>学期信息：</span>
           {{ paper.termName }}
         </div>
       </el-col>
     </el-row>
     <el-divider />
-
     <div class="paper-view">
       <el-row :gutter="10">
         <el-col :xs="24" :sm="12">
@@ -126,41 +124,39 @@
         </el-col>
       </el-row>
       <el-row :gutter="10">
-        <el-col v-for="(questions) in paper.paperQuestions" :key="questions.typeId" style="padding-bottom: 1rem" :xs="24" :sm="24">
-          <el-card class="box-card" style="background-color: #eef1f6; padding: 1rem;">
+        <el-col
+          v-for="(questions) in paper.paperQuestions"
+          :key="questions.typeId"
+          style="padding-bottom: 1rem"
+          :xs="24"
+          :sm="24"
+        >
+          <el-card class="box-card" shadow="hover" style="background-color: #eef1f6; padding: 1rem;">
             <el-col :xs="24" :sm="24">
               <div class="view-item">
                 <h3>{{ transQuestionType(questions.typeId) }}  ({{ calTypeScore(questions.typeId) }} 分)</h3>
               </div>
             </el-col>
             <el-row :gutter="10">
-              <el-col v-for="(question,questionIndex) in questions.list" :key="question.questionId" :xs="24" :sm="24">
+              <el-col
+                v-for="(question,questionIndex) in questions.list"
+                :key="question.questionId"
+                :xs="24"
+                :sm="24"
+              >
                 <div class="view-item">
                   <h4>{{ questionIndex + 1 +'：' }} {{ question.questionName }}</h4>
                 </div>
                 <!-- 选择题选项template -->
                 <template v-if="isChoice(questions.typeId)">
-                  <div class="view-item">
-                    A. {{ question.optionA }}
-                  </div>
-                  <div class="view-item">
-                    B. {{ question.optionB }}
-                  </div>
-                  <div class="view-item">
-                    C. {{ question.optionC }}
-                  </div>
-                  <div class="view-item">
-                    D. {{ question.optionD }}
-                  </div>
-                  <div v-if="isMultiChoice() && this.question.optionE !== ''" class="view-item">
-                    E. {{ question.optionE }}
-                  </div>
-                  <div v-if="isMultiChoice() && this.question.optionF !== ''" class="view-item">
-                    F. {{ question.optionF }}
+                  <div v-for="(item,index) in question.options" :key="index">
+                    <div class="view-item">
+                      {{ getChoice(index) }}. {{ item }}
+                    </div>
                   </div>
                 </template>
                 <div class="view-item">
-                  {{ $t('table.question.rightKey') }} : {{ question.rightKey }}
+                  正确答案：{{ question.rightKey }}
                 </div>
               </el-col>
             </el-row>
@@ -172,17 +168,10 @@
 </template>
 
 <script>
+import PaperUtil from '@/utils/paper'
+
 export default {
   name: 'PaperView',
-  filters: {
-    ellipsis(value) {
-      if (!value) return '暂未指派班级'
-      if (value.length > 20) {
-        return value.slice(0, 20) + '......'
-      }
-      return value
-    }
-  },
   props: {
     dialogVisible: {
       type: Boolean,
@@ -253,18 +242,17 @@ export default {
     },
     transQuestionType(typeId) {
       for (const index in this.types) {
-        if (this.types[index].typeId === typeId) return this.types[index].typeName
+        if (this.types[index].typeId === typeId) { return this.types[index].typeName }
       }
-      return this.$t('common.unknown')
     },
     isChoice(typeId) {
-      return typeId === 1 || typeId === 2
+      return PaperUtil.isChoice(typeId)
     },
     isMultiChoice(typeId) {
-      return typeId === 2
+      return PaperUtil.isMulChoice(typeId)
     },
-    checkAnalysis(analysis) {
-      return analysis === null ? this.$t('common.noAnalysis') : analysis
+    getChoice(index) {
+      return PaperUtil.getChoice(index)
     }
   }
 }
@@ -291,8 +279,5 @@ export default {
         margin-left: 5px;
       }
     }
-  }
-  .box-card {
-    margin-bottom: 10px;
   }
 </style>

@@ -30,7 +30,7 @@
     <div v-show="paperShow" class="paper-view">
       <el-row :gutter="10">
         <el-col v-for="questions in paperQuestion" :key="questions.typeId" style="padding-bottom: 1rem" :xs="24" :sm="24">
-          <el-card class="box-card" style="background-color: #eef1f6; padding: 1rem;">
+          <el-card shadow="hover" class="box-card" style="background-color: #eef1f6; padding: 1rem;">
             <el-col :xs="24" :sm="24">
               <div>
                 <h3>{{ transQuestionType(questions.typeId) }} ({{ calTypeScore(questions.typeId) }} 分)</h3>
@@ -51,43 +51,19 @@
                 <!-- 单项选择题选项template -->
                 <template v-if="isChoice(questions.typeId)">
                   <el-radio-group v-model="question.answerContent" @change="updateChoice(question)">
-                    <div class="box-card">
-                      <el-radio label="A">A. {{ question.optionA }}</el-radio>
-                    </div>
-                    <div class="box-card">
-                      <el-radio label="B">B. {{ question.optionB }}</el-radio>
-                    </div>
-                    <div class="box-card">
-                      <el-radio label="C">C. {{ question.optionC }}</el-radio>
-                    </div>
-                    <div class="box-card">
-                      <el-radio label="D">D. {{ question.optionD }}</el-radio>
+                    <div v-for="(item,index) in question.options" :key="index">
+                      <div class="box-card">
+                        <el-radio :label="choices[index]">{{ choices[index] }}. {{ item }}</el-radio>
+                      </div>
                     </div>
                   </el-radio-group>
                 </template>
                 <!-- 多项选择题选项template -->
                 <template v-if="isMultiChoice(questions.typeId)">
                   <el-checkbox-group v-model="question.answerContent" @change="updateChoice(question)">
-                    <div class="box-card">
-                      <el-checkbox label="A">A. {{ question.optionA }}</el-checkbox>
-                    </div>
-                    <div class="box-card">
-                      <el-checkbox label="B">B. {{ question.optionB }}</el-checkbox>
-                    </div>
-                    <div class="box-card">
-                      <el-checkbox label="C">C. {{ question.optionC }}</el-checkbox>
-                    </div>
-                    <div class="box-card">
-                      <el-checkbox label="D">D. {{ question.optionD }}</el-checkbox>
-                    </div>
-                    <div v-if="isMultiChoice() && this.question.optionE !== ''">
+                    <div v-for="(item,index) in question.options" :key="index">
                       <div class="box-card">
-                        <el-checkbox label="E">E. {{ question.optionE }}</el-checkbox>
-                      </div>
-                    </div>
-                    <div v-if="isMultiChoice() && this.question.optionF !== ''">
-                      <div class="box-card">
-                        <el-checkbox label="F">F. {{ question.optionF }}</el-checkbox>
+                        <el-checkbox :label="choices[index]">{{ choices[index] }}. {{ item }}</el-checkbox>
                       </div>
                     </div>
                   </el-checkbox-group>
@@ -136,6 +112,7 @@ export default {
   },
   data() {
     return {
+      choices: ['A', 'B', 'C', 'D', 'E', 'F'],
       dialog: {
         isVisible: false,
         title: '',
@@ -207,8 +184,7 @@ export default {
     },
     // 获取试题数据
     getExamPaper() {
-      this.queryInfo.studentId = this.currentUser.userId
-      this.$get('exam-online/exam/one', { ...this.queryInfo }).then((r) => {
+      this.$get(`exam-online/exam/${this.queryInfo.paperId}`, { studentId: this.currentUser.userId }).then((r) => {
         this.paperQuestion = r.data.data
         this.paperQuestion.forEach((pq) => {
           // 对多选题的答案进行数组转换
@@ -357,9 +333,6 @@ export default {
   .app-container {
     display: inline-block;
     width: 98.6%;
-  }
-  .box-card {
-    margin-bottom: 10px;
   }
   .header {
     font-weight: 600;

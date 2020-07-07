@@ -64,6 +64,42 @@
       <el-col :xs="24" :sm="12">
         <div class="app-container">
           <el-table
+            :data="announce.list"
+            border
+            class="server-table"
+            style="width: 100%"
+          >
+            <el-table-column
+              prop="title"
+              label="公告标题"
+            />
+            <el-table-column
+              prop="createTime"
+              label="发布时间"
+            />
+            <el-table-column
+              :label="$t('table.operation')"
+              align="center"
+              class-name="small-padding fixed-width"
+            >
+              <template slot-scope="{row}">
+                <i class="el-icon-view table-operation" style="color: #87d068;" @click="view(row)" />
+              </template>
+            </el-table-column>
+          </el-table>
+          <!-- 分页 -->
+          <pagination
+            v-show="announce.total>0"
+            small
+            layout="total, prev, pager, next"
+            :total="announce.total"
+            :page.sync="pagination.num"
+            :limit.sync="pagination.size"
+            @pagination="searchAnnounce"
+          />
+        </div>
+        <div class="app-container">
+          <el-table
             :data="server"
             border
             class="server-table"
@@ -94,9 +130,17 @@
         </div>
       </el-col>
     </el-row>
+    <!-- 查看 -->
+    <announce-view
+      ref="view"
+      :dialog-visible="announceViewVisible"
+      @close="viewClose"
+    />
   </div>
 </template>
 <script>
+import Pagination from '@/components/Pagination'
+import AnnounceView from './View'
 import echarts from 'echarts'
 import { parseTime } from '@/utils'
 import countTo from 'vue-count-to'
@@ -105,7 +149,7 @@ import resize from '@/components/Charts/mixins/resize'
 
 export default {
   name: 'Dashboard',
-  components: { countTo },
+  components: { countTo, AnnounceView, Pagination },
   filters: {
     portFilter(v) {
       const map = {
@@ -120,42 +164,70 @@ export default {
     return {
       server: [{
         id: 1,
-        name: 'cloudx-auth',
-        port: '8101',
+        name: 'OES-Auth',
+        port: '9200',
         description: '微服务认证服务器'
       },
       {
         id: 2,
-        name: 'cloudx-Gateway',
+        name: 'OES-Gateway',
         port: '8301',
         description: '微服务网关'
       },
       {
         id: 3,
-        name: 'cloudx-Server-System',
-        port: '8201',
+        name: 'OES-Server-System',
+        port: '9501',
         description: '微服务子系统，系统模块'
       },
       {
         id: 4,
-        name: 'cloudx-Server-Test',
-        port: '8202',
+        name: 'OES-Server-Demo',
+        port: '9502',
         description: '微服务子系统，Demo模块'
       },
       {
         id: 5,
-        name: 'cloudx-Server-Job',
+        name: 'OES-Server-Exam-Online',
+        port: '9503',
+        description: '微服务子系统，在线考试模块'
+      },
+      {
+        id: 6,
+        name: 'OES-Server-Exam-Basic',
+        port: '9502',
+        description: '微服务子系统，在线考试核心模块'
+      },
+      {
+        id: 7,
+        name: 'OES-OSS-QiNiu',
+        port: '9700',
+        description: '七牛云对象存储'
+      },
+      {
+        id: 8,
+        name: 'OES-Server-Job',
         port: '8204',
         description: '微服务子系统，任务调度模块'
       },
       {
-        id: 7,
-        name: 'cloudx-TX-Manager',
+        id: 9,
+        name: 'OES-TX-Manager',
         port: '8501',
         description: '分布式事务控制中心'
       }
       ],
+      pagination: {
+        size: 5,
+        num: 1
+      },
+      queryParams: {},
+      announce: {
+        list: [],
+        total: 0
+      },
       welcomeMessage: '',
+      announceViewVisible: false,
       todayIp: 0,
       todayVisit: 0,
       totalVisit: 0,
@@ -173,6 +245,7 @@ export default {
   mounted() {
     this.welcomeMessage = this.welcome()
     this.initIndexData()
+    this.initAnnounce()
   },
   methods: {
     resolveIcon(icon) {
@@ -195,6 +268,36 @@ export default {
       ]
       const index = Math.floor((Math.random() * welcomeArr.length))
       return `${time}, ${this.user.username}, ${welcomeArr[index]}`
+    },
+    load() {
+      this.count += 2
+    },
+    searchAnnounce() {
+      this.initAnnounce({
+        ...this.queryParams
+      })
+    },
+    view(row) {
+      this.$get(`system/announce/content/${row.contentId}`).then((r) => {
+        const html = r.data.data
+        this.$refs.view.setAnnounce(row)
+        this.$refs.view.setContent(html)
+      })
+      this.announceViewVisible = true
+    },
+    initAnnounce(params = {}) {
+      params.pageSize = this.pagination.size
+      params.pageNum = this.pagination.num
+      this.loading = true
+      this.$get('system/announce/active', { ...params }).then((r) => {
+        const data = r.data.data
+        this.announce.total = data.total
+        this.announce.list = data.rows
+        this.loading = false
+      })
+    },
+    viewClose() {
+      this.announceViewVisible = false
     },
     initIndexData: function() {
       dashboard.get().then((r) => {

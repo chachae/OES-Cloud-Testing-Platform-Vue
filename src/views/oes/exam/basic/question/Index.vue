@@ -140,7 +140,6 @@
         <template slot-scope="{row}">
           <i v-hasPermission="['question:view']" class="el-icon-view table-operation" style="color: #87d068;" @click="view(row)" />
           <i
-            v-if="row.creatorId === currentUser.userId"
             v-hasPermission="['question:update']"
             class="el-icon-setting table-operation"
             style="color: #2db7f5;"

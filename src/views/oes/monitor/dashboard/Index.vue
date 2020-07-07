@@ -101,10 +101,6 @@ export default {
     display: inline-block;
     width: 98.6%;
   }
-  .box-card {
-    margin: 13px;
-    cursor: pointer;
-  }
   .header {
     font-weight: 600;
     font-size: 1rem;

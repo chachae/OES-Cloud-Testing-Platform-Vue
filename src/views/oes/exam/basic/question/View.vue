@@ -75,66 +75,18 @@
       </el-col>
     </el-row>
     <template v-if="isChoice()">
-      <el-row v-show=" isEmpty(question.optionA)" :gutter="10">
-        <el-col :xs="24" :sm="24">
-          <div class="view-item">
-            <i class="el-icon-collection-tag" /> <span>{{ $t('table.question.optionA') +'：' }}</span>
-            <el-tooltip placement="top" :content="question.optionA" :enterable="false">
-              <span>{{ question.optionA | ellipsis }}</span>
-            </el-tooltip>
-          </div>
-        </el-col>
-      </el-row>
-      <el-row v-if="isEmpty(question.optionB)" :gutter="10">
-        <el-col :xs="24" :sm="24">
-          <div class="view-item">
-            <i class="el-icon-collection-tag" /> <span>{{ $t('table.question.optionB') +'：' }}</span>
-            <el-tooltip placement="top" :content="question.optionB" :enterable="false">
-              <span>{{ question.optionB | ellipsis }}</span>
-            </el-tooltip>
-          </div>
-        </el-col>
-      </el-row>
-      <el-row v-if="isEmpty(question.optionC)" :gutter="10">
-        <el-col :xs="24" :sm="24">
-          <div class="view-item">
-            <i class="el-icon-collection-tag" /> <span>{{ $t('table.question.optionC') +'：' }}</span>
-            <el-tooltip placement="top" :content="question.optionC" :enterable="false">
-              <span>{{ question.optionC | ellipsis }}</span>
-            </el-tooltip>
-          </div>
-        </el-col>
-      </el-row>
-      <el-row v-if="isEmpty(question.optionD)" :gutter="10">
-        <el-col :xs="24" :sm="24">
-          <div class="view-item">
-            <i class="el-icon-collection-tag" /> <span>{{ $t('table.question.optionD') +'：' }}</span>
-            <el-tooltip placement="top" :content="question.optionD" :enterable="false">
-              <span>{{ question.optionD | ellipsis }}</span>
-            </el-tooltip>
-          </div>
-        </el-col>
-      </el-row>
-      <el-row v-if="isEmpty(question.optionE)" :gutter="10">
-        <el-col :xs="24" :sm="24">
-          <div class="view-item">
-            <i class="el-icon-collection-tag" /> <span>{{ $t('table.question.optionE') +'：' }}</span>
-            <el-tooltip placement="top" :content="question.optionE" :enterable="false">
-              <span>{{ question.optionE | ellipsis }}</span>
-            </el-tooltip>
-          </div>
-        </el-col>
-      </el-row>
-      <el-row v-if="isEmpty(question.optionF)" :gutter="10">
-        <el-col :xs="24" :sm="24">
-          <div class="view-item">
-            <i class="el-icon-collection-tag" /> <span>{{ $t('table.question.optionF') +'：' }}</span>
-            <el-tooltip placement="top" :content="question.optionF" :enterable="false">
-              <span>{{ question.optionF | ellipsis }}</span>
-            </el-tooltip>
-          </div>
-        </el-col>
-      </el-row>
+      <div v-for="(item,index) in question.options" :key="index">
+        <el-row :gutter="10">
+          <el-col :xs="24" :sm="24">
+            <div class="view-item">
+              <i class="el-icon-collection-tag" /> <span>{{ choicesTitle[index] +'：' }}</span>
+              <el-tooltip placement="top" :content="item" :enterable="false">
+                <span>{{ item | ellipsis }}</span>
+              </el-tooltip>
+            </div>
+          </el-col>
+        </el-row>
+      </div>
     </template>
     <el-row :gutter="10">
       <el-col :xs="24" :sm="24">
@@ -178,6 +130,7 @@ export default {
   },
   data() {
     return {
+      choicesTitle: ['选项 A', '选项 B', '选项 C', '选项 D', '选项 E', '选项 F'],
       screenWidth: 0,
       width: this.initWidth(),
       question: {}

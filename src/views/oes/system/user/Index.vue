@@ -338,7 +338,7 @@ export default {
         params.createTimeTo = this.queryParams.timeRange[1]
       }
       this.loading = true
-      UserAPI.page('system/user').then((r) => {
+      this.$get('system/user', { ...params }).then((r) => {
         const data = r.data.data
         this.total = data.total
         this.list = data.rows

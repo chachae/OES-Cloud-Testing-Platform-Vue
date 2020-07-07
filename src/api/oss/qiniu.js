@@ -1,8 +1,12 @@
 import request from '@/utils/request'
 import { Message } from 'element-ui'
-
+import { qiNiuUrl } from '@/settings'
 export function page(params) {
   return request.get('oss-qiniu/content', { ...params })
+}
+
+export function upload(params) {
+  return request.upload(qiNiuUrl, params)
 }
 
 export function del(id) {
@@ -37,4 +41,4 @@ export function updateConfig(qiNiuConfig) {
   return request.put('oss-qiniu/config', { ...qiNiuConfig })
 }
 
-export default { getConfig, updateConfig, page, del, synchronize, download }
+export default { getConfig, upload, updateConfig, page, del, synchronize, download }
