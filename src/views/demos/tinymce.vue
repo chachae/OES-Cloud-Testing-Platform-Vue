@@ -8,6 +8,9 @@
       <tinymce v-model="content" :height="300" />
     </div>
     <div class="editor-content" v-html="content" />
+    <el-button style="margin-top:10px;" type="primary" icon="el-icon-document" @click="getHtml">
+      Get HTML
+    </el-button>
   </div>
 </template>
 
@@ -20,6 +23,11 @@ export default {
   data() {
     return {
       content: ''
+    }
+  },
+  methods: {
+    getHtml() {
+      console.log(this.content)
     }
   }
 }
