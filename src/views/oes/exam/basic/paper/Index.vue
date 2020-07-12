@@ -1,5 +1,15 @@
 <template>
   <div class="app-container">
+    <div
+      v-show="paperIndexShow"
+      class="warning custom-block"
+      style="margin: 0 0 1.2rem 0"
+    >
+      <p class="custom-block-title">WARNING</p>
+      <p>
+        <strong>注意事项：</strong>请各位老师或平台管理员，务必对试卷信息进行严格保密，切勿在考试前泄露试卷内容！️️
+      </p>
+    </div>
     <div v-show="paperIndexShow">
       <div class="filter-container">
         <el-input

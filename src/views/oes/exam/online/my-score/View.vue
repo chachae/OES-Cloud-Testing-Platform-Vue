@@ -1,13 +1,10 @@
 <template>
   <div class="warn-view">
     <el-page-header style="padding: 1rem;" :content="score.paperName" :visible.sync="isVisible" @back="goBack" />
-    <aside
-      style="padding: 1rem;"
-    >
-      <p>
-        各位考生请注意，系统会周期性（3 ~ 6 个月）清除考生的答题数据，请及时查看错题，查漏补缺。
-      </p>
-    </aside>
+    <div class="warning custom-block">
+      <p class="custom-block-title">WARNING</p>
+      <p><strong>注意事项：</strong>系统会周期性（3 ~ 6 个月）清除考生的答题数据，请及时查看错题，查漏补缺。</p>
+    </div>
     <div class="warn-view">
       <el-row :gutter="10">
         <el-col

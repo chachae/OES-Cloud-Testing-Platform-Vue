@@ -3,6 +3,12 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="14">
         <div class="app-container">
+          <div class="warning custom-block" style="margin: 0 0 1.2rem 0">
+            <p class="custom-block-title">WARNING</p>
+            <p>
+              <strong>注意事项：</strong>系统角色的维护成本较高，请拥有角色维护权限的平台管理员务必谨慎操作。
+            </p>
+          </div>
           <div class="filter-container">
             <el-input v-model="queryParams.roleName" :placeholder="$t('table.role.roleName')" class="filter-item search-item" />
             <el-button class="filter-item" type="primary" @click="search">
@@ -88,7 +94,7 @@
             </el-form>
           </div>
         </el-card>
-        <el-card class="box-card">
+        <el-card class="box-card" style="margin-top: -2rem;">
           <el-row>
             <el-col :span="24" style="text-align: right">
               <el-button type="primary" :loading="buttonLoading" plain @click="submit">{{ role.roleId === '' ? this.$t('common.add') : this.$t('common.edit') }}</el-button>

@@ -1,12 +1,8 @@
 <template>
   <div class="app-container">
-    <aside>
-      <span>
-        <el-link type="primary">
-          基于 TinyMCE 富文深度定制组件，整合多样化 ToolBar 与七牛云图片上传
-        </el-link>
-      </span>
-    </aside>
+    <div class="tip custom-block" style="margin: -1.2rem 0 1.2rem 0">
+      <p>基于 TinyMCE 富文深度定制组件，整合多样化 ToolBar 与七牛云图片上传</p>
+    </div>
     <div>
       <el-form ref="form" :model="announce" :rules="rules">
         <el-form-item prop="title">
@@ -21,8 +17,11 @@
       <tinymce ref="content" v-model="announce.htmlContent" :height="300" />
     </div>
     <div class="editor-content" v-html="announce.htmlContent" />
-    <el-button style="margin-top:10px;" plain type="primary" @click="submitForm">
-      发布公告
+    <el-button style="margin-top:10px;" plain type="primary" @click="submitForm(1)">
+      立即发布
+    </el-button>
+    <el-button style="margin-top:10px;" plain type="info" @click="submitForm(0)">
+      存为草稿
     </el-button>
   </div>
 </template>
@@ -53,7 +52,7 @@ export default {
     }
   },
   methods: {
-    submitForm() {
+    submitForm(status) {
       this.$refs.form.validate((valid) => {
         if (!this.announce.htmlContent) {
           this.$alert('公告内容不能为空', '提示', {
@@ -64,6 +63,7 @@ export default {
         }
         if (valid) {
           this.announce.creatorName = this.user.fullName
+          this.announce.status = status
           this.$post('system/announce', { ...this.announce }).then((r) => {
             this.reset()
             this.$emit('success')

@@ -1,14 +1,17 @@
 <template>
   <div class="filter-container" style="display: block">
-    <div v-if="showVerifyTip">
-      <aside>
-        <span>
-          身份信息核验中，稍等片刻后刷新本页面以查看审核结果
-        </span>
-      </aside>
+    <div
+      v-if="showVerifyTip"
+      class="tip custom-block"
+    >
+      <p class="custom-block-title"><strong>提示</strong></p>
+      <p>身份信息核验中，稍等片刻后刷新本页面以查看审核结果</p>
     </div>
-    <div v-if="!showVerifyTip && hasIdentify" class="tip" style="display: block">
-      <p>身份信息核验已通过，核验结果如下：</p>
+    <div
+      v-if="!showVerifyTip && hasIdentify"
+      class="tip custom-block"
+    >
+      <p class="custom-block-title"><strong>身份信息核验已通过，核验结果如下：</strong></p>
       <p>真实姓名：{{ identify.name }}</p>
       <p>身份证号：{{ identify.num }}</p>
     </div>
@@ -25,7 +28,11 @@
         </el-form-item>
       </el-form>
     </div>
-    <div v-if="!hasIdentify" class="warning-tip" style="display: block">
+    <div
+      v-if="!hasIdentify"
+      class="warning custom-block"
+    >
+      <p class="custom-block-title"><strong>警告</strong></p>
       <p>个人身份信息暂未核验，请根据如下操作提示完成相关的身份核验工作以确保后续能正常访问系统和进行在线考试</p>
     </div>
     <div v-if="!hasIdentify" style="display: block">
@@ -48,7 +55,7 @@
           </div>
         </el-col>
         <el-col :xs="24" :sm="12">
-          <div class="view-item">
+          <div class="filter-container">
             <el-upload
               :before-upload="handleBeforeUpload"
               :on-success="handleFaceSuccess"
@@ -132,7 +139,7 @@ export default {
   },
   methods: {
     getUserIdentify() {
-      this.$get(`system/id-card/verify/${this.user.userId}`).then((r) => {
+      this.$get(`system/id-card/verify/my`).then((r) => {
         if (r.data.data) {
           const info = r.data.data
           this.identify = info

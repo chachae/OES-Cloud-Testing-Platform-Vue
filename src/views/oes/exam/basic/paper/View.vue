@@ -1,12 +1,15 @@
 <template>
   <div class="paper-view">
     <el-page-header style="padding: 1rem;" :content="paper.paperName" :visible.sync="isVisible" @back="goBack" />
-    <aside
-      style="padding: 1rem;"
-      type="warning"
+    <div
+      class="warning custom-block"
+      style="margin: 0 0 1.2rem 0"
     >
-      请各位老师或平台管理员，务必对试卷信息进行严格保密，切勿泄露试卷内容！️️
-    </aside>
+      <p class="custom-block-title">WARNING</p>
+      <p>
+        <strong>注意事项</strong>请各位老师或平台管理员，务必对试卷信息进行严格保密，切勿泄露试卷内容！️️
+      </p>
+    </div>
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="paper-view">

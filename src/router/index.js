@@ -17,7 +17,7 @@ const constRouter = [
     children: [
       {
         path: '/redirect/:path*',
-        component: (resolve) => require(['@/views/redirect/index'], resolve)
+        component: (resolve) => require(['@/views/redirect/Index'], resolve)
       }
     ]
   },
@@ -29,7 +29,7 @@ const constRouter = [
   {
     path: '/login',
     name: '登录页',
-    component: (resolve) => require(['@/views/login/index'], resolve)
+    component: (resolve) => require(['@/views/login/Index'], resolve)
   },
   {
     path: '/',
@@ -38,7 +38,7 @@ const constRouter = [
     children: [
       {
         path: 'dashboard',
-        component: (resolve) => require(['@/views/dashboard/index'], resolve),
+        component: (resolve) => require(['@/views/dashboard/Index'], resolve),
         name: 'Dashboard',
         meta: { title: 'dashboard', icon: 'dashboard', affix: true }
       }
@@ -52,7 +52,7 @@ const constRouter = [
     children: [
       {
         path: 'index',
-        component: (resolve) => require(['@/views/profile/index'], resolve),
+        component: (resolve) => require(['@/views/profile/Index'], resolve),
         name: 'Profile',
         meta: { title: 'profile', icon: 'user', noCache: true }
       }

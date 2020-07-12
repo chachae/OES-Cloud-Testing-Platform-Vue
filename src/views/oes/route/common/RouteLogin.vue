@@ -1,12 +1,12 @@
 <template>
   <div>
-    <span class="notify">
+    <div class="warning custom-block" style="padding: 1rem;">
       {{ $t('table.routeLogin.needLogin') }}
       <el-link id="route-login" type="primary" @click="dialogFormVisible = true">{{ $t('table.routeLogin.toLogin') }}</el-link>
       &nbsp;( {{ $t('table.routeLogin.tips') }}
       <el-link href="https://www.github.com/chachae/oes-web" target="_blank">https://www.github.com/chachae/oes-web</el-link>
       &nbsp;)
-    </span>
+    </div>
     <el-dialog
       :width="width"
       title=""

@@ -1,11 +1,13 @@
 <template>
   <div class="app-container">
-    <el-alert
-      style="margin: -1rem 0 1.2rem 0;padding: 1rem;"
-      :title="$t('table.routeUser.tips')"
-      type="info"
-      :closable="false"
-    />
+    <div
+      class="tip custom-block"
+      style="margin: -1.2rem 0 1.2rem 0"
+    >
+      <p>
+        {{ $t('table.routeUser.tips') }}
+      </p>
+    </div>
     <div class="filter-container">
       <el-input v-model="queryParams.username" :placeholder="$t('table.routeUser.username')" class="filter-item search-item" />
       <el-button class="filter-item" type="primary" @click="search">

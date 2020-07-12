@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-col v-for="(i, index) in pages" :key="index" :xs="12" :sm="6">
-      <el-card class="box-card" :style="{background: i.bgc}" @click.native="open(i.url)">
+      <el-card :style="{background: i.bgc,margin: `13px`,cursor: `pointer`}" @click.native="open(i.url)">
         <div class="text item">
           <div class="left">
             <img :src="resolveIcon(i.icon)" alt="">

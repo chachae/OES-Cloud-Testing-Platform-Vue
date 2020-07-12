@@ -3,6 +3,12 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="app-container">
+          <div class="warning custom-block" style="margin: 0 0 1.2rem 0">
+            <p class="custom-block-title">WARNING</p>
+            <p>
+              <strong>注意事项：</strong>系统菜单的维护成本较高，请拥有菜单维护权限的平台管理员务必谨慎操作。
+            </p>
+          </div>
           <div class="filter-container">
             <el-input v-model="menuName" :placeholder="$t('table.type.typeName')" class="filter-item search-item" />
             <el-button class="filter-item" type="primary" @click="search">

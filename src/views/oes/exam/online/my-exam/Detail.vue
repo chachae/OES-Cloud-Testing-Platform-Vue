@@ -1,109 +1,120 @@
 <template>
-  <div class="paper-view" :visible.sync="isDetailShow">
-    <el-page-header style="padding: 1rem;" :content="exam.paperName" :visible.sync="isDetailShow" @back="goBack" />
-    <aside>
-      <p>
-        {{ $t('table.exam.tips') }}：{{ $t('table.exam.description') }}
-      </p>
-      <p>
-        距离本场考试截止还有：{{ day }}天{{ hr }}:{{ min }}:{{ sec }}
-      </p>
-    </aside>
-    <div v-if="checkShow" style="height: 200px" class="paper-view">
-      <el-steps direction="vertical" :active="active" finish-status="success">
-        <el-step
-          :title="$t('table.exam.step1')"
-          :description="$t('table.exam.readPledge')"
-        />
-        <el-step
-          :title="$t('table.exam.step2')"
-          :description="$t('table.exam.checkDevice')"
-        />
-      </el-steps>
-    </div>
-    <div v-if="checkShow" class="paper-view">
-      <el-button class="filter-item" type="primary" plain @click="edit(dialog.isRead)">考试承诺书</el-button>
-      <el-button class="filter-item" type="primary" plain @click="next">检测设备</el-button>
-      <el-button v-if="active === 2" class="filter-item" type="success" plain @click="getExamPaper()">进入考试
-      </el-button>
-    </div>
-    <div v-show="paperShow" class="paper-view">
-      <el-row :gutter="10">
-        <el-col v-for="questions in paperQuestion" :key="questions.typeId" style="padding-bottom: 1rem" :xs="24" :sm="24">
-          <el-card shadow="hover" class="box-card" style="background-color: #eef1f6; padding: 1rem;">
-            <el-col :xs="24" :sm="24">
-              <div>
-                <h3>{{ transQuestionType(questions.typeId) }} ({{ calTypeScore(questions.typeId) }} 分)</h3>
-              </div>
-            </el-col>
-            <el-row :gutter="10">
-              <el-col v-for="(question,questionIndex) in questions.list" :key="question.questionId" :xs="24" :sm="24">
-                <div>
-                  <h4>{{ questionIndex + 1 +'：' }} {{ question.questionName }}</h4>
-                </div>
-                <!-- 判断template -->
-                <template v-if="isCheck(questions.typeId)">
-                  <el-radio-group v-model="question.answerContent" @change="updateChoice(question)">
-                    <el-radio label="1">正确</el-radio>
-                    <el-radio label="0">错误</el-radio>
-                  </el-radio-group>
-                </template>
-                <!-- 单项选择题选项template -->
-                <template v-if="isChoice(questions.typeId)">
-                  <el-radio-group v-model="question.answerContent" @change="updateChoice(question)">
-                    <div v-for="(item,index) in question.options" :key="index">
-                      <div class="box-card">
-                        <el-radio :label="choices[index]">{{ choices[index] }}. {{ item }}</el-radio>
-                      </div>
-                    </div>
-                  </el-radio-group>
-                </template>
-                <!-- 多项选择题选项template -->
-                <template v-if="isMultiChoice(questions.typeId)">
-                  <el-checkbox-group v-model="question.answerContent" @change="updateChoice(question)">
-                    <div v-for="(item,index) in question.options" :key="index">
-                      <div class="box-card">
-                        <el-checkbox :label="choices[index]">{{ choices[index] }}. {{ item }}</el-checkbox>
-                      </div>
-                    </div>
-                  </el-checkbox-group>
-                </template>
-                <template v-if="!isChoice(questions.typeId) && !isMultiChoice(questions.typeId) && !isCheck(questions.typeId)">
-                  <el-input
-                    v-model="question.answerContent"
-                    type="textarea"
-                    :autosize="{ minRows: 1, maxRows: 6}"
-                    :maxlength="400"
-                    :clearable="true"
-                    @change="updateChoice(question)"
-                  />
-                </template>
-              </el-col>
-            </el-row>
-          </el-card>
-        </el-col>
-      </el-row>
-      <div class="filter-container">
-        <el-button v-show="paperShow" type="success" @click="submitExam()">提交</el-button>
+  <div>
+    <div class="view-item" :visible.sync="isDetailShow">
+      <el-page-header style="padding: 1rem;" :content="exam.paperName" :visible.sync="isDetailShow" @back="goBack" />
+      <div class="warning custom-block">
+        <p class="custom-block-title">WARNING</p>
+        <p><strong>{{ $t('table.exam.tips') }}：</strong>{{ $t('table.exam.description') }}</p>
+        <p>距离本场考试截止还有：{{ day }}天{{ hr }}:{{ min }}:{{ sec }}</p>
       </div>
-      <el-divider />
+      <div v-if="checkShow" style="margin-top: 10px; margin-bottom: 20px" class="view-item">
+        <el-steps direction="vertical" style="height: 300px" :active="active" finish-status="success">
+          <el-step
+            title="步骤 1"
+            description="点击「考试承诺书」阅读承若书后完成第一步任务"
+          />
+          <el-step
+            title="步骤 2"
+            description="点击「检测设备」进行考前设备检测"
+          />
+          <el-step
+            title="步骤 3"
+            description="点击「活体人脸卡证匹配」进行考生身份核验"
+          />
+        </el-steps>
+      </div>
+      <div v-if="checkShow" class="view-item">
+        <el-button class="filter-item" type="primary" plain @click="edit(dialog.isRead)">考试承诺书</el-button>
+        <el-button class="filter-item" :disabled="active >= 2" type="primary" plain @click="next">检测设备</el-button>
+        <el-button class="filter-item" :disabled="active === 3" type="primary" plain @click="tracking">活体人脸卡证匹配</el-button>
+        <el-button v-if="active === 3" class="filter-item" type="success" plain @click="getExamPaper()">进入考试</el-button>
+      </div>
+      <div v-show="paperShow" class="view-item">
+        <el-row :gutter="10">
+          <el-col v-for="questions in paperQuestion" :key="questions.typeId" style="padding-bottom: 1rem" :xs="24" :sm="24">
+            <el-card shadow="hover" class="box-card" style="background-color: #eef1f6; padding: 1rem;">
+              <el-col :xs="24" :sm="24">
+                <div>
+                  <h3>{{ transQuestionType(questions.typeId) }} ({{ calTypeScore(questions.typeId) }} 分)</h3>
+                </div>
+              </el-col>
+              <el-row :gutter="10">
+                <el-col v-for="(question,questionIndex) in questions.list" :key="question.questionId" :xs="24" :sm="24">
+                  <div>
+                    <h4>{{ questionIndex + 1 +'：' }} {{ question.questionName }}</h4>
+                  </div>
+                  <!-- 判断template -->
+                  <template v-if="isCheck(questions.typeId)">
+                    <el-radio-group v-model="question.answerContent" @change="updateChoice(question)">
+                      <el-radio label="1">正确</el-radio>
+                      <el-radio label="0">错误</el-radio>
+                    </el-radio-group>
+                  </template>
+                  <!-- 单项选择题选项template -->
+                  <template v-if="isChoice(questions.typeId)">
+                    <el-radio-group v-model="question.answerContent" @change="updateChoice(question)">
+                      <div v-for="(item,index) in question.options" :key="index">
+                        <div class="box-card">
+                          <el-radio :label="choices[index]">{{ choices[index] }}. {{ item }}</el-radio>
+                        </div>
+                      </div>
+                    </el-radio-group>
+                  </template>
+                  <!-- 多项选择题选项template -->
+                  <template v-if="isMultiChoice(questions.typeId)">
+                    <el-checkbox-group v-model="question.answerContent" @change="updateChoice(question)">
+                      <div v-for="(item,index) in question.options" :key="index">
+                        <div class="box-card">
+                          <el-checkbox :label="choices[index]">{{ choices[index] }}. {{ item }}</el-checkbox>
+                        </div>
+                      </div>
+                    </el-checkbox-group>
+                  </template>
+                  <template v-if="!isChoice(questions.typeId) && !isMultiChoice(questions.typeId) && !isCheck(questions.typeId)">
+                    <el-input
+                      v-model="question.answerContent"
+                      type="textarea"
+                      :autosize="{ minRows: 1, maxRows: 6}"
+                      :maxlength="400"
+                      :clearable="true"
+                      @change="updateChoice(question)"
+                    />
+                  </template>
+                </el-col>
+              </el-row>
+            </el-card>
+          </el-col>
+        </el-row>
+        <div class="filter-container">
+          <el-button v-show="paperShow" type="success" @click="submitExam()">提交</el-button>
+        </div>
+        <el-divider />
+      </div>
+      <pledge
+        ref="pledge"
+        :dialog-visible="dialog.isVisible"
+        :title="dialog.title"
+        @isRead="editIsRead"
+        @close="editClose"
+      />
     </div>
-    <pledge
-      ref="pledge"
-      :dialog-visible="dialog.isVisible"
-      :title="dialog.title"
-      @isRead="editIsRead"
-      @close="editClose"
+    <Tracking
+      ref="tracking"
+      :dialog-visible="dialog.isTrackingVisible"
+      :type="dialog.type"
+      @close="trackingClose"
+      @success="trackingSuccess"
     />
   </div>
 </template>
 
 <script>
 import Pledge from './Pledge'
-
+import Tracking from './Tracking'
+import { checkCamera } from '@/utils/camera'
 export default {
   name: 'ExamDetail',
-  components: { Pledge },
+  components: { Pledge, Tracking },
   props: {
     dialogVisible: {
       type: Boolean,
@@ -114,6 +125,8 @@ export default {
     return {
       choices: ['A', 'B', 'C', 'D', 'E', 'F'],
       dialog: {
+        type: '',
+        isTrackingVisible: false,
         isVisible: false,
         title: '',
         isRead: false
@@ -276,6 +289,13 @@ export default {
       this.updateInfo.studentId = this.currentUser.userId
       this.updateInfo.paperId = this.exam.paperId
     },
+    trackingClose() {
+      this.dialog.isTrackingVisible = false
+    },
+    trackingSuccess() {
+      this.active = 3
+      this.dialog.isTrackingVisible = false
+    },
     alertExamTips() {
       this.$alert(this.$t('table.exam.description'), this.$t('table.exam.tips'), {
         confirmButtonText: this.$t('common.confirm'),
@@ -297,7 +317,26 @@ export default {
           type: 'warning'
         })
       } else {
-        if (this.active++ > 2) this.active = 2
+        if (!checkCamera()) {
+          this.$message({
+            message: '系统摄像头不可用',
+            type: 'error'
+          })
+        } else {
+          this.active = 2
+        }
+      }
+    },
+    tracking() {
+      if (!this.dialog.isRead) {
+        this.$message({
+          message: this.$t('tips.noPledgeSelected'),
+          type: 'warning'
+        })
+      } else {
+        this.dialog.type = 'tracking'
+        this.dialog.isTrackingVisible = true
+        this.$refs.tracking.initTracking()
       }
     }
   }

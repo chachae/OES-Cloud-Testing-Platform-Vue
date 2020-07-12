@@ -287,16 +287,29 @@ aside {
   margin-bottom: 10px;
 }
 
-.warning-tip{
-  padding: 8px 16px;
-  background-color: #fff6f7;
-  border-radius: 4px;
-  margin: 20px 0;
+.custom-block.warning .custom-block-title {
+  color: #b29400;
 }
 
-.tip{
-  padding: 8px 24px;
+.custom-block .custom-block-title {
+  font-weight: 600;
+}
+
+.custom-block.warning {
+  background-color: rgba(255,229,100,.3);
+  border-color: #e7c000;
+  color: #6b5900;
+}
+
+.custom-block.tip {
   background-color: #ecf8ff;
-  border-radius: 4px;
-  margin: 20px 0;
+  border-color: #50bfff;
+  color: #409EFF;
+}
+
+.custom-block.danger, .custom-block.tip, .custom-block.warning {
+  padding: .1rem 1.5rem;
+  border-left-width: .5rem;
+  border-left-style: solid;
+  margin: 1rem 0;
 }

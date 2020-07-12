@@ -50,8 +50,8 @@
         <template slot-scope="{row}">
           <el-switch
             v-model="row.status"
-            :active-text="$t('common.active')"
-            :inactive-text="$t('common.inactive')"
+            active-text="发布"
+            inactive-text="草稿"
             :active-value="1"
             :inactive-value="0"
             @change="updateStatus(row)"
