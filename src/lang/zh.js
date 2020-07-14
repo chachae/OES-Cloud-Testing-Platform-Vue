@@ -481,6 +481,7 @@ export default {
     config: '配置',
     upload: '上传',
     edit: '修改',
+    delete: '删除',
     yes: '是',
     no: '否',
     open: '开启',

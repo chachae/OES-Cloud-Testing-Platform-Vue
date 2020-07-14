@@ -6,8 +6,9 @@
 </template>
 
 <script>
-const echarts = require('echarts/lib/echarts')
-require('echarts/theme/macarons') // echarts theme
+import { getTop10 } from '@/api/oss/qiniu'
+import theme from '@/styles/echarts-theme.json' // echarts theme
+import echarts from 'echarts'
 import resize from '@/components/Charts/mixins/resize'
 
 export default {
@@ -31,21 +32,18 @@ export default {
   },
   methods: {
     initChart() {
-      this.$get('oss-qiniu/content/top10').then((r) => {
+      getTop10().then((r) => {
         this.list = r.data.data
         this.list.forEach((map) => {
           this.suffixs.push(map.name)
         })
 
-        this.chart = echarts.init(document.getElementById('top10files'), 'macarons')
+        this.chart = echarts.init(document.getElementById('top10files'), theme)
         this.chart.setOption({
           backgroundColor: '#FFF',
           tooltip: {
             trigger: 'item',
-            formatter: '{a} <br/>{b} : {c} ({d}%)',
-            textStyle: {
-              fontWeight: 'bold'
-            }
+            formatter: '{a} <br/>{b} : {c} ({d}%)'
           },
           legend: {
             orient: 'vertical',

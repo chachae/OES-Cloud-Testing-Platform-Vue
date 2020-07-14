@@ -5,6 +5,10 @@ export function page(params) {
   return request.get('oss-qiniu/content', { ...params })
 }
 
+export function getTop10() {
+  return request.get('oss-qiniu/content/top10')
+}
+
 export function upload(params) {
   return request.upload(qiNiuUrl, params)
 }

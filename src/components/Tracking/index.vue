@@ -18,7 +18,7 @@
         muted
       />
     </div>
-    <canvas v-show="flag === false" id="canvas1" width="600" height="600" />
+    <canvas v-show="canvasShow" id="canvas1" width="600" height="600" />
     <el-button plain type="primary" @click="resetTracking">刷新</el-button>
   </el-dialog>
 </template>
@@ -47,6 +47,7 @@ export default {
     return {
       width: this.initWidth(),
       trackerTask: '',
+      canvasShow: false,
       tracker: {},
       mediaStreamTrack: {},
       video: {},
@@ -95,6 +96,7 @@ export default {
       this.initTracking()
     },
     initTracking() {
+      this.flag = true
       // 使用 nextTick 才能获取 dialog 中的 dom 节点
       this.$nextTick(() => {
         const _this = this
@@ -112,15 +114,16 @@ export default {
             if (_this.flag) {
               _this.flag = false
               // 裁剪并绘制
+              this.canvasShow = true
               const canvasUpload = document.getElementById('canvas1')
               const contextUpload = canvasUpload.getContext('2d')
               contextUpload.drawImage(video, 0, 0, 600, 600)
               // 人脸 base64
               _this.base64Str = canvasUpload.toDataURL('image/jpeg')
+              this.canvasShow = false
               // 关闭摄像头
               _this.closeCamera()
               // 直接获取 base64 不显示画布可开启
-              _this.flag = true
               contextUpload.clearRect(0, 0, 600, 600)
               // 人脸对比
               _this.faceMatch()
@@ -186,12 +189,11 @@ export default {
           type: 'success'
         })
         this.$emit('success')
+      }).catch(() => {
+        this.resetTracking()
       })
     },
     close() {
-      this.flag = false
-      const canvas1 = document.getElementById('canvas1')
-      canvas1.remove()
       this.$emit('close')
     },
     reset() {

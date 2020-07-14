@@ -9,7 +9,7 @@
       <el-button class="filter-item" type="warning" @click="reset">
         {{ $t('table.reset') }}
       </el-button>
-      <el-dropdown v-has-any-permission="['user:delete']" trigger="click" class="filter-item">
+      <el-dropdown v-has-any-permission="['announce:delete']" trigger="click" class="filter-item">
         <el-button>
           {{ $t('table.more') }}<i class="el-icon-arrow-down el-icon--right" />
         </el-button>
@@ -66,6 +66,7 @@
       <el-table-column :label="$t('table.operation')" align="center" min-width="150px" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
           <i v-hasPermission="['announce:view']" class="el-icon-view table-operation" style="color: #87d068;" @click="view(row)" />
+          <i v-hasPermission="['announce:update']" class="el-icon-setting table-operation" style="color: #87d068;" @click="update(row)" />
           <i v-hasPermission="['announce:delete']" class="el-icon-delete table-operation" style="color: #f50;" @click="singleDelete(row)" />
           <el-link v-has-no-permission="['announce:view','announce:update','announce:delete']" class="no-perm">
             {{ $t('tips.noPermission') }}
@@ -187,6 +188,12 @@ export default {
         this.$refs.view.setContent(html)
       })
       this.announceViewVisible = true
+    },
+    update(row) {
+      this.$get(`system/announce/content/${row.contentId}`).then((r) => {
+        const content = r.data.data
+        this.$emit('update', row, content)
+      })
     },
     updateStatus(row) {
       this.$put(`system/announce/${row.announceId}`, { status: row.status }).then(() => {

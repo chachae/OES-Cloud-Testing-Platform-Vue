@@ -44,6 +44,7 @@
 </template>
 
 <script>
+import { getContent, pageActive } from '@/api/system/announce'
 import AnnounceView from './AnnounceView'
 import Pagination from '@/components/Pagination'
 export default {
@@ -76,7 +77,7 @@ export default {
       })
     },
     view(row) {
-      this.$get(`system/announce/content/${row.contentId}`).then((r) => {
+      getContent(row.contentId).then((r) => {
         const html = r.data.data
         this.$refs.view.setAnnounce(row)
         this.$refs.view.setContent(html)
@@ -87,7 +88,7 @@ export default {
       params.pageSize = this.pagination.size
       params.pageNum = this.pagination.num
       this.loading = true
-      this.$get('system/announce/active', { ...params }).then((r) => {
+      pageActive(params).then((r) => {
         const data = r.data.data
         this.announce.total = data.total
         this.announce.list = data.rows

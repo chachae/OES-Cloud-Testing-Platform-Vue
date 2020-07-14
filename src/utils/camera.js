@@ -1,17 +1,50 @@
-export function checkCamera() {
-  // 获取媒体属性，旧版本浏览器可能不支持mediaDevices，我们首先设置一个空对象
-  if (navigator.mediaDevices === undefined) {
-    navigator.mediaDevices = {}
+export function checkWebcam() {
+// 判断摄像头并调用
+  if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
+    return true
+  } else {
+    console.error('该平台没有摄像头设备')
+    return false
   }
-  // 一些浏览器实现了部分mediaDevices，我们不能只分配一个对象
-  // 使用getUserMedia，因为它会覆盖现有的属性。
-  // 这里，如果缺少getUserMedia属性，就添加它。
-  if (navigator.mediaDevices.getUserMedia === undefined) {
-    navigator.mediaDevices.getUserMedia = function(constraints) {
-      // 首先获取现存的getUserMedia(如果存在)
-      // 有些浏览器不支持，会返回错误信息，保持接口一致
-      return navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia
-    }
-  }
-  return true
 }
+//
+// // 访问用户媒体设备的兼容方法
+// function getUserMedia(constrains, success, error) {
+//   if (navigator.mediaDevices.getUserMedia) {
+//     // 最新标准API
+//     navigator.mediaDevices.getUserMedia(constrains)
+//       .then(success)
+//       .catch(error)
+//   } else if (navigator.webkitGetUserMedia) {
+//     // webkit内核浏览器
+//     navigator.webkitGetUserMedia(constrains)
+//       .then(success)
+//       .catch(error)
+//   } else if (navigator.mozGetUserMedia) {
+//     // Firefox浏览器
+//     navagator.mozGetUserMedia(constrains)
+//       .then(success)
+//       .catch(error)
+//   } else if (navigator.getUserMedia) {
+//     // 旧版API
+//     navigator.getUserMedia(constrains)
+//       .then(success)
+//       .catch(error)
+//   }
+// }
+//
+// // 成功的回调函数
+// function success(stream) {
+//   // 兼容webkit内核浏览器
+//   var CompatibleURL = window.URL || window.webkitURL
+//   // 将视频流设置为video元素的源
+//   video.src = CompatibleURL.createObjectURL(stream)
+//   // 播放视频
+//   video.play()
+// }
+//
+// // 异常的回调函数
+// function error(error) {
+//   // window.alert(error);
+//   console.log('访问用户媒体设备失败：', error.name, error.message)
+// }

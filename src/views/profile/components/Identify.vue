@@ -139,7 +139,7 @@ export default {
   },
   methods: {
     getUserIdentify() {
-      this.$get(`system/id-card/verify/my`).then((r) => {
+      this.$get(`system/id-card/verify/me`).then((r) => {
         if (r.data.data) {
           const info = r.data.data
           this.identify = info
@@ -187,7 +187,7 @@ export default {
       this.buttonLoading = true
       this.$refs.form.validate((valid) => {
         if (valid) {
-          this.$post('system/id-card/verify/check', { ...this.checkInfo }).then((r) => {
+          this.$post('system/id-card/verify/auth', { ...this.checkInfo }).then((r) => {
             if (r.data) {
               this.$message({
                 message: '身份信息一致，校验通过',

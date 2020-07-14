@@ -1,172 +1,164 @@
 <template>
   <div class="paper-view">
     <el-page-header style="padding: 1rem;" :content="paper.paperName" :visible.sync="isVisible" @back="goBack" />
-    <div
-      class="warning custom-block"
-      style="margin: 0 0 1.2rem 0"
-    >
+    <div class="warning custom-block">
       <p class="custom-block-title">WARNING</p>
       <p>
         <strong>注意事项</strong>请各位老师或平台管理员，务必对试卷信息进行严格保密，切勿泄露试卷内容！️️
       </p>
     </div>
     <el-row :gutter="10">
-      <el-col :xs="24" :sm="12">
-        <div class="paper-view">
-          <h3>试卷信息</h3>
-        </div>
+      <el-col :xs="24" :sm="24">
+        <el-card
+          shadow="never"
+          class="box-card"
+          style="background-color: #f8fafb;"
+        >
+          <div slot="header">
+            <h3>试卷信息</h3>
+          </div>
+          <el-row :gutter="10">
+            <el-col :xs="24" :sm="12">
+              <div class="view-item">
+                <i class="el-icon-star-on" /> <span>试卷编号：</span>
+                NO.{{ paper.paperId }}
+              </div>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <div class="view-item">
+                <i class="el-icon-star-on" /> <span>试卷名称：</span>
+                {{ paper.paperName }}
+              </div>
+            </el-col>
+          </el-row>
+          <el-row :gutter="10">
+            <el-col :xs="24" :sm="12">
+              <div class="view-item">
+                <i class="el-icon-star-on" /> <span>课程名称：</span>
+                {{ paper.courseName }}
+              </div>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <div class="view-item">
+                <i class="el-icon-star-on" /> <span>开课学院：</span>
+                {{ paper.deptName }}
+              </div>
+            </el-col>
+          </el-row>
+          <el-row :gutter="10">
+            <el-col :xs="24" :sm="12">
+              <div class="view-item">
+                <i class="el-icon-star-on" /> <span>考试时长：</span>
+                {{ paper.minute }} 分钟
+              </div>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <div class="view-item">
+                <i class="el-icon-star-on" /> <span>考试班级：</span>
+                <el-tooltip placement="top" :content="paper.deptNames" :enterable="false">
+                  <span>{{ paper.deptNames }}</span>
+                </el-tooltip>
+              </div>
+            </el-col>
+          </el-row>
+          <el-row :gutter="10">
+            <el-col :xs="24" :sm="12">
+              <div class="view-item">
+                <i class="el-icon-star-on" /> <span>卷面分值：</span>
+                {{ paper.paperScore }} 分
+              </div>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <div class="view-item">
+                <i class="el-icon-star-on" /> <span>试卷类型：</span>
+                {{ transType(paper.type) }}
+              </div>
+            </el-col>
+          </el-row>
+          <el-row :gutter="10">
+            <el-col :xs="24" :sm="12">
+              <div class="view-item">
+                <i class="el-icon-star-on" /> <span>开考时间：</span>
+                {{ paper.startTime | parseTime('{y}-{m}-{d} {h}:{i}:{s}') }}
+              </div>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <div class="view-item">
+                <i class="el-icon-star-on" /> <span>结束时间：</span>
+                {{ paper.endTime }}
+              </div>
+            </el-col>
+          </el-row>
+          <el-row :gutter="10">
+            <el-col :xs="24" :sm="12">
+              <div class="view-item">
+                <i class="el-icon-star-on" /> <span>试卷状态：</span>
+                {{ transStatus(paper.status) }}
+              </div>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <div class="view-item">
+                <i class="el-icon-star-on" /> <span>出卷教师：</span>
+                {{ paper.creatorName }}
+              </div>
+            </el-col>
+          </el-row>
+          <el-row :gutter="10">
+            <el-col :xs="24" :sm="12">
+              <div class="view-item">
+                <i class="el-icon-star-on" /> <span>创建时间：</span>
+                {{ paper.createTime }}
+              </div>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <div class="view-item">
+                <i class="el-icon-star-on" /> <span>学期信息：</span>
+                {{ paper.termName }}
+              </div>
+            </el-col>
+          </el-row>
+        </el-card>
       </el-col>
     </el-row>
     <el-row :gutter="10">
-      <el-col :xs="24" :sm="12">
-        <div class="view-item">
-          <i class="el-icon-star-on" /> <span>试卷编号：</span>
-          NO.{{ paper.paperId }}
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="12">
-        <div class="view-item">
-          <i class="el-icon-star-on" /> <span>试卷名称：</span>
-          {{ paper.paperName }}
-        </div>
-      </el-col>
-    </el-row>
-    <el-row :gutter="10">
-      <el-col :xs="24" :sm="12">
-        <div class="view-item">
-          <i class="el-icon-star-on" /> <span>课程名称：</span>
-          {{ paper.courseName }}
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="12">
-        <div class="view-item">
-          <i class="el-icon-star-on" /> <span>开课学院：</span>
-          {{ paper.deptName }}
-        </div>
-      </el-col>
-    </el-row>
-    <el-row :gutter="10">
-      <el-col :xs="24" :sm="12">
-        <div class="view-item">
-          <i class="el-icon-star-on" /> <span>考试时长：</span>
-          {{ paper.minute }} 分钟
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="12">
-        <div class="view-item">
-          <i class="el-icon-star-on" /> <span>考试班级：</span>
-          <el-tooltip placement="top" :content="paper.deptNames" :enterable="false">
-            <span>{{ paper.deptNames }}</span>
-          </el-tooltip>
-        </div>
-      </el-col>
-    </el-row>
-    <el-row :gutter="10">
-      <el-col :xs="24" :sm="12">
-        <div class="view-item">
-          <i class="el-icon-star-on" /> <span>卷面分值：</span>
-          {{ paper.paperScore }} 分
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="12">
-        <div class="view-item">
-          <i class="el-icon-star-on" /> <span>试卷类型：</span>
-          {{ transType(paper.type) }}
-        </div>
-      </el-col>
-    </el-row>
-    <el-row :gutter="10">
-      <el-col :xs="24" :sm="12">
-        <div class="view-item">
-          <i class="el-icon-star-on" /> <span>开考时间：</span>
-          {{ paper.startTime | parseTime('{y}-{m}-{d} {h}:{i}:{s}') }}
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="12">
-        <div class="view-item">
-          <i class="el-icon-star-on" /> <span>结束时间：</span>
-          {{ paper.endTime }}
-        </div>
-      </el-col>
-    </el-row>
-    <el-row :gutter="10">
-      <el-col :xs="24" :sm="12">
-        <div class="view-item">
-          <i class="el-icon-star-on" /> <span>试卷状态：</span>
-          {{ transStatus(paper.status) }}
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="12">
-        <div class="view-item">
-          <i class="el-icon-star-on" /> <span>出卷教师：</span>
-          {{ paper.creatorName }}
-        </div>
-      </el-col>
-    </el-row>
-    <el-row :gutter="10">
-      <el-col :xs="24" :sm="12">
-        <div class="view-item">
-          <i class="el-icon-star-on" /> <span>创建时间：</span>
-          {{ paper.createTime }}
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="12">
-        <div class="view-item">
-          <i class="el-icon-star-on" /> <span>学期信息：</span>
-          {{ paper.termName }}
-        </div>
+      <el-col :xs="24" :sm="24">
+        <el-card
+          v-for="(questions) in paper.paperQuestions"
+          :key="questions.typeId"
+          shadow="never"
+          class="box-card"
+          style="background-color: #f8fafb;"
+        >
+          <div slot="header">
+            <h3>{{ transQuestionType(questions.typeId) }}  ({{ calTypeScore(questions.typeId) }} 分)</h3>
+          </div>
+          <el-row :gutter="10">
+            <el-col
+              v-for="(question,questionIndex) in questions.list"
+              :key="question.questionId"
+              :xs="24"
+              :sm="24"
+            >
+              <div class="view-item">
+                <h4>{{ questionIndex + 1 +'：' }} {{ question.questionName }}</h4>
+              </div>
+              <!-- 选择题选项template -->
+              <template v-if="isChoice(questions.typeId)">
+                <div v-for="(item,index) in question.options" :key="index">
+                  <div class="view-item">
+                    {{ getChoice(index) }}. {{ item }}
+                  </div>
+                </div>
+              </template>
+              <div class="view-item">
+                正确答案：{{ question.rightKey }}
+              </div>
+            </el-col>
+          </el-row>
+        </el-card>
       </el-col>
     </el-row>
     <el-divider />
-    <div class="paper-view">
-      <el-row :gutter="10">
-        <el-col :xs="24" :sm="12">
-          <div class="paper-view">
-            <h3>{{ $t('common.questionData') }}</h3>
-          </div>
-        </el-col>
-      </el-row>
-      <el-row :gutter="10">
-        <el-col
-          v-for="(questions) in paper.paperQuestions"
-          :key="questions.typeId"
-          style="padding-bottom: 1rem"
-          :xs="24"
-          :sm="24"
-        >
-          <el-card class="box-card" shadow="hover" style="background-color: #eef1f6; padding: 1rem;">
-            <el-col :xs="24" :sm="24">
-              <div class="view-item">
-                <h3>{{ transQuestionType(questions.typeId) }}  ({{ calTypeScore(questions.typeId) }} 分)</h3>
-              </div>
-            </el-col>
-            <el-row :gutter="10">
-              <el-col
-                v-for="(question,questionIndex) in questions.list"
-                :key="question.questionId"
-                :xs="24"
-                :sm="24"
-              >
-                <div class="view-item">
-                  <h4>{{ questionIndex + 1 +'：' }} {{ question.questionName }}</h4>
-                </div>
-                <!-- 选择题选项template -->
-                <template v-if="isChoice(questions.typeId)">
-                  <div v-for="(item,index) in question.options" :key="index">
-                    <div class="view-item">
-                      {{ getChoice(index) }}. {{ item }}
-                    </div>
-                  </div>
-                </template>
-                <div class="view-item">
-                  正确答案：{{ question.rightKey }}
-                </div>
-              </el-col>
-            </el-row>
-          </el-card>
-        </el-col>
-      </el-row>
-    </div>
   </div>
 </template>
 

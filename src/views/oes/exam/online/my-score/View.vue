@@ -1,56 +1,61 @@
 <template>
-  <div class="warn-view">
+  <div class="paper-view">
     <el-page-header style="padding: 1rem;" :content="score.paperName" :visible.sync="isVisible" @back="goBack" />
     <div class="warning custom-block">
       <p class="custom-block-title">WARNING</p>
       <p><strong>注意事项：</strong>系统会周期性（3 ~ 6 个月）清除考生的答题数据，请及时查看错题，查漏补缺。</p>
     </div>
-    <div class="warn-view">
-      <el-row :gutter="10">
-        <el-col
-          v-for="(warn) in warnAnswers"
-          :key="warn.typeId"
-          style="padding-bottom: 1rem"
-          :xs="24"
-          :sm="24"
+    <el-row :gutter="10">
+      <el-col
+        v-for="(warn) in warnAnswers"
+        :key="warn.typeId"
+        :xs="24"
+        :sm="24"
+      >
+        <el-card
+          shadow="never"
+          class="box-card"
+          style="background-color: #f8fafb; margin-bottom: 1rem"
         >
-          <el-card shadow="hover" class="box-card" style="background-color: #eef1f6; padding: 1rem;">
-            <div>
-              <h3>{{ transQuestionType(warn.typeId) }}</h3>
-            </div>
-            <el-row :gutter="10">
-              <el-col
-                v-for="(warnQuestion,questionIndex) in warn.list"
-                :key="warnQuestion.questionId"
-                :xs="24"
-                :sm="24"
-              >
-                <div class="box-card">
-                  <h4>{{ questionIndex + 1 +'：' }} {{ warnQuestion.questionName }}</h4>
-                </div>
-                <!-- 选择题选项template -->
-                <template v-if="isChoice(warn.typeId)">
-                  <div v-for="(item,index) in warnQuestion.options" :key="index">
-                    <div class="box-card">
-                      {{ getChoice(index) }}. {{ item }}
-                    </div>
+          <div slot="header">
+            <h3>{{ transQuestionType(warn.typeId) }}</h3>
+          </div>
+          <el-row :gutter="10">
+            <el-col
+              v-for="(warnQuestion,questionIndex) in warn.list"
+              :key="warnQuestion.questionId"
+              :xs="24"
+              :sm="24"
+            >
+              <div class="view-item">
+                <h4>{{ questionIndex + 1 +'：' }} {{ warnQuestion.questionName }}</h4>
+              </div>
+              <!-- 选择题选项template -->
+              <template v-if="isChoice(warn.typeId)">
+                <div v-for="(item,index) in warnQuestion.options" :key="index">
+                  <div class="view-item">
+                    {{ getChoice(index) }}. {{ item }}
                   </div>
-                </template>
-                <div class="box-card">
-                  <el-link icon="el-icon-warning" type="danger">考生答案：{{ warnQuestion.answerContent }}</el-link>
                 </div>
-                <div class="box-card">
-                  <el-link icon="el-icon-success" type="success">正确答案：{{ warnQuestion.rightKey }}</el-link>
-                </div>
-                <div class="box-card">
-                  <el-link v-if="warnQuestion.analysis!==''" icon="el-icon-circle-plus" type="success">答案解析：{{ warnQuestion.analysis }}</el-link>
-                </div>
-              </el-col>
-            </el-row>
-          </el-card>
-        </el-col>
-      </el-row>
-    </div>
+              </template>
+              <div class="view-item">
+                <el-link icon="el-icon-warning" type="danger">考生答案：{{ warnQuestion.answerContent }}</el-link>
+              </div>
+              <div class="view-item">
+                <el-link icon="el-icon-success" type="info">正确答案：{{ warnQuestion.rightKey }}</el-link>
+              </div>
+              <div class="view-item">
+                <el-link
+                  v-if="warnQuestion.analysis!==''"
+                  icon="el-icon-circle-plus"
+                  type="info"
+                >答案解析：{{ warnQuestion.analysis }}</el-link>
+              </div>
+            </el-col>
+          </el-row>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 <script>
@@ -137,7 +142,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-  .warn-view {
+  .paper-view {
     .img-wrapper {
       text-align: center;
       margin-top: -1.5rem;

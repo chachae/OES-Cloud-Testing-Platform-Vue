@@ -110,8 +110,10 @@
           align="center"
           min-width="80px"
         >
-          <template slot-scope="scope">
-            <span>{{ scope.row.studentScore }} 分</span>
+          <template slot-scope="{row}">
+            <el-tag :type="row.studentScore | scoreFilter">
+              <span>{{ row.studentScore }} 分</span>
+            </el-tag>
           </template>
         </el-table-column>
         <el-table-column
@@ -155,6 +157,19 @@ export default {
         0: 'danger'
       }
       return map[status]
+    },
+    scoreFilter(score) {
+      if (score < 60) {
+        return 'danger'
+      } else if (score >= 60 && score < 70) {
+        return 'warning'
+      } else if (score >= 70 && score < 80) {
+        return 'info'
+      } else if (score >= 80 && score < 90) {
+        return 'primary'
+      } else {
+        return 'success'
+      }
     }
   },
   data() {

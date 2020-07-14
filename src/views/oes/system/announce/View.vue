@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :title="$t('common.view')"
+    :title="announce.title"
     :width="width"
     :visible.sync="isVisible"
     class="content-view"
@@ -72,10 +72,6 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-  .el-dialog-div{
-    height: 60vh;
-    overflow: auto;
-  }
   .content-view {
     .text-wrapper {
       text-align: center;

@@ -1,39 +1,6 @@
 <template>
   <div class="main">
     <el-row :gutter="10">
-      <el-col :xs="24" :sm="12">
-        <div class="app-container" style="height: 120px">
-          <div class="user-wrapper">
-            <div class="user-header">
-              <img alt="avatar" :src="avatar">
-            </div>
-            <div class="user-info">
-              <div class="random-message">
-                {{ welcomeMessage }}
-              </div>
-              <div class="user-dept">
-                <span>{{ user.deptName ? user.deptName : $t('common.noDept') }}</span> | <span>{{ user.roleName ? user.roleName : $t('common.noRole') }}</span>
-              </div>
-              <div class="user-login-info">
-                {{ $t('common.lastLoginTime') }}：<span id="last-login-time">{{ user.lastLoginTime ? user.lastLoginTime : $t('common.firstLogin') }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="app-container">
-          <el-row :gutter="10">
-            <el-col :xs="24" :sm="24" :lg="24">
-              <!-- 最近十天访问记录 -->
-              <VisitCountChart
-                v-if="flag"
-                ref="visitChart"
-                :last-ten-user-visit-count="lastTenUserVisitCount"
-                :last-ten-visit-count="lastTenVisitCount"
-              />
-            </el-col>
-          </el-row>
-        </div>
-      </el-col>
       <el-col :xs="24" :sm="4">
         <div class="app-container" style="height: 120px;padding: 0">
           <el-card :body-style="{ padding: '0px' }" shadow="never" style="height: 100px">
@@ -100,6 +67,21 @@
           </el-card>
         </div>
       </el-col>
+      <el-col :xs="24" :sm="12">
+        <div class="app-container">
+          <el-row :gutter="10">
+            <el-col :xs="24" :sm="24" :lg="24">
+              <!-- 最近十天访问记录 -->
+              <VisitCountChart
+                v-if="flag"
+                ref="visitChart"
+                :last-ten-user-visit-count="lastTenUserVisitCount"
+                :last-ten-visit-count="lastTenVisitCount"
+              />
+            </el-col>
+          </el-row>
+        </div>
+      </el-col>
       <!-- oss 文件存储统计 -->
       <el-col :xs="24" :sm="12" :lg="12">
         <oss-files-top10-pie-chart />
@@ -142,6 +124,8 @@
   </div>
 </template>
 <script>
+import { userIndex } from '@/api/system/user'
+import { examIndex } from '@/api/exam/basic/statistic'
 import AnnounceTable from './AnnounceTable'
 import countTo from 'vue-count-to'
 import VisitCountChart from './VisitCountChart'
@@ -201,7 +185,7 @@ export default {
       return require(`@/assets/icons/${icon}`)
     },
     initIndexData() {
-      this.$get('system/user/index').then((r) => {
+      userIndex().then((r) => {
         this.indexData = r.data.data
         this.todayIp = this.indexData.todayIp
         this.totalVisit = this.indexData.totalVisitCount
@@ -212,7 +196,7 @@ export default {
       })
     },
     initExamBasicData() {
-      this.$get('exam-basic/statistic/index').then((r) => {
+      examIndex().then((r) => {
         const res = r.data.data
         this.totalPaper = res.totalPaper
         this.totalQuestion = res.totalQuestion

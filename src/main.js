@@ -3,6 +3,7 @@ import Vue from 'vue'
 import 'normalize.css/normalize.css' // a modern alternative to CSS resets
 import Element from 'element-ui'
 import './styles/element-variables.scss'
+import visibility from 'vue-visibility-change' // 浏览器标签事件监听
 
 import '@/styles/index.scss' // global css
 
@@ -27,6 +28,8 @@ const Plugins = [
 Plugins.map((plugin) => {
   Vue.use(plugin)
 })
+
+Vue.use(visibility)
 
 Vue.use(Element, {
   i18n: (key, value) => i18n.t(key, value)

@@ -72,10 +72,6 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-  .el-dialog-div{
-    height: 60vh;
-    overflow: auto;
-  }
   .content-view {
     .text-wrapper {
       text-align: center;

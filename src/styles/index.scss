@@ -139,6 +139,11 @@ aside {
   text-align: center
 }
 
+.el-dialog-div{
+  height: 60vh;
+  overflow: auto;
+}
+
 .sub-navbar {
   height: 50px;
   line-height: 50px;
@@ -299,12 +304,14 @@ aside {
   background-color: rgba(255,229,100,.3);
   border-color: #e7c000;
   color: #6b5900;
+  border-radius: 2px;
 }
 
 .custom-block.tip {
   background-color: #ecf8ff;
   border-color: #50bfff;
   color: #409EFF;
+  border-radius: 2px;
 }
 
 .custom-block.danger, .custom-block.tip, .custom-block.warning {

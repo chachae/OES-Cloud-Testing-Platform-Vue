@@ -1,5 +1,9 @@
 import request from '@/utils/request'
 
+export function userIndex() {
+  return request.get('system/user/index')
+}
+
 export function page(params) {
   return request.get('system/user', { ...params })
 }

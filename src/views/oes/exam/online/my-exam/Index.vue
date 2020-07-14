@@ -169,31 +169,38 @@ export default {
       this.paperListShow = true
     },
     detail(row) {
-      if (!row.isStart) {
-        this.$alert(this.$t('table.paper.unStart'), this.$t('table.exam.tips'), {
-          confirmButtonText: this.$t('common.confirm'),
-          type: 'warning'
-        })
-      } else {
-        this.$get(`exam-online/score/check?paperId=${row.paperId}`).then((r) => {
-          if (r.data) {
-            this.$refs.detail.setExam(row)
-            this.$get(`exam-basic/paper/type/options?paperId=${row.paperId}`).then((r) => {
-              const paperType = { ...r.data.data }
-              this.$refs.detail.initPaperType(paperType)
-            })
-            this.$refs.detail.setTypes(this.types)
-            this.examDetailShow = true
-            this.paperListShow = false
-            this.$refs.detail.alertExamTips()
-          } else {
-            this.$alert(this.$t('table.exam.hasSubmit'), this.$t('table.exam.tips'), {
-              confirmButtonText: this.$t('common.confirm'),
-              type: 'warning'
-            })
-          }
-        })
-      }
+      this.$get('system/id-card/verify/check').then((r) => {
+        if (!r.data) {
+          this.$alert('个人身份信息暂未核验，请在个人中心内核验身份信息', this.$t('table.exam.tips'), {
+            confirmButtonText: this.$t('common.confirm'),
+            type: 'warning'
+          })
+        } else if (!row.isStart) {
+          this.$alert(this.$t('table.paper.unStart'), this.$t('table.exam.tips'), {
+            confirmButtonText: this.$t('common.confirm'),
+            type: 'warning'
+          })
+        } else {
+          this.$get(`exam-online/score/check?paperId=${row.paperId}`).then((r) => {
+            if (r.data) {
+              this.$refs.detail.setExam(row)
+              this.$get(`exam-basic/paper/type/options?paperId=${row.paperId}`).then((r) => {
+                const paperType = { ...r.data.data }
+                this.$refs.detail.initPaperType(paperType)
+              })
+              this.$refs.detail.setTypes(this.types)
+              this.examDetailShow = true
+              this.paperListShow = false
+              this.$refs.detail.alertExamTips()
+            } else {
+              this.$alert(this.$t('table.exam.hasSubmit'), this.$t('table.exam.tips'), {
+                confirmButtonText: this.$t('common.confirm'),
+                type: 'warning'
+              })
+            }
+          })
+        }
+      })
     },
     reset() {
       this.queryParams = {}

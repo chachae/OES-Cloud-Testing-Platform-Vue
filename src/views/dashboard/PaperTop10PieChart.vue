@@ -7,7 +7,7 @@
 
 <script>
 import echarts from 'echarts'
-require('echarts/theme/macarons') // echarts theme
+import theme from '@/styles/echarts-theme.json' // echarts theme
 import resize from '@/components/Charts/mixins/resize'
 
 export default {
@@ -40,15 +40,12 @@ export default {
         this.courses.push(map.name)
       })
 
-      this.chart = echarts.init(document.getElementById('top10paper'), 'macarons')
+      this.chart = echarts.init(document.getElementById('top10paper'), theme)
       this.chart.setOption({
         backgroundColor: '#FFF',
         tooltip: {
           trigger: 'item',
-          formatter: '{a} <br/>{b} : {c} ({d}%)',
-          textStyle: {
-            fontWeight: 'bold'
-          }
+          formatter: '{a} <br/>{b} : {c} ({d}%)'
         },
         legend: {
           orient: 'vertical',
