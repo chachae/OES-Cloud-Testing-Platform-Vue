@@ -119,7 +119,7 @@
 <script>
 
 import { isIntegerGreaterThanZero } from '@/utils/my-validate'
-
+import { random } from '@/api/exam/basic/paper'
 export default {
   name: 'RandomPaper',
   props: {
@@ -298,7 +298,8 @@ export default {
         nums: '',
         scores: '',
         minute: '',
-        creatorId: ''
+        creatorId: '',
+        termId: ''
       }
     },
     isFutureTime(time) {
@@ -310,8 +311,8 @@ export default {
           this.buttonLoading = false
           this.paper.minute = this.calMinute
           this.paper.paperScore = this.calPaperScore
-          this.paper.creatorId = this.currentUser.userId
-          this.$post('exam-basic/paper/random', { ...this.paper }).then(() => {
+          this.paper.creatorName = this.currentUser.fullName
+          random(this.paper).then(() => {
             // this.buttonLoading = false
             this.isRandomVisible = false
             this.$message({

@@ -2,21 +2,31 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input
-        v-model="queryParams.courseName"
-        :placeholder="$t('table.course.courseName')"
+        v-model="queryParams.username"
+        placeholder="学号"
+        class="filter-item search-item"
+      />
+      <el-input
+        v-model="queryParams.fullName"
+        placeholder="姓名"
+        class="filter-item search-item"
+      />
+      <el-input
+        v-model="queryParams.paperName"
+        placeholder="考试名称"
         class="filter-item search-item"
       />
       <el-select
-        v-model="queryParams.deptId"
+        v-model="queryParams.termId"
         class="filter-item search-item"
         value=""
-        :placeholder="$t('table.course.deptName')"
+        placeholder="学期"
       >
         <el-option
-          v-for="item in depts"
-          :key="item.deptId"
-          :label="item.deptName"
-          :value="item.deptId"
+          v-for="item in terms"
+          :key="item.termId"
+          :label="item.termName"
+          :value="item.termId"
         />
       </el-select>
       <el-button class="filter-item" type="primary" @click="search">
@@ -25,19 +35,12 @@
       <el-button class="filter-item" type="warning" @click="reset">
         {{ $t('table.reset') }}
       </el-button>
-      <el-dropdown
-        v-has-any-permission="['course:view','course:add','course:delete']"
-        trigger="click"
-        class="filter-item"
-      >
+      <el-dropdown v-has-any-permission="['violatelog:view']" trigger="click" class="filter-item">
         <el-button>
           {{ $t('table.more') }}<i class="el-icon-arrow-down el-icon--right" />
         </el-button>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item v-has-permission="['course:add']" @click.native="add">{{ $t('table.add') }}
-          </el-dropdown-item>
-          <el-dropdown-item v-has-permission="['course:delete']" @click.native="batchDelete">{{ $t('table.delete') }}
-          </el-dropdown-item>
+          <el-dropdown-item v-has-permission="['violatelog:delete']" @click.native="batchDelete">{{ $t('table.delete') }}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -49,41 +52,61 @@
       fit
       style="width: 100%;"
       @selection-change="onSelectChange"
-      @sort-change="sortChange"
     >
       <el-table-column type="selection" align="center" width="40px" />
       <el-table-column
-        :label="$t('table.course.courseId')"
-        prop="courseId"
+        label="姓名"
+        prop="fullName"
         :show-overflow-tooltip="true"
         align="center"
         min-width="100px"
       >
         <template slot-scope="scope">
-          <span>{{ scope.row.courseId }}</span>
+          <span>{{ scope.row.fullName }}</span>
         </template>
       </el-table-column>
       <el-table-column
-        :label="$t('table.course.courseName')"
-        prop="courseName"
+        label="用户名"
+        prop="username"
         :show-overflow-tooltip="true"
         align="center"
         min-width="120px"
       >
         <template slot-scope="scope">
-          <span>{{ scope.row.courseName }}</span>
+          <span>{{ scope.row.username }}</span>
         </template>
       </el-table-column>
       <el-table-column
-        :label="$t('table.course.createTime')"
-        prop="createTime"
+        label="违规考试"
+        prop="paperName"
         :show-overflow-tooltip="true"
         align="center"
         min-width="150px"
-        sortable="custom"
       >
         <template slot-scope="scope">
-          <span>{{ scope.row.createTime }}</span>
+          <span>{{ scope.row.paperName }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="违规时间"
+        prop="violateTime"
+        :show-overflow-tooltip="true"
+        align="center"
+        min-width="150px"
+      >
+        <template slot-scope="scope">
+          <span>{{ scope.row.violateTime }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="停留时间"
+        prop="violateTime"
+        :show-overflow-tooltip="true"
+        align="center"
+        min-width="150px"
+      >
+        <template slot-scope="scope">
+          <span>{{ scope.row.stayTime }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -93,29 +116,14 @@
         class-name="small-padding fixed-width"
       >
         <template slot-scope="{row}">
+          <i v-hasPermission="['violatelog:view']" class="el-icon-view table-operation" style="color: #2db7f5;" @click="view(row)" />
           <i
-            v-hasPermission="['course:update']"
-            class="el-icon-setting table-operation"
-            style="color: #2db7f5;"
-            @click="edit(row)"
-          />
-          <i
-            v-if="row.deptId === currentUser.deptId"
-            v-has-permission="['course:delete']"
+            v-has-permission="['violatelog:delete']"
             class="el-icon-delete table-operation"
             style="color: #f50;"
             @click="singleDelete(row)"
           />
-          <el-link
-            v-if="row.deptId !== currentUser.deptId"
-            class="no-perm"
-          >
-            {{ $t('tips.noPermission') }}
-          </el-link>
-          <el-link
-            v-has-no-permission="['course:delete']"
-            class="no-perm"
-          >
+          <el-link v-has-no-permission="['violatelog:delete']" class="no-perm">
             {{ $t('tips.noPermission') }}
           </el-link>
         </template>
@@ -128,25 +136,35 @@
       :limit.sync="pagination.size"
       @pagination="search"
     />
-    <course-edit
-      ref="edit"
-      :dialog-visible="dialog.isVisible"
-      :title="dialog.title"
-      @success="editSuccess"
-      @close="editClose"
+    <!-- 查看 -->
+    <violate-log-view
+      ref="view"
+      :dialog-visible="violateLogViewVisible"
+      @close="viewClose"
     />
   </div>
 </template>
 <script>
-
+import ViolateLogView from './View'
 import Pagination from '@/components/Pagination'
-import CourseEdit from './Edit'
-import { deptOptions } from '@/api/system/dept'
-import { page, del } from '@/api/exam/basic/course'
-
+import { pageLog, deleteLog } from '@/api/exam/basic/violateLog'
+import { termOptions } from '@/api/exam/basic/term'
 export default {
-  name: 'CourseMange',
-  components: { Pagination, CourseEdit },
+  name: 'TypeMange',
+  components: { Pagination, ViolateLogView },
+  filters: {
+    timeFilter(time) {
+      if (time < 500) {
+        return 'success'
+      } else if (time < 1000) {
+        return ''
+      } else if (time < 1500) {
+        return 'warning'
+      } else {
+        return 'danger'
+      }
+    }
+  },
   data() {
     return {
       dialog: {
@@ -154,36 +172,41 @@ export default {
         title: ''
       },
       tableKey: 0,
-      userViewVisible: false,
+      violateLogViewVisible: false,
       loading: false,
       list: null,
       total: 0,
+      terms: [],
       queryParams: {},
-      sort: {},
       selection: [],
-      depts: [],
       pagination: {
         size: 10,
         num: 1
       }
     }
   },
-  computed: {
-    currentUser() {
-      return this.$store.state.account.user
-    }
-  },
   mounted() {
     this.fetch()
-    this.initDept()
+    this.initTerms()
   },
   methods: {
     onSelectChange(selection) {
       this.selection = selection
     },
-    initDept() {
-      deptOptions({ parentId: 0 }).then((r) => {
-        this.depts = r.data.data
+    fetch(params = {}) {
+      params.pageSize = this.pagination.size
+      params.pageNum = this.pagination.num
+      this.loading = true
+      pageLog(params).then((r) => {
+        const data = r.data.data
+        this.total = data.total
+        this.list = data.rows
+        this.loading = false
+      })
+    },
+    initTerms() {
+      termOptions().then((r) => {
+        this.terms = r.data.data
       }).catch((error) => {
         console.error(error)
         this.$message({
@@ -191,43 +214,6 @@ export default {
           type: 'error'
         })
       })
-    },
-    add() {
-      this.$refs.edit.setDepts(this.depts)
-      this.dialog.title = this.$t('common.add')
-      this.dialog.isVisible = true
-    },
-    edit(row) {
-      const course = { ...row }
-      let teacherIds = []
-      if (row.teacherIds && typeof row.teacherIds === 'string') {
-        teacherIds = row.teacherIds.split(',')
-        course.teacherIds = teacherIds
-      }
-      this.$refs.edit.setDepts(this.depts)
-      this.$refs.edit.setCourse(course)
-      this.dialog.title = this.$t('common.edit')
-      this.dialog.isVisible = true
-    },
-    fetch(params = {}) {
-      params.pageSize = this.pagination.size
-      params.pageNum = this.pagination.num
-      this.loading = true
-      page({ ...params }).then((r) => {
-        const data = r.data.data
-        this.total = data.total
-        this.list = data.rows
-        this.loading = false
-      })
-    },
-    viewClose() {
-      this.userViewVisible = false
-    },
-    editClose() {
-      this.dialog.isVisible = false
-    },
-    editSuccess() {
-      this.search()
     },
     singleDelete(row) {
       this.$refs.table.toggleRowSelection(row, true)
@@ -246,12 +232,11 @@ export default {
         cancelButtonText: this.$t('common.cancel'),
         type: 'warning'
       }).then(() => {
-        const courseIds = []
+        const violateIds = []
         this.selection.forEach((l) => {
-          courseIds.push(l.courseId)
+          violateIds.push(l.violateId)
         })
-        this.delete(courseIds)
-        this.clearSelections()
+        this.delete(violateIds)
       }).catch(() => {
         this.clearSelections()
       })
@@ -259,9 +244,16 @@ export default {
     clearSelections() {
       this.$refs.table.clearSelection()
     },
-    delete(courseId) {
+    viewClose() {
+      this.violateLogViewVisible = false
+    },
+    view(row) {
+      this.$refs.view.setViolateLog(row)
+      this.violateLogViewVisible = true
+    },
+    delete(violateIds) {
       this.loading = true
-      del(courseId).then(() => {
+      deleteLog(violateIds).then(() => {
         this.$message({
           message: this.$t('tips.deleteSuccess'),
           type: 'success'
@@ -271,20 +263,12 @@ export default {
     },
     search() {
       this.fetch({
-        ...this.queryParams,
-        ...this.sort
+        ...this.queryParams
       })
     },
     reset() {
       this.queryParams = {}
-      this.sort = {}
-      this.$refs.table.clearSort()
       this.$refs.table.clearFilter()
-      this.search()
-    },
-    sortChange(val, a) {
-      this.sort.field = val.prop
-      this.sort.order = val.order
       this.search()
     }
   }

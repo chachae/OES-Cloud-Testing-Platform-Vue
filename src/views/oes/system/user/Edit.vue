@@ -112,7 +112,7 @@ export default {
           { min: 4, max: 10, message: this.$t('rules.range4to10'), trigger: 'blur' },
           { validator: (rule, value, callback) => {
             if (!this.user.userId) {
-              this.$get(`system/user/check/${value}`).then((r) => {
+              this.$get('system/user/check', { username: value }).then((r) => {
                 if (!r.data) {
                   callback(this.$t('rules.usernameExist'))
                 } else {

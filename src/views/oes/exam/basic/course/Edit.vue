@@ -51,7 +51,8 @@
 <script>
 
 import { isIntegerGreaterThanZero } from '@/utils/my-validate'
-
+import { check, update, save } from '@/api/exam/basic/course'
+import { options } from '@/api/system/user'
 export default {
   name: 'CourseEdit',
   props: {
@@ -83,7 +84,7 @@ export default {
           { min: 2, max: 20, message: this.$t('rules.range2to20'), trigger: 'blur' },
           { validator: (rule, value, callback) => {
             if (!this.course.courseId) {
-              this.$get(`exam-basic/course/check/${value}`).then((r) => {
+              check({ courseName: value }).then((r) => {
                 if (!r.data) {
                   callback(this.$t('rules.courseNameExist'))
                 } else {
@@ -165,7 +166,7 @@ export default {
       this.depts = { ...val }
     },
     initTeacher() {
-      this.$get('system/user/options', { ...this.queryParams }).then((r) => {
+      options({ ...this.queryParams }).then((r) => {
         this.teachers = r.data.data
       }).catch((error) => {
         console.error(error)
@@ -181,9 +182,7 @@ export default {
           this.buttonLoading = false
           if (!this.course.courseId) {
             // create
-            this.course.courseId = null
-            this.course.creatorId = this.currentUser.userId
-            this.$post('exam-basic/course', { ...this.course }).then(() => {
+            save(this.course).then(() => {
               this.buttonLoading = false
               this.isVisible = false
               this.$message({
@@ -195,7 +194,7 @@ export default {
           } else {
             // update
             this.course.createTime = this.course.updateTime = null
-            this.$put('exam-basic/course', { ...this.course }).then(() => {
+            update(this.course).then(() => {
               this.buttonLoading = false
               this.isVisible = false
               this.$message({

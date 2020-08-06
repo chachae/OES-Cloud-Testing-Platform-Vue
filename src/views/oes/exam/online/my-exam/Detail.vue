@@ -142,6 +142,7 @@
 import Pledge from './Pledge'
 import Tracking from '@/components/Tracking'
 import { checkWebcam } from '@/utils/camera'
+import { saveLog } from '@/api/exam/basic/violateLog'
 export default {
   name: 'ExamDetail',
   components: { Pledge, Tracking },
@@ -159,10 +160,11 @@ export default {
         isTrackingVisible: false,
         isVisible: false,
         title: '',
-        isRead: false
+        isRead: false,
+        leaveTime: null
       },
       queryInfo: {
-        studentId: '',
+        username: '',
         paperId: ''
       },
       updateInfo: {
@@ -235,7 +237,7 @@ export default {
     },
     // 获取试题数据
     getExamPaper() {
-      this.$get(`exam-online/exam/${this.queryInfo.paperId}`, { studentId: this.currentUser.userId }).then((r) => {
+      this.$get(`exam-online/exam/${this.queryInfo.paperId}`).then((r) => {
         const paper = r.data.data
         this.paperQuestionMap = paper.paperQuestions
         this.paperQuestionMap.forEach((pq) => {
@@ -340,12 +342,12 @@ export default {
     },
     // 初始化试卷查询基本信息
     initQueryInfo() {
-      this.queryInfo.studentId = this.currentUser.userId
+      this.queryInfo.username = this.currentUser.username
       this.queryInfo.paperId = this.exam.paperId
     },
     // 初始化试题答案更新基本信息
     initUpdateInfo() {
-      this.updateInfo.studentId = this.currentUser.userId
+      this.updateInfo.username = this.currentUser.username
       this.updateInfo.paperId = this.exam.paperId
     },
     // 关闭人脸匹配
@@ -411,7 +413,6 @@ export default {
     // 答题卡选择滑动
     goAssignBlock(el) {
       const element = this.$refs[`question${el}`][0]
-      console.log(element)
       element.scrollIntoView({ block: 'center', 'behavior': 'smooth' })
     },
     // 作弊行为检查-鼠标移动事件检测（过于暴力）
@@ -430,15 +431,25 @@ export default {
     },
     // 作弊行为检查-切换标签
     violateChangeTab(evt, hidden) {
-      if (hidden === false) {
-        console.log('回到当前页了！')
-      } else if (this.paperShow) {
-        // // 进入考试后才监听
-        // this.$alert(`检测到你已离开考试页面，违规记录已累计 ${++this.violate.changeTabCount} 次，超过 3 次后系统将强制提交试卷`, this.$t('table.exam.tips'), {
-        //   confirmButtonText: this.$t('common.confirm'),
-        //   type: 'warning'
-        // }).catch((r) => {})
+      if (this.paperShow) {
+        if (!hidden) {
+          // 写入违规行为日志
+          this.saveViolateLog(501, this.leaveTime)
+        } else if (this.paperShow) {
+          // 进入考试后才监听
+          this.$alert(`检测到你已离开考试页面，违规记录已累计 ${++this.violate.changeTabCount} 次，超过 3 次后系统将强制提交试卷`, this.$t('table.exam.tips'), {
+            confirmButtonText: this.$t('common.confirm'),
+            type: 'warning'
+          }).catch((r) => {
+          })
+          // 记录离开时间
+          this.leaveTime = new Date()
+        }
       }
+    },
+    // 违规行为日志记录
+    saveViolateLog(code, violateTime) {
+      saveLog(this.exam.paperId, code, violateTime).then((r) => {})
     }
   }
 }

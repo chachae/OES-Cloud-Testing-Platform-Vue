@@ -52,7 +52,7 @@ export default {
           { min: 2, max: 20, message: this.$t('rules.range2to20'), trigger: 'blur' },
           { validator: (rule, value, callback) => {
             if (!this.term.termId) {
-              this.$get(`exam-basic/term/check/${value}`).then((r) => {
+              this.$get('exam-basic/term/check', { termName: value }).then((r) => {
                 if (!r.data) {
                   callback(this.$t('rules.termNameExist'))
                 } else {
@@ -62,7 +62,7 @@ export default {
             } else {
               callback()
             }
-          }, trigger: 'blur' }
+          }, trigger: 'change' }
         ]
       }
     }

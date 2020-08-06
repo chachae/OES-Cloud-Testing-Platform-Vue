@@ -295,7 +295,7 @@ export default {
         if (valid) {
           this.buttonLoading = false
           if (!this.question.questionId) {
-            this.question.creatorId = this.currentUser.userId
+            this.question.creatorName = this.currentUser.fullName
             this.$post('exam-basic/question',
               { ...this.question,
                 options: JSON.stringify(this.question.options)

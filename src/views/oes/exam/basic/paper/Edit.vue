@@ -53,7 +53,8 @@
 </template>
 <script>
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-
+import { depts } from '@/api/system/dept'
+import { page } from '@/api/exam/basic/paper'
 export default {
   name: 'CourseEdit',
   props: {
@@ -130,7 +131,7 @@ export default {
       this.$refs.deptTree.setCheckedKeys([])
     },
     initDept() {
-      this.$get('system/dept').then((r) => {
+      depts().then((r) => {
         this.depts = r.data.data.rows
         this.deptTree = this.depts
       }).catch((error) => {
@@ -154,7 +155,7 @@ export default {
           this.paper.deptIds = this.$refs.deptTree.getCheckedKeys()
           this.paper.startTime = this.paper.endTime = this.paper.createTime =
             this.paper.updateTime = this.paper.paperQuestions = null
-          this.$put('exam-basic/paper', { ...this.paper }).then(() => {
+          page(this.paper).then(() => {
             this.buttonLoading = false
             this.isEditVisible = false
             this.$message({

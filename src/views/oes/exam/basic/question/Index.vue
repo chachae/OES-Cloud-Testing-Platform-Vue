@@ -114,13 +114,13 @@
       </el-table-column>
       <el-table-column
         :label="$t('table.question.fullName')"
-        prop="fullName"
+        prop="creatorName"
         :show-overflow-tooltip="true"
         align="center"
         min-width="80px"
       >
         <template slot-scope="scope">
-          <span>{{ scope.row.fullName }}</span>
+          <span>{{ scope.row.creatorName }}</span>
         </template>
       </el-table-column>
       <el-table-column

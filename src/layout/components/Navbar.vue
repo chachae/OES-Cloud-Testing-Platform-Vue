@@ -8,8 +8,6 @@
       <template v-if="device!=='mobile'">
         <search id="header-search" class="right-menu-item" />
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
-        <!-- 语言切换 -->
-        <!-- <lang-select class="right-menu-item hover-effect" /> -->
       </template>
 
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
@@ -19,45 +17,57 @@
         </div>
         <el-dropdown-menu slot="dropdown">
           <router-link to="/profile/index">
-            <el-dropdown-item>
-              {{ $t('navbar.profile') }}
-            </el-dropdown-item>
+            <el-dropdown-item>个人中心</el-dropdown-item>
           </router-link>
           <el-dropdown-item>
-            <span style="display:block;" @click="setting">{{ $t('navbar.setting') }}</span>
+            <span style="display:block;" @click="setting">系统设置</span>
           </el-dropdown-item>
           <a target="_blank" href="https://github.com/chachae/oes-vue">
-            <el-dropdown-item>
-              {{ $t('navbar.github') }}
-            </el-dropdown-item>
+            <el-dropdown-item>项目地址</el-dropdown-item>
           </a>
+          <div>
+            <el-dropdown-item>
+              <span style="display:block;" @click="aboutOes">关于系统</span>
+            </el-dropdown-item>
+          </div>
           <el-dropdown-item divided>
-            <span style="display:block;" @click="deleteCache">{{ $t('navbar.deleteCache') }}</span>
+            <span style="display:block;" @click="deleteCache">清除缓存</span>
           </el-dropdown-item>
           <el-dropdown-item divided>
-            <span style="display:block;" @click="logout">{{ $t('navbar.logOut') }}</span>
+            <span style="display:block;" @click="logout">退出系统</span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
+    <!-- 查看 -->
+    <oes-info
+      ref="view"
+      :dialog-visible="oesInfoVisible"
+      @close="viewClose"
+    />
   </div>
 </template>
 
 <script>
-// import LangSelect from '@/components/LangSelect'
 import Breadcrumb from '@/components/Breadcrumb'
 import db from '@/utils/localstorage'
 import Hamburger from '@/components/Hamburger'
 import Screenfull from '@/components/Screenfull'
 import Search from '@/components/HeaderSearch'
+import OesInfo from './OesInfo'
 
 export default {
   components: {
     Hamburger,
     Breadcrumb,
-    // LangSelect,
     Screenfull,
-    Search
+    Search,
+    OesInfo
+  },
+  data() {
+    return {
+      oesInfoVisible: false
+    }
   },
   computed: {
     sidebar() {
@@ -74,6 +84,12 @@ export default {
     }
   },
   methods: {
+    aboutOes() {
+      this.oesInfoVisible = true
+    },
+    viewClose() {
+      this.oesInfoVisible = false
+    },
     toggleSideBar() {
       this.$store.commit('setting/toggleSidebar')
     },

@@ -22,4 +22,8 @@ export function resetPassword(userNames) {
   })
 }
 
+export function options(params) {
+  return request.get('system/user/options', { ...params })
+}
+
 export default { page, get, del, resetPassword }

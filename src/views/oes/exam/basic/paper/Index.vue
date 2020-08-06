@@ -205,7 +205,11 @@ import Pagination from '@/components/Pagination'
 import PaperView from './View'
 import PaperRandomAdd from './Random'
 import PaperEdit from './Edit'
-
+import { paperTypeOptions } from '@/api/exam/basic/paperType'
+import { courseOptions } from '@/api/exam/basic/course'
+import { typeOptions } from '@/api/exam/basic/type'
+import { termOptions } from '@/api/exam/basic/term'
+import { update, del } from '@/api/exam/basic/paper'
 export default {
   name: 'QuestionMange',
   components: { PaperRandomAdd, PaperEdit, Pagination, PaperView },
@@ -278,7 +282,7 @@ export default {
     },
     view(row) {
       const paper = { ...row }
-      this.$get(`exam-basic/paper/type/options?paperId=${paper.paperId}`).then((r) => {
+      paperTypeOptions({ paperId: paper.paperId }).then((r) => {
         const paperType = { ...r.data.data }
         this.$refs.view.initPaperType(paperType)
       })
@@ -295,7 +299,7 @@ export default {
       this.search()
     },
     initCourses() {
-      this.$get('exam-basic/course/options').then((r) => {
+      courseOptions().then((r) => {
         this.courses = r.data.data
       }).catch((error) => {
         console.error(error)
@@ -306,7 +310,7 @@ export default {
       })
     },
     initTypes() {
-      this.$get('exam-basic/type/options').then((r) => {
+      typeOptions().then((r) => {
         this.types = r.data.data
       }).catch((error) => {
         console.error(error)
@@ -317,7 +321,7 @@ export default {
       })
     },
     initTerms() {
-      this.$get('exam-basic/term/options').then((r) => {
+      termOptions().then((r) => {
         this.terms = r.data.data
       }).catch((error) => {
         console.error(error)
@@ -375,7 +379,7 @@ export default {
       this.$refs.table.clearSelection()
     },
     delete(paperIds) {
-      this.$delete(`exam-basic/paper/${paperIds}`).then(() => {
+      del(paperIds).then(() => {
         this.$message({
           message: this.$t('tips.deleteSuccess'),
           type: 'success'
@@ -384,7 +388,7 @@ export default {
       })
     },
     updateStatus(row) {
-      this.$put(`exam-basic/paper`, { paperId: row.paperId, status: row.status }).then(() => {
+      update({ paperId: row.paperId, status: row.status }).then(() => {
         this.$message({
           message: this.$t('tips.updateSuccess'),
           type: 'success'

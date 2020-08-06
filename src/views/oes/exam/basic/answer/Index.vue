@@ -2,18 +2,13 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input
-        v-model="queryParams.studentName"
-        :placeholder="$t('table.answer.studentName')"
+        v-model="queryParams.username"
+        placeholder="用户名或学号"
         class="filter-item search-item"
       />
       <el-input
         v-model="queryParams.paperName"
         :placeholder="$t('table.paper.paperName')"
-        class="filter-item search-item"
-      />
-      <el-input
-        v-model="queryParams.deptName"
-        :placeholder="$t('table.answer.deptName')"
         class="filter-item search-item"
       />
       <el-select
@@ -64,36 +59,25 @@
         </template>
       </el-table-column>
       <el-table-column
-        :label="$t('table.answer.termName')"
-        prop="termName"
-        :show-overflow-tooltip="true"
-        align="center"
-        min-width="80px"
-      >
-        <template slot-scope="scope">
-          <span>{{ scope.row.termName }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
         :label="$t('table.answer.questionName')"
         prop="questionName"
         :show-overflow-tooltip="true"
         align="center"
-        min-width="100px"
+        min-width="120px"
       >
         <template slot-scope="scope">
           <span>{{ scope.row.questionName }}</span>
         </template>
       </el-table-column>
       <el-table-column
-        :label="$t('table.answer.studentName')"
-        prop="studentName"
+        label="学号"
+        prop="username"
         :show-overflow-tooltip="true"
         align="center"
-        min-width="80px"
+        min-width="100px"
       >
         <template slot-scope="scope">
-          <span>{{ scope.row.studentName }}</span>
+          <span>{{ scope.row.username }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -167,6 +151,8 @@
 
 import Pagination from '@/components/Pagination'
 import CourseEdit from './Edit'
+import { termOptions } from '@/api/exam/basic/term'
+import { page } from '@/api/exam/basic/answer'
 
 export default {
   name: 'AnswerMange',
@@ -205,15 +191,8 @@ export default {
     this.initTerms()
   },
   methods: {
-    exportExcel() {
-      this.$download('system/log/excel', {
-        pageSize: this.pagination.size,
-        pageNum: this.pagination.num,
-        ...this.queryParams
-      }, `log_${new Date().getTime()}.xlsx`)
-    },
     initTerms() {
-      this.$get('exam-basic/term/options').then((r) => {
+      termOptions().then((r) => {
         this.terms = r.data.data
       }).catch((error) => {
         console.error(error)
@@ -233,9 +212,7 @@ export default {
       params.pageSize = this.pagination.size
       params.pageNum = this.pagination.num
       this.loading = true
-      this.$get('exam-basic/answer', {
-        ...params
-      }).then((r) => {
+      page(params).then((r) => {
         const data = r.data.data
         this.total = data.total
         this.list = data.rows

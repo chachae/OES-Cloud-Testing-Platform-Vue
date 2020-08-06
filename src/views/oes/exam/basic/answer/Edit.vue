@@ -60,7 +60,8 @@
 <script>
 
 import { isIntegerGreaterThanZero } from '@/utils/my-validate'
-
+import { check } from '@/api/exam/basic/paperType'
+import { update } from '@/api/exam/basic/answer'
 export default {
   name: 'CourseEdit',
   props: {
@@ -93,7 +94,7 @@ export default {
           { validator: (rule, value, callback) => {
             if (!this.answer.answerId) callback()
             this.checkParam.score = value
-            this.$get('exam-basic/paper/type/check', { ...this.checkParam }).then((r) => {
+            check().then((r) => {
               if (!r.data) {
                 callback(this.$t('rules.scoreOverStep'))
               } else {
@@ -159,7 +160,7 @@ export default {
           this.buttonLoading = false
           this.checkParam.status = 1
           this.checkParam.answerId = this.answer.answerId
-          this.$put('exam-basic/answer', { ...this.checkParam }).then(() => {
+          update().then(() => {
             this.buttonLoading = false
             this.isVisible = false
             this.$message({

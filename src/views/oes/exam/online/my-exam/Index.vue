@@ -184,7 +184,7 @@ export default {
           this.$get(`exam-online/score/check?paperId=${row.paperId}`).then((r) => {
             if (r.data) {
               this.$refs.detail.setExam(row)
-              this.$get(`exam-basic/paper/type/options?paperId=${row.paperId}`).then((r) => {
+              this.$get(`exam-basic/paperType/options?paperId=${row.paperId}`).then((r) => {
                 const paperType = { ...r.data.data }
                 this.$refs.detail.initPaperType(paperType)
               })

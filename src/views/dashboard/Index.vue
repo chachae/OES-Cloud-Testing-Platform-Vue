@@ -84,29 +84,48 @@
       </el-col>
       <!-- oss 文件存储统计 -->
       <el-col :xs="24" :sm="12" :lg="12">
-        <oss-files-top10-pie-chart />
+        <pie-chart
+          v-if="ossData.length > 0"
+          :id="`oss-chart`"
+          :legend-data="resolveName(ossData)"
+          :series-data="ossData"
+          :title="`分布式对象存储中心文件类型统计`"
+          :series-name="`文件类型`"
+        />
       </el-col>
     </el-row>
     <el-row :gutter="10">
       <el-col :xs="24" :sm="24" :lg="8">
         <!-- 各类型题目的题目数量分布情况 -->
-        <type-distribute-pie-chart
-          v-if="examBasicFlag"
-          :type-count-distribute="typeCountDistribute"
+        <pie-chart
+          v-if="typeCountDistribute.length > 0"
+          :id="`typeCountDistribute`"
+          :legend-data="resolveName(typeCountDistribute)"
+          :series-data="typeCountDistribute"
+          :title="`各题型题量分布`"
+          :series-name="`题目数量`"
         />
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
         <!-- 统计各科目试卷量前十 -->
-        <question-top10-pie-chart
+        <pie-chart
           v-if="examBasicFlag"
-          :top-ten-question="topTenQuestion"
+          :id="`topTenQuestion`"
+          :legend-data="resolveName(topTenQuestion)"
+          :series-data="topTenQuestion"
+          :title="`各科目试题量前十排行`"
+          :series-name="`对应课程题目信息`"
         />
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
         <!-- 最近十天访问记录 -->
-        <paper-top10-pie-chart
+        <pie-chart
           v-if="examBasicFlag"
-          :top-ten-paper="topTenPaper"
+          :id="`topTenPaper`"
+          :legend-data="resolveName(topTenPaper)"
+          :series-data="topTenPaper"
+          :title="`各科目试卷量前十排行`"
+          :series-name="`试卷信息`"
         />
       </el-col>
     </el-row>
@@ -124,19 +143,24 @@
   </div>
 </template>
 <script>
+
+import { getTop10 } from '@/api/oss/qiniu'
 import { userIndex } from '@/api/system/user'
 import { examIndex } from '@/api/exam/basic/statistic'
 import AnnounceTable from './AnnounceTable'
 import countTo from 'vue-count-to'
 import VisitCountChart from './VisitCountChart'
 import ServerTable from './ServerTable'
-import QuestionTop10PieChart from './QuestionTop10PieChart'
-import TypeDistributePieChart from './TypeDistributePieChart'
-import PaperTop10PieChart from './PaperTop10PieChart'
-import OssFilesTop10PieChart from './OssFilesTop10PieChart'
+import PieChart from '@/components/Charts/PieChart'
 export default {
   name: 'Dashboard',
-  components: { OssFilesTop10PieChart, PaperTop10PieChart, TypeDistributePieChart, countTo, AnnounceTable, VisitCountChart, QuestionTop10PieChart, ServerTable },
+  components: {
+    PieChart,
+    countTo,
+    AnnounceTable,
+    VisitCountChart,
+    ServerTable
+  },
   filters: {
     portFilter(v) {
       const map = {
@@ -158,6 +182,7 @@ export default {
       totalPaper: 0,
       totalQuestion: 0,
       totalAnswer: 0,
+      ossData: [],
       lastTenVisitCount: [],
       lastTenUserVisitCount: [],
       topTenPaper: [],
@@ -177,12 +202,25 @@ export default {
   },
   mounted() {
     this.welcomeMessage = this.welcome()
+    this.initOssData()
     this.initIndexData()
     this.initExamBasicData()
   },
   methods: {
     resolveIcon(icon) {
       return require(`@/assets/icons/${icon}`)
+    },
+    resolveName(list) {
+      if (typeof list === 'object') {
+        return list.map(function(res) {
+          return res.name
+        })
+      }
+    },
+    initOssData() {
+      getTop10().then((r) => {
+        this.ossData = r.data.data
+      })
     },
     initIndexData() {
       userIndex().then((r) => {

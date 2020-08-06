@@ -1,27 +1,55 @@
 <template>
   <div class="app-container">
-    <div>各科目试题量前十排行</div>
-    <div id="top10question" style="width: 100%;height: 350px" />
+    <div>{{ title }}</div>
+    <div :id="id" :style="{height:height,width:width}" />
   </div>
 </template>
 
 <script>
-import echarts from 'echarts'
 import theme from '@/styles/echarts-theme.json' // echarts theme
-import resize from '@/components/Charts/mixins/resize'
+import echarts from 'echarts'
+import resize from './mixins/resize'
 
 export default {
   mixins: [resize],
   props: {
-    topTenQuestion: {
+    title: {
+      type: String,
+      default: 'chart'
+    },
+    id: {
+      type: String,
+      required: true
+    },
+    width: {
+      type: String,
+      default: '100%'
+    },
+    height: {
+      type: String,
+      default: '350px'
+    },
+    legendData: {
       type: Array,
+      required: true
+    },
+    seriesData: {
+      type: Array,
+      required: true
+    },
+    seriesName: {
+      type: String,
       required: true
     }
   },
   data() {
     return {
-      chart: null,
-      courses: []
+      chart: null
+    }
+  },
+  watch: {
+    seriesData(newVal, oldVal) {
+      this.initChart()
     }
   },
   mounted() {
@@ -36,11 +64,7 @@ export default {
   },
   methods: {
     initChart() {
-      this.topTenQuestion.forEach((map) => {
-        this.courses.push(map.name)
-      })
-
-      this.chart = echarts.init(document.getElementById('top10question'), theme)
+      this.chart = echarts.init(document.getElementById(this.id), theme)
       this.chart.setOption({
         backgroundColor: '#FFF',
         tooltip: {
@@ -51,16 +75,15 @@ export default {
           orient: 'vertical',
           left: 'left',
           bottom: '10',
-          data: this.courses
+          data: this.legendData
         },
         series: [
           {
-            name: '对应课程题目信息',
+            name: this.seriesName,
             type: 'pie',
             roseType: 'radius',
             radius: [15, 95],
             center: ['50%', '38%'],
-            data: this.topTenQuestion,
             label: {
               normal: {
                 show: true,
@@ -70,6 +93,7 @@ export default {
                 }
               }
             },
+            data: this.seriesData,
             animationEasing: 'cubicInOut',
             animationDuration: 2600
           }

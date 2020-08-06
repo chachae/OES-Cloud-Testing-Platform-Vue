@@ -1,7 +1,20 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
+      <el-upload
+        :on-error="handleError"
+        list-type="file"
+        :limit="1"
+        action="http://localhost:8301/system/user/import"
+        :headers="headers"
+      >
+        <el-button plain type="primary">点击上传</el-button>
+        <div slot="tip" class="el-upload__tip">图片不能超过1MB</div>
+      </el-upload>
+    </div>
+    <div class="filter-container">
       <el-input v-model="queryParams.username" :placeholder="$t('table.user.username')" class="filter-item search-item" />
+      <el-input v-model="queryParams.fullName" placeholder="真实姓名" class="filter-item search-item" />
       <el-input v-model="queryParams.deptName" :placeholder="$t('table.user.dept')" class="filter-item search-item" />
       <el-date-picker
         v-model="queryParams.timeRange"
@@ -47,6 +60,11 @@
           <span>{{ scope.row.username }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="真实姓名" :show-overflow-tooltip="true" align="center" min-width="100px">
+        <template slot-scope="scope">
+          <span>{{ scope.row.fullName }}</span>
+        </template>
+      </el-table-column>
       <el-table-column
         :label="$t('table.user.sex')"
         :filters="[{ text: $t('common.sex.male'), value: '0' }, { text: $t('common.sex.female'), value: '1' }, { text: $t('common.sex.secret'), value: '2' }]"
@@ -57,11 +75,6 @@
           <el-tag :type="row.sex | sexFilter">
             {{ transSex(row.sex) }}
           </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column :label="$t('table.user.email')" :show-overflow-tooltip="true" align="center" min-width="150px">
-        <template slot-scope="scope">
-          <span>{{ scope.row.email }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('table.user.dept')" align="center" min-width="100px">
@@ -117,6 +130,7 @@
 </template>
 
 <script>
+import { getToken } from '@/utils/auth'
 import Pagination from '@/components/Pagination'
 import UserEdit from './Edit'
 import UserView from './View'
@@ -146,6 +160,9 @@ export default {
   },
   data() {
     return {
+      headers: {
+        Authorization: `bearer ${getToken()}`
+      },
       dialog: {
         isVisible: false,
         title: ''
@@ -173,6 +190,12 @@ export default {
     this.fetch()
   },
   methods: {
+    handleError(response, file, fileList) {
+      this.$message({
+        type: 'error',
+        message: JSON.parse(response.message).message
+      })
+    },
     // 转换性别数字表示
     transSex(sex) {
       switch (sex) {

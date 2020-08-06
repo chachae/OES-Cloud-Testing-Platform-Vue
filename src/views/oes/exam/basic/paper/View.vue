@@ -40,8 +40,8 @@
             </el-col>
             <el-col :xs="24" :sm="12">
               <div class="view-item">
-                <i class="el-icon-star-on" /> <span>开课学院：</span>
-                {{ paper.deptName }}
+                <i class="el-icon-star-on" /> <span>试卷状态：</span>
+                {{ transStatus(paper.status) }}
               </div>
             </el-col>
           </el-row>
@@ -54,10 +54,8 @@
             </el-col>
             <el-col :xs="24" :sm="12">
               <div class="view-item">
-                <i class="el-icon-star-on" /> <span>考试班级：</span>
-                <el-tooltip placement="top" :content="paper.deptNames" :enterable="false">
-                  <span>{{ paper.deptNames }}</span>
-                </el-tooltip>
+                <i class="el-icon-star-on" /> <span>出卷教师：</span>
+                {{ paper.creatorName }}
               </div>
             </el-col>
           </el-row>
@@ -86,20 +84,6 @@
               <div class="view-item">
                 <i class="el-icon-star-on" /> <span>结束时间：</span>
                 {{ paper.endTime }}
-              </div>
-            </el-col>
-          </el-row>
-          <el-row :gutter="10">
-            <el-col :xs="24" :sm="12">
-              <div class="view-item">
-                <i class="el-icon-star-on" /> <span>试卷状态：</span>
-                {{ transStatus(paper.status) }}
-              </div>
-            </el-col>
-            <el-col :xs="24" :sm="12">
-              <div class="view-item">
-                <i class="el-icon-star-on" /> <span>出卷教师：</span>
-                {{ paper.creatorName }}
               </div>
             </el-col>
           </el-row>
