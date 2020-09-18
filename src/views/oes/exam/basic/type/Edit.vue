@@ -21,7 +21,7 @@
         :label="$t('table.type.score')"
         prop="score"
       >
-        <el-input v-model="type.score" />
+        <el-input-number v-model="type.score" :min="0" :max="100" />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">

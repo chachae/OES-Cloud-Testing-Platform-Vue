@@ -267,7 +267,7 @@ export default {
       })
     },
     view(row) {
-      statisticScore({ paperId: row.paperId }).then((r) => {
+      statisticScore(row.paperId).then((r) => {
         const res = r.data.data
         this.statisticScore.paperName = row.paperName
         this.statisticScore.max = res.max

@@ -48,7 +48,7 @@ export default {
       width: this.initWidth(),
       rules: {
         termName: [
-          { required: true, message: this.$t('rules.require'), trigger: 'change' },
+          { required: true, message: this.$t('rules.require'), trigger: 'blur' },
           { min: 2, max: 20, message: this.$t('rules.range2to20'), trigger: 'blur' },
           { validator: (rule, value, callback) => {
             if (!this.term.termId) {

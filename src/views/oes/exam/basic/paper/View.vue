@@ -21,7 +21,7 @@
             <el-col :xs="24" :sm="12">
               <div class="view-item">
                 <i class="el-icon-star-on" /> <span>试卷编号：</span>
-                NO.{{ paper.paperId }}
+                {{ paper.paperId }}
               </div>
             </el-col>
             <el-col :xs="24" :sm="12">

@@ -8,6 +8,8 @@ module.exports = {
   socialLoginUrl: 'http://api.cloudx.cn:8301/auth/social/login',
   // 七牛云文件上传地址
   qiNiuUrl: baseUrl + 'oss-qiniu/content',
+  // Netty-Socket
+  examOnlineSocketUrl: baseUrl + 'ws-exam-online',
   // 身份证正面上传地址
   idCardBackUrl: baseUrl + 'ai/ocr/id-card/back',
   // 身份证背面上传地址

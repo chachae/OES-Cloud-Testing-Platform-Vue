@@ -35,17 +35,17 @@
       @selection-change="onSelectChange"
     >
       <el-table-column type="selection" align="center" width="40px" />
-      <el-table-column
-        :label="$t('table.type.typeId')"
-        prop="typeId"
-        :show-overflow-tooltip="true"
-        align="center"
-        min-width="100px"
-      >
-        <template slot-scope="scope">
-          <span>{{ scope.row.typeId }}</span>
-        </template>
-      </el-table-column>
+      <!--      <el-table-column-->
+      <!--        :label="$t('table.type.typeId')"-->
+      <!--        prop="typeId"-->
+      <!--        :show-overflow-tooltip="true"-->
+      <!--        align="center"-->
+      <!--        min-width="100px"-->
+      <!--      >-->
+      <!--        <template slot-scope="scope">-->
+      <!--          <span>{{ scope.row.typeId }}</span>-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
       <el-table-column
         :label="$t('table.type.typeName')"
         prop="typeName"

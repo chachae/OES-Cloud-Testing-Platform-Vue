@@ -100,18 +100,11 @@
             @click="edit(row)"
           />
           <i
-            v-if="row.deptId === currentUser.deptId"
             v-has-permission="['course:delete']"
             class="el-icon-delete table-operation"
             style="color: #f50;"
             @click="singleDelete(row)"
           />
-          <el-link
-            v-if="row.deptId !== currentUser.deptId"
-            class="no-perm"
-          >
-            {{ $t('tips.noPermission') }}
-          </el-link>
           <el-link
             v-has-no-permission="['course:delete']"
             class="no-perm"

@@ -39,17 +39,23 @@
                 </div>
               </template>
               <div class="view-item">
-                <el-link icon="el-icon-warning" type="danger">考生答案：{{ warnQuestion.answerContent }}</el-link>
+                <el-link type="danger" :underline="false">考生答案：</el-link>
+                <el-link :underline="false">{{ warnQuestion.answerContent }}</el-link>
               </div>
               <div class="view-item">
-                <el-link icon="el-icon-success" type="info">正确答案：{{ warnQuestion.rightKey }}</el-link>
+                <el-link type="primary" :underline="false">正确答案：</el-link>
+                <el-link :underline="false">{{ warnQuestion.rightKey }}</el-link>
               </div>
               <div class="view-item">
                 <el-link
                   v-if="warnQuestion.analysis!==''"
-                  icon="el-icon-circle-plus"
-                  type="info"
-                >答案解析：{{ warnQuestion.analysis }}</el-link>
+                  type="primary"
+                  :underline="false"
+                >答案解析：</el-link>
+                <el-link
+                  v-if="warnQuestion.analysis!==''"
+                  :underline="false"
+                >{{ warnQuestion.analysis }}</el-link>
               </div>
             </el-col>
           </el-row>
@@ -153,7 +159,7 @@ export default {
       }
     }
     .view-item {
-      margin: 7px;
+      margin: 12px;
       i {
         font-size: .97rem;
       }

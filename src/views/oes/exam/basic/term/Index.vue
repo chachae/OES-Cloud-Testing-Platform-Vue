@@ -37,6 +37,7 @@
       border
       fit
       style="width: 100%;"
+      @selection-change="onSelectChange"
     >
       <el-table-column type="selection" align="center" width="40px" />
       <el-table-column
@@ -145,15 +146,8 @@ export default {
     this.fetch()
   },
   methods: {
-    transScore(score) {
-      return score + '分'
-    },
-    exportExcel() {
-      this.$download('system/log/excel', {
-        pageSize: this.pagination.size,
-        pageNum: this.pagination.num,
-        ...this.queryParams
-      }, `log_${new Date().getTime()}.xlsx`)
+    onSelectChange(selection) {
+      this.selection = selection
     },
     add() {
       this.dialog.title = this.$t('common.add')

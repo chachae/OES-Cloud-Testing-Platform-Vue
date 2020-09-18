@@ -77,7 +77,7 @@ export default {
       return require(`@/assets/avatar/${this.$store.state.account.user.avatar}`)
     },
     username() {
-      return this.$store.state.account.user.username
+      return this.$store.state.account.user.fullName
     },
     device() {
       return this.$store.state.setting.device

@@ -1,12 +1,36 @@
+/**
+ * 摄像头（webcam）检测
+ * @returns {boolean}
+ */
 export function checkWebcam() {
-// 判断摄像头并调用
-  if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
-    return true
-  } else {
-    console.error('该平台没有摄像头设备')
-    return false
-  }
+  return openCamera() !== null
 }
+
+export function openCamera() {
+  if (navigator.mediaDevices === undefined) {
+    navigator.mediaDevices = {}
+  }
+  if (navigator.mediaDevices.getUserMedia === undefined) {
+    navigator.mediaDevices.getUserMedia = function(constraints) {
+      // 首先，如果有getUserMedia的话，就获得它
+      const getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia
+      // 一些浏览器根本没实现它 - 那么就返回一个error到promise的reject来保持一个统一的接口
+      if (!getUserMedia) {
+        return Promise.reject(new Error('getUserMedia 浏览器不支持摄像头'))
+      }
+      // 否则，为老的navigator.getUserMedia方法包裹一个Promise
+      return new Promise(function(resolve, reject) {
+        getUserMedia.call(navigator, constraints, resolve, reject)
+      })
+    }
+  }
+  const constraints = {
+    video: true,
+    audio: false
+  }
+  return navigator.mediaDevices.getUserMedia(constraints)
+}
+
 //
 // // 访问用户媒体设备的兼容方法
 // function getUserMedia(constrains, success, error) {

@@ -94,7 +94,7 @@ export default {
           { validator: (rule, value, callback) => {
             if (!this.answer.answerId) callback()
             this.checkParam.score = value
-            check().then((r) => {
+            check(this.checkParam).then((r) => {
               if (!r.data) {
                 callback(this.$t('rules.scoreOverStep'))
               } else {

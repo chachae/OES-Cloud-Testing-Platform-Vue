@@ -13,5 +13,5 @@ export function update(params) {
 }
 
 export function random(params) {
-  return request.post('exam-basic/paper', { ...params })
+  return request.post('exam-basic/paper/random', { ...params })
 }

@@ -31,7 +31,8 @@
         <el-button class="filter-item" type="primary" plain @click="edit(dialog.isRead)">考试承诺书</el-button>
         <el-button class="filter-item" :disabled="active === 0 || active >= 2" type="primary" plain @click="deviceCheck">检测设备</el-button>
         <el-button class="filter-item" :disabled="active === 0 || active === 1 || active === 3" type="primary" plain @click="tracking">活体人脸卡证匹配</el-button>
-        <el-button v-if="active === 3" class="filter-item" type="success" plain @click="getExamPaper">进入考试</el-button>
+        <el-button class="filter-item" :disabled="active < 3 || active === 4" type="primary" plain @click="connectDevices">设备监控</el-button>
+        <el-button v-if="active === 4" class="filter-item" type="success" plain @click="getExamPaper">进入考试</el-button>
       </div>
       <div v-if="paperShow">
         <el-row :gutter="10">
@@ -139,9 +140,10 @@
 </template>
 
 <script>
+import { connectSocket } from '@/utils/socket'
 import Pledge from './Pledge'
 import Tracking from '@/components/Tracking'
-import { checkWebcam } from '@/utils/camera'
+import { openCamera } from '@/utils/camera'
 import { saveLog } from '@/api/exam/basic/violateLog'
 export default {
   name: 'ExamDetail',
@@ -188,7 +190,37 @@ export default {
       hr: 0, // 时
       min: 0, // 分
       sec: 0, // 秒,
-      lastUpdateTime: 0
+      lastUpdateTime: 0,
+      localMediaStream: null,
+      localScreenStream: null,
+      websocket: null,
+      // WebRTC 相关
+      mediaConstraints: {
+        video: true,
+        audio: false
+      },
+      configuration: {
+        iceServers: [{
+          'urls': 'stun:stun.l.google.com:19302'
+        }, {
+          'urls': 'turn:106.15.202.13:3478',
+          'username': 'chachae',
+          'credential': '123456'
+        }]
+      },
+      screenConstraints: {
+        video: {
+          cursor: 'always' | 'motion' | 'never',
+          displaySurface: 'application' | 'browser' | 'monitor' | 'window'
+        }
+      },
+      offerOptions: {
+        iceRestart: true,
+        offerToReceiveAudio: false,
+        offerToReceiveVideo: true
+      },
+      rtcPeerConnection: null,
+      cmdUser: null
     }
   },
   computed: {
@@ -383,7 +415,7 @@ export default {
           type: 'warning'
         })
       } else {
-        if (!checkWebcam()) {
+        if (openCamera() === null) {
           this.$message({
             message: '系统摄像头不可用',
             type: 'error'
@@ -403,12 +435,48 @@ export default {
         this.$message({
           message: this.$t('tips.noPledgeSelected'),
           type: 'warning'
-        }).catch((r) => {})
+        }).catch((r) => {
+        })
       } else {
         this.dialog.type = 'tracking'
         this.$refs.tracking.resetTracking()
         this.dialog.isTrackingVisible = true
       }
+    },
+    // 建立远程设备监控环境
+    connectDevices() {
+      // 打开本地音视频,用promise这样在打开视频成功后，再进行下一步操作
+      return new Promise((resolve, reject) => {
+        // 摄像头
+        navigator.mediaDevices.getUserMedia(this.mediaConstraints)
+          .then((stream) => {
+            this.localMediaStream = stream
+          })
+          .then(() => console.log('打开本地音视频设备成功'))
+          .catch(() => console.log('打开本地音视频设备失败'))
+        // 屏幕共享
+        navigator.mediaDevices.getDisplayMedia(this.screenConstraints)
+          .then((stream) => {
+            this.localScreenStream = stream
+          })
+          .then(() => console.log('打开本地音视频设备成功'))
+          .catch(() => console.log('打开本地音视频设备失败'))
+        this.connectSocket()
+        this.active = 4
+      })
+    },
+    // 连接websocket
+    connectSocket() {
+      this.websocket = connectSocket(this.websocket, this.currentUser.username, this.currentUser.fullName, this.exam.paperId)
+      this.websocket.onopen = () => {
+      }
+      this.websocket.onclose = () => {
+        console.log('Connection closed.')
+      }
+      this.websocket.onerror = () => {
+        console.log('websocket error')
+      }
+      this.websocket.onmessage = this.handleMessage
     },
     // 答题卡选择滑动
     goAssignBlock(el) {
@@ -431,25 +499,137 @@ export default {
     },
     // 作弊行为检查-切换标签
     violateChangeTab(evt, hidden) {
-      if (this.paperShow) {
-        if (!hidden) {
-          // 写入违规行为日志
-          this.saveViolateLog(501, this.leaveTime)
-        } else if (this.paperShow) {
-          // 进入考试后才监听
-          this.$alert(`检测到你已离开考试页面，违规记录已累计 ${++this.violate.changeTabCount} 次，超过 3 次后系统将强制提交试卷`, this.$t('table.exam.tips'), {
-            confirmButtonText: this.$t('common.confirm'),
-            type: 'warning'
-          }).catch((r) => {
-          })
-          // 记录离开时间
-          this.leaveTime = new Date()
-        }
-      }
+      // if (this.paperShow) {
+      //   if (!hidden) {
+      //     // 写入违规行为日志
+      //     this.saveViolateLog(501, this.leaveTime)
+      //   } else if (this.paperShow) {
+      //     // 进入考试后才监听
+      //     this.$alert(`检测到你已离开考试页面，违规记录已累计 ${++this.violate.changeTabCount} 次，超过 3 次后系统将强制提交试卷`, this.$t('table.exam.tips'), {
+      //       confirmButtonText: this.$t('common.confirm'),
+      //       type: 'warning'
+      //     }).catch((r) => {
+      //     })
+      //     // 记录离开时间
+      //     this.leaveTime = new Date()
+      //   }
+      // }
     },
     // 违规行为日志记录
     saveViolateLog(code, violateTime) {
-      saveLog(this.exam.paperId, code, violateTime).then((r) => {})
+      saveLog(this.exam.paperId, code, violateTime).then((r) => {
+      })
+    },
+
+    initPeer() {
+      this.rtcPeerConnection = new RTCPeerConnection(this.configuration)
+      this.rtcPeerConnection.onicecandidate = this.handleIceCandidate
+      for (const track of this.localMediaStream.getTracks()) {
+        this.rtcPeerConnection.addTrack(track, this.localMediaStream)
+      }
+    },
+
+    initScreenPeer() {
+      this.rtcPeerConnection = new RTCPeerConnection(this.configuration)
+      this.rtcPeerConnection.onicecandidate = this.handleIceCandidate
+      for (const track of this.localScreenStream.getTracks()) {
+        this.rtcPeerConnection.addTrack(track, this.localScreenStream)
+      }
+    },
+
+    initWebRTCParam() {
+      this.myPeerConnection = null
+      this.myPeerConnection = null
+      this.RTCPeerConnectionCreated = false
+    },
+
+    sendOne(message) {
+      this.$post('exam-online/monitor/send', { message: message })
+    },
+
+    handleIceCandidate(event) {
+      if (event.candidate) {
+        this.sendOne(JSON.stringify({
+          command: 'candidate',
+          fromId: this.currentUser.username,
+          toId: this.cmdUser,
+          content: { candidate: event.candidate }
+        }))
+      }
+    },
+
+    handleCmd(message) {
+      this.cmdUser = message.toId
+      if (message.content === 'camera') {
+        this.initPeer()
+      } else if (message.content === 'screen') {
+        this.initScreenPeer()
+      }
+
+      this.rtcPeerConnection.createOffer(this.offerOptions).then(this.setLocalAndOffer)
+        .catch((e) => {
+          console.log(e)
+        }
+        )
+    },
+
+    setLocalAndOffer(sessionDescription) {
+      this.rtcPeerConnection.setLocalDescription(sessionDescription)
+      this.sendOne(JSON.stringify({
+        command: 'offer',
+        fromId: this.currentUser.username,
+        toId: this.cmdUser,
+        content: { sdp: sessionDescription }
+      }))
+    },
+
+    handleAnswer(message) {
+      const sdp = JSON.parse(message.content).sdp
+      this.rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(sdp))
+    },
+
+    handleCandidate(message) {
+      const candidate = JSON.parse(message.content).candidate
+      this.rtcPeerConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch((e) => {
+        console.log(e)
+      })
+    },
+
+    handleMsg(message) {
+      this.$message({
+        message: message.content,
+        type: 'warning'
+      })
+    },
+
+    /** *
+     * 心跳
+     */
+    checkHeart() {
+      this.sendOne(JSON.stringify({
+        command: 'heart',
+        fromId: this.currentUser.username,
+        toId: this.currentUser.username,
+        content: 'ok'
+      }))
+    },
+
+    handleMessage(event) {
+      const message = JSON.parse(event.data)
+      switch (message.command) {
+        case 'cmd':
+          this.handleCmd(message)
+          break
+        case 'answer':
+          this.handleAnswer(message)
+          break
+        case 'candidate':
+          this.handleCandidate(message)
+          break
+        case 'message':
+          this.handleMsg(message)
+          break
+      }
     }
   }
 }

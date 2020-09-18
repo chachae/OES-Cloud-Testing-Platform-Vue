@@ -46,7 +46,7 @@
       </el-col>
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-brush" /> <span>{{ $t('table.question.fullName') +'：' }}</span> {{ question.fullName }}
+          <i class="el-icon-brush" /> <span>{{ $t('table.question.fullName') +'：' }}</span> {{ question.creatorName }}
         </div>
       </el-col>
     </el-row>
