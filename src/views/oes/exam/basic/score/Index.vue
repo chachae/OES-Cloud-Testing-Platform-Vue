@@ -188,7 +188,9 @@
 
 import PieChart from '@/components/Charts/PieChart'
 import Pagination from '@/components/Pagination'
-import { statisticScore } from '@/api/exam/basic/score'
+import { statisticScore, updateStatus, pageScore } from '@/api/exam/basic/score'
+import { termOptions } from '@/api/exam/basic/term'
+
 export default {
   name: 'ScoreMange',
   components: { Pagination, PieChart },
@@ -227,7 +229,7 @@ export default {
       }, `log_${new Date().getTime()}.xlsx`)
     },
     initTerms() {
-      this.$get('exam-basic/term/options').then((r) => {
+      termOptions().then((r) => {
         this.terms = r.data.data
       }).catch((error) => {
         console.error(error)
@@ -245,7 +247,7 @@ export default {
       }
     },
     updateStatus(row) {
-      this.$put(`exam-basic/score`, { scoreId: row.scoreId, status: row.status }).then(() => {
+      updateStatus(row.scoreId, row.status).then(() => {
         this.$message({
           message: this.$t('tips.updateSuccess'),
           type: 'success'
@@ -257,9 +259,7 @@ export default {
       params.pageSize = this.pagination.size
       params.pageNum = this.pagination.num
       this.loading = true
-      this.$get('exam-basic/score', {
-        ...params
-      }).then((r) => {
+      pageScore(params).then((r) => {
         const data = r.data.data
         this.total = data.total
         this.list = data.rows

@@ -12,7 +12,7 @@
         </div>
         <el-row :gutter="12" style="margin-bottom: 20px">
           <el-col v-for="paper in normalPaper" :key="paper.paperId" :span="8">
-            <el-card class="view-item">
+            <el-card class="view-item" style="background-color: rgba(236,251,252,0.3)">
               <div slot="header">
                 <span>{{ paper.paperName }}</span>
                 <el-button style="float: right; padding: 3px 0" type="text" @click="detail(paper)">进入</el-button>
@@ -53,7 +53,7 @@
         </div>
         <el-row v-if="imitatePaper.length !== 0" :gutter="12">
           <el-col v-for="paper in imitatePaper" :key="paper.paperId" :span="8">
-            <el-card class="view-item">
+            <el-card class="view-item" style="background-color: rgba(236,251,252,0.3)">
               <div slot="header">
                 <span>{{ paper.paperName }}</span>
                 <el-button style="float: right; padding: 3px 0" type="text" @click="detail(paper)">进入</el-button>

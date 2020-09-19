@@ -209,7 +209,7 @@ import { paperTypeOptions } from '@/api/exam/basic/paperType'
 import { courseOptions } from '@/api/exam/basic/course'
 import { typeOptions } from '@/api/exam/basic/type'
 import { termOptions } from '@/api/exam/basic/term'
-import { update, del } from '@/api/exam/basic/paper'
+import { update, del, page } from '@/api/exam/basic/paper'
 export default {
   name: 'QuestionMange',
   components: { PaperRandomAdd, PaperEdit, Pagination, PaperView },
@@ -337,9 +337,7 @@ export default {
     fetch(params = {}) {
       params.pageSize = this.pagination.size
       params.pageNum = this.pagination.num
-      this.$get('exam-basic/paper', {
-        ...params
-      }).then((r) => {
+      page(params).then((r) => {
         const data = r.data.data
         this.total = data.total
         this.list = data.rows

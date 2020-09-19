@@ -118,7 +118,7 @@
 
 import Pagination from '@/components/Pagination'
 import TermEdit from './Edit'
-
+import { pageTerm, deleteTerm } from '@/api/exam/basic/term'
 export default {
   name: 'TermMange',
   components: { Pagination, TermEdit },
@@ -163,9 +163,7 @@ export default {
       params.pageSize = this.pagination.size
       params.pageNum = this.pagination.num
       this.loading = true
-      this.$get('exam-basic/term', {
-        ...params
-      }).then((r) => {
+      pageTerm(params).then((r) => {
         const data = r.data.data
         this.total = data.total
         this.list = data.rows
@@ -213,7 +211,7 @@ export default {
     },
     delete(termId) {
       this.loading = true
-      this.$delete(`exam-basic/term/${termId}`).then(() => {
+      deleteTerm(termId).then(() => {
         this.$message({
           message: this.$t('tips.deleteSuccess'),
           type: 'success'

@@ -407,8 +407,4 @@ export default {
       border-bottom: 1px solid #f1f1f1 !important;
     }
   }
-
-  .video-board {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04)
-  }
 </style>

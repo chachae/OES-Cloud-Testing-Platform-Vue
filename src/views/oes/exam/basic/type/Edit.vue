@@ -37,6 +37,7 @@
 <script>
 
 import { isIntegerGreaterThanZero } from '@/utils/my-validate'
+import { checkType, updateType, saveType } from '@/api/exam/basic/type'
 
 export default {
   name: 'TypeEdit',
@@ -63,7 +64,7 @@ export default {
           { min: 2, max: 10, message: this.$t('rules.range2to10'), trigger: 'blur' },
           { validator: (rule, value, callback) => {
             if (!this.type.typeId) {
-              this.$get(`exam-basic/type/check/${value}`).then((r) => {
+              checkType(value).then((r) => {
                 if (!r.data) {
                   callback(this.$t('rules.typeNameExist'))
                 } else {
@@ -139,7 +140,7 @@ export default {
           this.buttonLoading = false
           if (!this.type.typeId) {
             // create
-            this.$post('exam-basic/type', { ...this.type }).then(() => {
+            saveType(this.type).then(() => {
               this.buttonLoading = false
               this.isVisible = false
               this.$message({
@@ -151,7 +152,7 @@ export default {
           } else {
             // update
             this.type.createTime = this.type.updateTime = null
-            this.$put('exam-basic/type', { ...this.type }).then(() => {
+            updateType(this.type).then(() => {
               this.buttonLoading = false
               this.isVisible = false
               this.$message({

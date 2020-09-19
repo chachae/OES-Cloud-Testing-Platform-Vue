@@ -120,6 +120,7 @@
 <script>
 import Pagination from '@/components/Pagination'
 import TypeEdit from './Edit'
+import { pageType, deleteType } from '@/api/exam/basic/type'
 export default {
   name: 'TypeMange',
   components: { Pagination, TypeEdit },
@@ -185,9 +186,7 @@ export default {
       params.pageSize = this.pagination.size
       params.pageNum = this.pagination.num
       this.loading = true
-      this.$get('exam-basic/type', {
-        ...params
-      }).then((r) => {
+      pageType(params).then((r) => {
         const data = r.data.data
         this.total = data.total
         this.list = data.rows
@@ -248,7 +247,7 @@ export default {
     },
     delete(typeIds) {
       this.loading = true
-      this.$delete(`exam-basic/type/${typeIds}`).then(() => {
+      deleteType(typeIds).then(() => {
         this.$message({
           message: this.$t('tips.deleteSuccess'),
           type: 'success'
@@ -265,9 +264,6 @@ export default {
       this.queryParams = {}
       this.$refs.table.clearFilter()
       this.search()
-    },
-    transTime(time) {
-      return `${time} ms`
     }
   }
 }

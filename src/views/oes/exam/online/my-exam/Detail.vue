@@ -30,7 +30,7 @@
       <div v-if="checkShow" class="view-item">
         <el-button class="filter-item" type="primary" plain @click="edit(dialog.isRead)">考试承诺书</el-button>
         <el-button class="filter-item" :disabled="active === 0 || active >= 2" type="primary" plain @click="deviceCheck">检测设备</el-button>
-        <el-button class="filter-item" :disabled="active === 0 || active === 1 || active === 3" type="primary" plain @click="tracking">活体人脸卡证匹配</el-button>
+        <el-button class="filter-item" :disabled="active <= 1 || active >= 3 " type="primary" plain @click="tracking">活体人脸卡证匹配</el-button>
         <el-button class="filter-item" :disabled="active < 3 || active === 4" type="primary" plain @click="connectDevices">设备监控</el-button>
         <el-button v-if="active === 4" class="filter-item" type="success" plain @click="getExamPaper">进入考试</el-button>
       </div>
@@ -145,6 +145,8 @@ import Pledge from './Pledge'
 import Tracking from '@/components/Tracking'
 import { openCamera } from '@/utils/camera'
 import { saveLog } from '@/api/exam/basic/violateLog'
+import { sendOne } from '@/api/exam/online/socket'
+
 export default {
   name: 'ExamDetail',
   components: { Pledge, Tracking },
@@ -543,13 +545,9 @@ export default {
       this.RTCPeerConnectionCreated = false
     },
 
-    sendOne(message) {
-      this.$post('exam-online/monitor/send', { message: message })
-    },
-
     handleIceCandidate(event) {
       if (event.candidate) {
-        this.sendOne(JSON.stringify({
+        sendOne(JSON.stringify({
           command: 'candidate',
           fromId: this.currentUser.username,
           toId: this.cmdUser,
@@ -575,7 +573,7 @@ export default {
 
     setLocalAndOffer(sessionDescription) {
       this.rtcPeerConnection.setLocalDescription(sessionDescription)
-      this.sendOne(JSON.stringify({
+      sendOne(JSON.stringify({
         command: 'offer',
         fromId: this.currentUser.username,
         toId: this.cmdUser,
@@ -606,7 +604,7 @@ export default {
      * 心跳
      */
     checkHeart() {
-      this.sendOne(JSON.stringify({
+      sendOne(JSON.stringify({
         command: 'heart',
         fromId: this.currentUser.username,
         toId: this.currentUser.username,

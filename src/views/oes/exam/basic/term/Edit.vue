@@ -26,7 +26,7 @@
   </el-dialog>
 </template>
 <script>
-
+import { checkName, saveTerm, updateTerm } from '@/api/exam/basic/term'
 export default {
   name: 'TermEdit',
   props: {
@@ -52,7 +52,7 @@ export default {
           { min: 2, max: 20, message: this.$t('rules.range2to20'), trigger: 'blur' },
           { validator: (rule, value, callback) => {
             if (!this.term.termId) {
-              this.$get('exam-basic/term/check', { termName: value }).then((r) => {
+              checkName(value).then((r) => {
                 if (!r.data) {
                   callback(this.$t('rules.termNameExist'))
                 } else {
@@ -107,7 +107,7 @@ export default {
           this.buttonLoading = false
           if (!this.term.termId) {
             // create
-            this.$post('exam-basic/term', { ...this.term }).then(() => {
+            saveTerm(this.term).then(() => {
               this.buttonLoading = false
               this.isVisible = false
               this.$message({
@@ -119,7 +119,7 @@ export default {
           } else {
             // update
             this.term.createTime = this.term.updateTime = null
-            this.$put('exam-basic/term', { ...this.term }).then(() => {
+            updateTerm(this.term).then(() => {
               this.buttonLoading = false
               this.isVisible = false
               this.$message({

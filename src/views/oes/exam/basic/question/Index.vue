@@ -190,6 +190,9 @@
 </template>
 <script>
 import Pagination from '@/components/Pagination'
+import { pageQuestion, deleteQuestion } from '@/api/exam/basic/question'
+import { courseOptions } from '@/api/exam/basic/course'
+import { typeOptions } from '@/api/exam/basic/type'
 import QuestionView from './View'
 import QuestionEdit from './Edit'
 
@@ -250,7 +253,7 @@ export default {
       this.dialog.isVisible = true
     },
     initCourses() {
-      this.$get('exam-basic/course/options').then((r) => {
+      courseOptions().then((r) => {
         this.courses = r.data.data
       }).catch((error) => {
         console.error(error)
@@ -261,7 +264,7 @@ export default {
       })
     },
     initTypes() {
-      this.$get('exam-basic/type/options').then((r) => {
+      typeOptions().then((r) => {
         this.types = r.data.data
       }).catch((error) => {
         console.error(error)
@@ -275,9 +278,7 @@ export default {
       params.pageSize = this.pagination.size
       params.pageNum = this.pagination.num
       this.loading = true
-      this.$get('exam-basic/question', {
-        ...params
-      }).then((r) => {
+      pageQuestion(params).then((r) => {
         const data = r.data.data
         this.total = data.total
         this.list = data.rows
@@ -324,7 +325,7 @@ export default {
     },
     delete(questionIds) {
       this.loading = true
-      this.$delete(`exam-basic/question/${questionIds}`).then(() => {
+      deleteQuestion(questionIds).then(() => {
         this.$message({
           message: this.$t('tips.deleteSuccess'),
           type: 'success'
