@@ -7,3 +7,8 @@ export function pageQuestion(params) {
 export function deleteQuestion(ids) {
   return request.delete(`exam-basic/question/${ids}`)
 }
+
+export function saveQuestion(params) {
+  return request.post('exam-basic/question', { ...params })
+}
+
