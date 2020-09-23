@@ -12,3 +12,7 @@ export function saveQuestion(params) {
   return request.post('exam-basic/question', { ...params })
 }
 
+export function updateQuestion(params) {
+  return request.put('exam-basic/question', { ...params })
+}
+

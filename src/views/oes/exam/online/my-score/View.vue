@@ -28,13 +28,13 @@
               :sm="24"
             >
               <div class="view-item">
-                <h4>{{ questionIndex + 1 +'：' }} {{ warnQuestion.questionName }}</h4>
+                <h4>{{ questionIndex + 1 +'：' }} {{ parseQuestionName(warnQuestion) }}</h4>
               </div>
               <!-- 选择题选项template -->
-              <template v-if="isChoice(warn.typeId)">
-                <div v-for="(item,index) in warnQuestion.options" :key="index">
+              <template v-if="warn.typeId === 1 || warn.typeId === 2">
+                <div v-for="(item,index) in JSON.parse(warnQuestion.options)" :key="index">
                   <div class="view-item">
-                    {{ getChoice(index) }}. {{ item }}
+                    {{ choices[index] }}. {{ item }}
                   </div>
                 </div>
               </template>
@@ -46,16 +46,9 @@
                 <el-link type="primary" :underline="false">正确答案：</el-link>
                 <el-link :underline="false">{{ warnQuestion.rightKey }}</el-link>
               </div>
-              <div class="view-item">
-                <el-link
-                  v-if="warnQuestion.analysis!==''"
-                  type="primary"
-                  :underline="false"
-                >答案解析：</el-link>
-                <el-link
-                  v-if="warnQuestion.analysis!==''"
-                  :underline="false"
-                >{{ warnQuestion.analysis }}</el-link>
+              <div v-if="warnQuestion.analysis" class="view-item">
+                <el-link type="primary" :underline="false">答案解析：</el-link>
+                <el-link :underline="false">{{ warnQuestion.analysis }}</el-link>
               </div>
             </el-col>
           </el-row>
@@ -65,8 +58,6 @@
   </div>
 </template>
 <script>
-import PaperUtil from '@/utils/paper'
-
 export default {
   name: 'WarnAnswerView',
   props: {
@@ -82,7 +73,9 @@ export default {
       types: {},
       score: {},
       width: this.initWidth(),
-      question: {}
+      question: {},
+      choices: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
+      replaceSpaces: '{{#@#}}'
     }
   },
   computed: {
@@ -115,6 +108,9 @@ export default {
         return '650px'
       }
     },
+    parseQuestionName(question) {
+      return question.typeId === 4 ? question.questionName.replaceAll(this.replaceSpaces, '____') : question.questionName
+    },
     transQuestionType(typeId) {
       for (const index in this.types) {
         if (this.types[index].typeId === typeId) { return this.types[index].typeName }
@@ -122,15 +118,6 @@ export default {
     },
     goBack() {
       this.$emit('close')
-    },
-    isChoice(typeId) {
-      return PaperUtil.isChoice(typeId)
-    },
-    isMultiChoice(typeId) {
-      return PaperUtil.isMulChoice(typeId)
-    },
-    getChoice(index) {
-      return PaperUtil.getChoice(index)
     },
     close() {
       this.$emit('close')

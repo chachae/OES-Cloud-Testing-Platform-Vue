@@ -69,17 +69,17 @@
         <div class="view-item">
           <i class="el-icon-collection-tag" /> <span>{{ $t('table.question.questionName') +'：' }}</span>
           <el-tooltip placement="top" :content="question.questionName" :enterable="false">
-            <span>{{ question.questionName | ellipsis }}</span>
+            <span>{{ parseQuestionName(question) | ellipsis }}</span>
           </el-tooltip>
         </div>
       </el-col>
     </el-row>
-    <template v-if="isChoice()">
-      <div v-for="(item,index) in question.options" :key="index">
+    <template v-if="question.typeId <= 2">
+      <div v-for="(item,index) in JSON.parse(question.options)" :key="index">
         <el-row :gutter="10">
           <el-col :xs="24" :sm="24">
             <div class="view-item">
-              <i class="el-icon-collection-tag" /> <span>{{ choicesTitle[index] +'：' }}</span>
+              <i class="el-icon-collection-tag" /> <span>{{ `选项 `+choices[index] +'：' }}</span>
               <el-tooltip placement="top" :content="item" :enterable="false">
                 <span>{{ item | ellipsis }}</span>
               </el-tooltip>
@@ -103,7 +103,7 @@
         <div class="view-item">
           <i class="el-icon-collection-tag" /> <span>{{ $t('table.question.analysis') +'：' }}</span>
           <el-tooltip placement="top" :content="question.analysis" :enterable="false">
-            <span>{{ question.analysis === null ? '暂无':question.analysis | ellipsis }}</span>
+            <span>{{ !question.analysis ? '暂无':question.analysis | ellipsis }}</span>
           </el-tooltip>
         </div>
       </el-col>
@@ -130,10 +130,11 @@ export default {
   },
   data() {
     return {
-      choicesTitle: ['选项 A', '选项 B', '选项 C', '选项 D', '选项 E', '选项 F'],
+      choices: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'],
       screenWidth: 0,
       width: this.initWidth(),
-      question: {}
+      question: {},
+      replaceSpaces: '{{#@#}}'
     }
   },
   computed: {
@@ -166,6 +167,13 @@ export default {
         return '650px'
       }
     },
+    parseQuestionName(question) {
+      if (question.typeId === 4) {
+        return question.questionName.replaceAll(this.replaceSpaces, '____')
+      } else {
+        return question.questionName
+      }
+    },
     setQuestion(val) {
       this.question = { ...val }
     },
@@ -188,12 +196,6 @@ export default {
         case 1: return this.$t('common.question.right')
         default: return this.$t('common.question.wrong')
       }
-    },
-    isChoice() {
-      return (this.question.typeId === 1 || this.question.typeId === 2)
-    },
-    isEmpty(value) {
-      return value !== null
     }
   }
 }

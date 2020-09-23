@@ -5,8 +5,8 @@
     @contextmenu.prevent
     @select.prevent
   >
-    <div class="view-item" :visible.sync="isDetailShow" style="margin-bottom: 20px">
-      <el-page-header style="padding: 1rem;" :content="exam.paperName" :visible.sync="isDetailShow" @back="goBack" />
+    <div class="view-item" style="margin-bottom: 20px">
+      <el-page-header style="padding: 1rem;" :content="exam.paperName" @back="goBack" />
       <div class="warning custom-block">
         <p class="custom-block-title">WARNING</p>
         <p><strong>{{ $t('table.exam.tips') }}：</strong>距离本场考试截止还有：{{ day }}天{{ hr }}:{{ min }}:{{ sec }}</p>
@@ -32,7 +32,9 @@
         <el-button class="filter-item" :disabled="active === 0 || active >= 2" type="primary" plain @click="deviceCheck">检测设备</el-button>
         <el-button class="filter-item" :disabled="active <= 1 || active >= 3 " type="primary" plain @click="tracking">活体人脸卡证匹配</el-button>
         <el-button class="filter-item" :disabled="active < 3 || active === 4" type="primary" plain @click="connectDevices">设备监控</el-button>
-        <el-button v-if="active === 4" class="filter-item" type="success" plain @click="getExamPaper">进入考试</el-button>
+        <!--        <el-button v-if="active === 4" class="filter-item" type="success" plain @click="getExamPaper">进入考试</el-button>-->
+        <!-- todo 便于测试！！ -->
+        <el-button class="filter-item" type="success" plain @click="getExamPaper">进入考试</el-button>
       </div>
       <div v-if="paperShow">
         <el-row :gutter="10">
@@ -52,7 +54,7 @@
                 <el-button
                   v-for="(question,questionIndex) in questions.list"
                   :key="question.questionId"
-                  :type="calButtonType(question.answerContent)"
+                  :type="calButtonType(question)"
                   plain
                   style="width: 52px; margin-bottom: 5px; margin-right: 5px; border-radius: 0"
                   @click="goAssignBlock(question.questionId)"
@@ -77,47 +79,20 @@
                   <div :ref="`question`+question.questionId">
                     <h4>{{ questionIndex + 1 +'：' }} {{ question.questionName }}</h4>
                   </div>
-                  <!-- 判断template -->
-                  <template v-if="isCheck(questions.typeId)">
-                    <el-radio-group v-model="question.answerContent" @change="updateChoice(question)">
-                      <el-radio label="1" size="medium">正确</el-radio>
-                      <el-radio label="0" size="medium">错误</el-radio>
-                    </el-radio-group>
-                  </template>
-                  <!-- 单项选择题选项template -->
-                  <template v-if="isChoice(questions.typeId)">
-                    <el-radio-group v-model="question.answerContent" @change="updateChoice(question)">
-                      <div v-for="(item,index) in question.options" :key="index">
-                        <el-radio style="margin-bottom: 10px" :label="choices[index]" size="medium">{{ choices[index] }}. {{ item }}</el-radio>
-                      </div>
-                    </el-radio-group>
-                  </template>
-                  <!-- 多项选择题选项template -->
-                  <template v-if="isMultiChoice(questions.typeId)">
-                    <el-checkbox-group v-model="question.answerContent" @change="updateChoice(question)">
-                      <div v-for="(item,index) in question.options" :key="index">
-                        <div class="box-card">
-                          <el-checkbox :label="choices[index]" size="medium">{{ choices[index] }}. {{ item }}</el-checkbox>
-                        </div>
-                      </div>
-                    </el-checkbox-group>
-                  </template>
-                  <template v-if="!isChoice(questions.typeId) && !isMultiChoice(questions.typeId) && !isCheck(questions.typeId)">
-                    <el-input
-                      v-model="question.answerContent"
-                      type="textarea"
-                      :autosize="{ minRows: 1, maxRows: 6}"
-                      :maxlength="400"
-                      :clearable="true"
-                      @change="updateChoice(question)"
-                      @paste.native.capture.prevent=""
-                      @copy.native.capture.prevent=""
-                    />
-                  </template>
+                  <!-- 单项选择题 -->
+                  <choice v-if="questions.typeId === 1" :question="question" @submit="updateChoice" />
+                  <!-- 多项选择题 -->
+                  <mul-choice v-if="questions.typeId === 2" :question="question" @submit="updateChoice" />
+                  <!-- 判断题 -->
+                  <judge v-if="questions.typeId === 3" :question="question" @submit="updateChoice" />
+                  <!-- 填空 -->
+                  <fill v-if="questions.typeId === 4" :question="question" @submit="updateChoice" />
+                  <!-- 主观题 -->
+                  <subjective v-if="questions.typeId === 5" :question="question" @submit="updateChoice" />
                 </el-col>
               </el-row>
             </el-card>
-            <el-button v-show="paperShow" type="success" @click="submitExam()">提交试卷</el-button>
+            <el-button v-if="paperShow" type="success" @click="submitExam()">提交试卷</el-button>
           </el-col>
         </el-row>
       </div>
@@ -142,6 +117,11 @@
 <script>
 import { connectSocket } from '@/utils/socket'
 import Pledge from './Pledge'
+import Judge from './components/Judge'
+import Choice from './components/Choice'
+import MulChoice from './components/MulChoice'
+import Fill from './components/Fill'
+import Subjective from './components/Subjective'
 import Tracking from '@/components/Tracking'
 import { openCamera } from '@/utils/camera'
 import { saveLog } from '@/api/exam/basic/violateLog'
@@ -149,16 +129,9 @@ import { sendOne } from '@/api/exam/online/socket'
 
 export default {
   name: 'ExamDetail',
-  components: { Pledge, Tracking },
-  props: {
-    dialogVisible: {
-      type: Boolean,
-      default: false
-    }
-  },
+  components: { Pledge, Tracking, Judge, Choice, MulChoice, Fill, Subjective },
   data() {
     return {
-      choices: ['A', 'B', 'C', 'D', 'E', 'F'],
       dialog: {
         type: '',
         isTrackingVisible: false,
@@ -171,12 +144,6 @@ export default {
         username: '',
         paperId: ''
       },
-      updateInfo: {
-        studentId: '',
-        paperId: '',
-        questionId: '',
-        answerContent: ''
-      },
       violate: {
         changeTabCount: 0
       },
@@ -186,7 +153,7 @@ export default {
       exam: {},
       paperShow: false,
       checkShow: true,
-      paperQuestionMap: null,
+      paperQuestionMap: [],
       active: 0,
       day: 0, // 天
       hr: 0, // 时
@@ -228,32 +195,12 @@ export default {
   computed: {
     currentUser() {
       return this.$store.state.account.user
-    },
-    isDetailShow: {
-      get() {
-        return this.dialogVisible
-      },
-      set() {
-        this.close()
-      }
     }
   },
   mounted() {
     this.countdown()
   },
   methods: {
-    // 是否单选题
-    isChoice(typeId) {
-      return typeId === 1
-    },
-    // 是否多选题
-    isMultiChoice(typeId) {
-      return typeId === 2
-    },
-    // 是否为判断题
-    isCheck(typeId) {
-      return typeId === 3
-    },
     // 试题类型代码转换
     transQuestionType(typeId) {
       for (const index in this.types) {
@@ -274,15 +221,6 @@ export default {
       this.$get(`exam-online/exam/${this.queryInfo.paperId}`).then((r) => {
         const paper = r.data.data
         this.paperQuestionMap = paper.paperQuestions
-        this.paperQuestionMap.forEach((pq) => {
-          // 对多选题的答案进行数组转换
-          if (pq.typeId === 2) {
-            pq.list.forEach((obj) => {
-              if (!obj.answerContent) obj.answerContent = []
-              else obj.answerContent = obj.answerContent.split(',')
-            })
-          }
-        })
       })
       this.paperShow = true
       this.checkShow = false
@@ -307,8 +245,7 @@ export default {
     },
     // 实时提交答案
     updateChoice(question) {
-      this.setUpdateInfo(question)
-      this.$put('exam-online/answer', { ...this.updateInfo }).then((res) => {
+      this.$put('exam-online/answer', { ...question }).then((res) => {
         question.answerId = res.data.data
         // 控制并发
         if (this.banConcurrent()) {
@@ -346,13 +283,6 @@ export default {
       this.dialog.title = this.$t('table.exam.pledgeTips')
       this.dialog.isVisible = true
     },
-    // 试题更新信息设置
-    setUpdateInfo(question) {
-      this.updateInfo.typeId = question.typeId
-      this.updateInfo.answerId = question.answerId
-      this.updateInfo.answerContent = question.answerContent
-      this.updateInfo.questionId = question.questionId
-    },
     // 题目类型设置
     setTypes(val) {
       this.types = { ...val }
@@ -365,10 +295,19 @@ export default {
     setExam(row) {
       this.exam = { ...row }
       this.initQueryInfo()
-      this.initUpdateInfo()
     },
-    calButtonType(answerContent) {
-      return (answerContent === null || answerContent === '') ? 'danger' : 'success'
+    calButtonType(answer) {
+      let c = answer.answerContent
+      // 多选，填空多个答案
+      if (answer.typeId === 2 || answer.typeId === 4) {
+        if (!c) {
+          return 'danger'
+        } else {
+          c = JSON.parse(c)
+          return !c || c[0] === '' ? 'danger' : 'success'
+        }
+      }
+      return !c ? 'danger' : 'success'
     },
     // 并发时间间隔控制
     banConcurrent() {
@@ -378,11 +317,6 @@ export default {
     initQueryInfo() {
       this.queryInfo.username = this.currentUser.username
       this.queryInfo.paperId = this.exam.paperId
-    },
-    // 初始化试题答案更新基本信息
-    initUpdateInfo() {
-      this.updateInfo.username = this.currentUser.username
-      this.updateInfo.paperId = this.exam.paperId
     },
     // 关闭人脸匹配
     trackingClose() {
@@ -407,6 +341,7 @@ export default {
       this.checkShow = true
       this.examDetailShow = false
       this.dialog.isRead = false
+      this.paperQuestionMap = []
       this.$emit('close')
     },
     // 检测平台监控设备
@@ -563,7 +498,6 @@ export default {
       } else if (message.content === 'screen') {
         this.initScreenPeer()
       }
-
       this.rtcPeerConnection.createOffer(this.offerOptions).then(this.setLocalAndOffer)
         .catch((e) => {
           console.log(e)

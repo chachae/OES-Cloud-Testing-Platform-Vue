@@ -124,18 +124,18 @@
               :sm="24"
             >
               <div class="view-item">
-                <h4>{{ questionIndex + 1 +'：' }} {{ question.questionName }}</h4>
+                <h4>{{ questionIndex + 1 +'：' }} {{ parseQuestionName(question) }}</h4>
               </div>
               <!-- 选择题选项template -->
               <template v-if="isChoice(questions.typeId)">
-                <div v-for="(item,index) in question.options" :key="index">
+                <div v-for="(item,index) in JSON.parse(question.options)" :key="index">
                   <div class="view-item">
-                    {{ getChoice(index) }}. {{ item }}
+                    {{ choices[index] }}. {{ item }}
                   </div>
                 </div>
               </template>
               <div class="view-item">
-                正确答案：{{ question.rightKey }}
+                正确答案：{{ parseRightKey(question) }}
               </div>
             </el-col>
           </el-row>
@@ -163,7 +163,9 @@ export default {
       width: this.initWidth(),
       types: {},
       paperType: {},
-      paper: []
+      paper: [],
+      choices: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
+      replaceSpaces: '{{#@#}}'
     }
   },
   computed: {
@@ -210,6 +212,28 @@ export default {
     },
     transType(type) {
       return type === 1 ? this.$t('common.paperType.normal') : this.$t('common.paperType.imitate')
+    },
+    parseQuestionName(question) {
+      if (question.typeId === 4) {
+        return question.questionName.replaceAll(this.replaceSpaces, '____')
+      } else {
+        return question.questionName
+      }
+    },
+    parseRightKey(question) {
+      if (question.typeId === 4) {
+        const res = JSON.parse(question.rightKey)
+        let ans = ''
+        for (let i = 0; i < res.length; i++) {
+          ans += res[i]
+          if (i + 1 < res.length) {
+            ans += ' | '
+          }
+        }
+        return ans
+      } else {
+        return question.rightKey
+      }
     },
     calTypeScore(typeId) {
       for (const index in this.paperType) {

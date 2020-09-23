@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { saveQuestion } from '@/api/exam/basic/question'
+import { saveQuestion, updateQuestion } from '@/api/exam/basic/question'
 export default {
   name: 'Choice',
   props: {
@@ -88,17 +88,29 @@ export default {
     }
   },
   methods: {
+
     submitForm() {
       this.$refs.form.validate((valid) => {
         if (valid) {
+          this.question.createTime = null
           this.question.options = JSON.stringify(this.question.optionArray)
-          saveQuestion(this.question).then((r) => {
-            this.$message({
-              message: this.$t('tips.createSuccess'),
-              type: 'success'
+          if (this.question.questionId) {
+            updateQuestion(this.question).then((r) => {
+              this.$message({
+                message: this.$t('tips.createSuccess'),
+                type: 'success'
+              })
+              this.reset()
             })
-            this.reset()
-          })
+          } else {
+            saveQuestion(this.question).then((r) => {
+              this.$message({
+                message: this.$t('tips.updateSuccess'),
+                type: 'success'
+              })
+              this.reset()
+            })
+          }
         }
       })
     },
@@ -120,14 +132,9 @@ export default {
 
     setQuestion(question) {
       this.question = question
-      const options = question.options
+      const options = JSON.parse(question.options)
       this.$set(this.question, 'optionArray', options)
       this.optionNum = options.length
-      if (options instanceof Array) {
-        for (let i = 0; i < options.length; i++) {
-          this.question.optionArray[i] = options[i]
-        }
-      }
     },
 
     reset() {

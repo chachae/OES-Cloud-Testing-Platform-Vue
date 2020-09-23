@@ -3,7 +3,7 @@
     <el-form ref="form" :model="question" :rules="rules" label-position="right" label-width="100px">
       <el-form-item label="题干" prop="questionName">
         <el-input
-          v-model=" question.questionName "
+          v-model="question.questionName"
           type="textarea"
           :autosize="{ minRows: 2, maxRows: 6}"
           maxlength="100"
@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { saveQuestion } from '@/api/exam/basic/question'
+import { saveQuestion, updateQuestion } from '@/api/exam/basic/question'
 export default {
   name: 'Judge',
   props: {
@@ -69,13 +69,24 @@ export default {
     submitForm() {
       this.$refs.form.validate((valid) => {
         if (valid) {
-          saveQuestion(this.question).then((r) => {
-            this.$message({
-              message: this.$t('tips.createSuccess'),
-              type: 'success'
+          this.question.createTime = null
+          if (this.question.questionId) {
+            updateQuestion(this.question).then((r) => {
+              this.$message({
+                message: this.$t('tips.createSuccess'),
+                type: 'success'
+              })
+              this.reset()
             })
-            this.reset()
-          })
+          } else {
+            saveQuestion(this.question).then((r) => {
+              this.$message({
+                message: this.$t('tips.updateSuccess'),
+                type: 'success'
+              })
+              this.reset()
+            })
+          }
         }
       })
     },

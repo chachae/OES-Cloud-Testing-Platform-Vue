@@ -32,9 +32,9 @@
           show-word-limit
         />
       </el-form-item>
-      <el-form-item v-if="question.optionArray.length !== 0" label="正确答案" prop="rightKey">
+      <el-form-item v-if="question.optionArray.length !== 0" label="正确答案" prop="rightKeyArray">
         <el-select
-          v-model="question.rightKey"
+          v-model="question.rightKeyArray"
           :multiple="true"
         >
           <el-option
@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import { saveQuestion } from '@/api/exam/basic/question'
+import { saveQuestion, updateQuestion } from '@/api/exam/basic/question'
 export default {
   name: 'MulChoice',
   props: {
@@ -86,7 +86,7 @@ export default {
       rules: {
         questionName: [{ required: true, message: this.$t('rules.require'), trigger: 'blur' }],
         optionArray: [{ required: true, message: this.$t('rules.require'), trigger: 'blur' }],
-        rightKey: [{ required: true, message: this.$t('rules.require'), trigger: 'blur' }]
+        rightKeyArray: [{ required: true, message: this.$t('rules.require'), trigger: 'blur' }]
       }
     }
   },
@@ -94,17 +94,30 @@ export default {
     submitForm() {
       this.$refs.form.validate((valid) => {
         if (valid) {
+          this.question.createTime = null
           this.question.options = JSON.stringify(this.question.optionArray)
-          saveQuestion(this.question).then((r) => {
-            this.$message({
-              message: this.$t('tips.createSuccess'),
-              type: 'success'
+          this.question.rightKey = JSON.stringify(this.question.rightKeyArray.sort())
+          if (this.question.questionId) {
+            updateQuestion(this.question).then((r) => {
+              this.$message({
+                message: this.$t('tips.createSuccess'),
+                type: 'success'
+              })
+              this.reset()
             })
-            this.reset()
-          })
+          } else {
+            saveQuestion(this.question).then((r) => {
+              this.$message({
+                message: this.$t('tips.updateSuccess'),
+                type: 'success'
+              })
+              this.reset()
+            })
+          }
         }
       })
     },
+
     checkOptions() {
       const oldOption = this.question.optionArray
       if (oldOption.length > this.optionNum) {
@@ -124,14 +137,10 @@ export default {
 
     setQuestion(question) {
       this.question = question
-      const options = question.options
+      const options = JSON.parse(question.options)
       this.$set(this.question, 'optionArray', options)
-      this.optionNum = options.length
-      if (options instanceof Array) {
-        for (let i = 0; i < options.length; i++) {
-          this.question.optionArray[i] = options[i]
-        }
-      }
+      const rightKey = JSON.parse(question.rightKey)
+      this.$set(this.question, 'rightKeyArray', rightKey)
     },
 
     initQuestion() {
@@ -139,6 +148,7 @@ export default {
         typeId: 2,
         courseId: this.courseId,
         optionArray: [],
+        rightKeyArray: [],
         options: null,
         rightKey: null,
         analysis: null,

@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { saveQuestion } from '@/api/exam/basic/question'
+import { saveQuestion, updateQuestion } from '@/api/exam/basic/question'
 export default {
   name: 'Subjective',
   props: {
@@ -66,13 +66,24 @@ export default {
     submitForm() {
       this.$refs.form.validate((valid) => {
         if (valid) {
-          saveQuestion(this.question).then((r) => {
-            this.$message({
-              message: this.$t('tips.createSuccess'),
-              type: 'success'
+          this.question.createTime = null
+          if (this.question.questionId) {
+            updateQuestion(this.question).then((r) => {
+              this.$message({
+                message: this.$t('tips.createSuccess'),
+                type: 'success'
+              })
+              this.reset()
             })
-            this.reset()
-          })
+          } else {
+            saveQuestion(this.question).then((r) => {
+              this.$message({
+                message: this.$t('tips.updateSuccess'),
+                type: 'success'
+              })
+              this.reset()
+            })
+          }
         }
       })
     },

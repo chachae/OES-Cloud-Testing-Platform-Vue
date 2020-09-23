@@ -322,6 +322,7 @@ export default {
         this.$refs.view.setWarnAnswers(warnAnswers)
         this.$refs.view.setTypes(this.types)
         this.scoreIndexShow = false
+        this.statistic(row)
       })
     },
     search() {

@@ -3,6 +3,7 @@
     <el-form ref="form" :model="question" :rules="rules" label-position="right" label-width="100px">
       <el-form-item label="题干" prop="questionName">
         <el-input
+          ref="questionName"
           v-model="question.questionName"
           type="textarea"
           :autosize="{ minRows: 2, maxRows: 6}"
@@ -21,20 +22,25 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" plain @click="addFill">插入填空</el-button>
+        <el-button type="primary" plain @click="addFill">光标处插入填空</el-button>
       </el-form-item>
       <el-form-item
         v-for="(item,index) in fillNum"
         :key="index"
+        :inline="true"
         :label="`填空 ${fills[index]}`"
         :prop="`fillArray.${index}`"
         :rules="rules.fillArray"
       >
-        <el-input
-          v-model="question.fillArray[index]"
-          maxlength="100"
-          show-word-limit
-        />
+        <div class="filter-container">
+          <el-input
+            v-model="question.fillArray[index]"
+            class="filter-item"
+            maxlength="100"
+            style="width: 80%"
+          />
+          <el-button class="filter-item" type="danger" plain @click="removeFill(index)">移除当前填空</el-button>
+        </div>
       </el-form-item>
       <el-form-item label="题目解析" prop="analysis">
         <el-input
@@ -60,7 +66,7 @@
 </template>
 
 <script>
-import { saveQuestion } from '@/api/exam/basic/question'
+import { saveQuestion, updateQuestion } from '@/api/exam/basic/question'
 
 export default {
   name: 'Choice',
@@ -85,23 +91,73 @@ export default {
     }
   },
   methods: {
+
     submitForm() {
       this.$refs.form.validate((valid) => {
         if (valid) {
+          this.question.createTime = null
           this.question.rightKey = JSON.stringify(this.question.fillArray)
-          saveQuestion(this.question).then((r) => {
-            this.$message({
-              message: this.$t('tips.createSuccess'),
-              type: 'success'
+          if (this.question.questionId) {
+            updateQuestion(this.question).then((r) => {
+              this.$message({
+                message: this.$t('tips.createSuccess'),
+                type: 'success'
+              })
+              this.reset()
             })
-            this.reset()
-          })
+          } else {
+            saveQuestion(this.question).then((r) => {
+              this.$message({
+                message: this.$t('tips.updateSuccess'),
+                type: 'success'
+              })
+              this.reset()
+            })
+          }
         }
       })
     },
 
     addFill() {
-      this.question.questionName += this.replaceSpaces
+      this.insertText(this.replaceSpaces)
+    },
+
+    insertText(insertTxt) {
+      // 获取el-input中的input元素
+      const elInput = this.$refs.questionName.$el.firstElementChild
+      // 获取el-input的值
+      const txt = elInput.value
+      // 做插入前做长度校验
+      if (txt.length + insertTxt.length >= 200) {
+        return
+      }
+      // 获取选区开始位置
+      const startPos = elInput.selectionStart
+      // 获取选区结束位置
+      const endPos = elInput.selectionEnd
+      if (startPos === undefined || endPos === undefined) return
+      // 将文本插入光标位置
+      this.question.questionName = txt.substring(0, startPos) + insertTxt + txt.substring(endPos)
+      // 将光标移至文本末尾
+      elInput.focus()
+      elInput.selectionStart = startPos + insertTxt.length
+      elInput.selectionEnd = startPos + insertTxt.length
+    },
+
+    removeFill(index) {
+      const c = this.question.questionName
+      for (let i = 0, count = 0; i < c.length; i++) {
+        if (c.charAt(i) === '{' && i + 7 <= c.length && c.slice(i, i + 7) === this.replaceSpaces) {
+          if (count === index) {
+            this.question.questionName = c.substring(0, i) + c.substring(i + 7)
+            break
+          } else {
+            i += 7
+            count++
+          }
+        }
+      }
+      this.changeQuestionName()
     },
 
     changeQuestionName() {
@@ -110,7 +166,7 @@ export default {
       if (c !== null) {
         this.questionNamePreview = c.replaceAll(this.replaceSpaces, '____')
         for (let i = 0; i < c.length; i++) {
-          count += c.charAt(i) === '{' && i + 7 < c.length && c.slice(i, i + 7) === this.replaceSpaces ? 1 : 0
+          count += c.charAt(i) === '{' && i + 7 <= c.length && c.slice(i, i + 7) === this.replaceSpaces ? 1 : 0
         }
         this.fillNum = count
       }

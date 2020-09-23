@@ -88,7 +88,7 @@
             min-width="120px"
           >
             <template slot-scope="scope">
-              <span>{{ scope.row.questionName }}</span>
+              <span>{{ scope.row.questionName | replaceFill }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -111,17 +111,6 @@
           >
             <template slot-scope="scope">
               <span>{{ scope.row.typeName }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            :label="$t('table.question.fullName')"
-            prop="creatorName"
-            :show-overflow-tooltip="true"
-            align="center"
-            min-width="80px"
-          >
-            <template slot-scope="scope">
-              <span>{{ scope.row.creatorName }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -202,6 +191,11 @@ import AddQuestion from './Add'
 export default {
   name: 'QuestionMange',
   components: { Pagination, QuestionView, AddQuestion },
+  filters: {
+    replaceFill(target) {
+      return target.replaceAll('{{#@#}}', '____')
+    }
+  },
   data() {
     return {
       dialog: {
