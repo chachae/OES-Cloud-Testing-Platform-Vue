@@ -1,17 +1,19 @@
+<!-- 填空题模板 -->
 <template>
   <div v-if="initOk">
     <el-input
       v-for="(item,index) in fillNum"
       :key="index"
       v-model="answerContentArray[index]"
-      :placeholder="`填空 `+index"
       :maxlength="20"
       :clearable="true"
       class="filter-container"
       @change="updateChoice(question)"
       @paste.native.capture.prevent=""
       @copy.native.capture.prevent=""
-    />
+    >
+      <template slot="prepend">填空 {{ index + 1 }}</template>
+    </el-input>
   </div>
 </template>
 <script>

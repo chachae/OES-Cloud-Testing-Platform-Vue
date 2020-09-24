@@ -1,147 +1,133 @@
 <template>
-  <div
-    v-visibility-change="violateChangeTab"
-    @mouseleave="violateMouseLeave($event)"
-    @contextmenu.prevent
-    @select.prevent
-  >
-    <div class="view-item" style="margin-bottom: 20px">
-      <el-page-header style="padding: 1rem;" :content="exam.paperName" @back="goBack" />
-      <div class="warning custom-block">
-        <p class="custom-block-title">WARNING</p>
-        <p><strong>{{ $t('table.exam.tips') }}：</strong>距离本场考试截止还有：{{ day }}天{{ hr }}:{{ min }}:{{ sec }}</p>
-      </div>
-      <div v-if="checkShow" style="margin-top: 10px; margin-bottom: 20px" class="view-item">
-        <el-steps direction="vertical" style="height: 300px" :active="active" finish-status="success">
-          <el-step
-            title="步骤 1"
-            description="点击「考试承诺书」阅读承若书后完成第一步任务"
-          />
-          <el-step
-            title="步骤 2"
-            description="点击「检测设备」进行考前设备检测"
-          />
-          <el-step
-            title="步骤 3"
-            description="点击「活体人脸卡证匹配」进行考生身份核验，如果浏览器提示本站需使用摄像头，请选择「允许」后继续下一步"
-          />
-        </el-steps>
-      </div>
-      <div v-if="checkShow" class="view-item">
-        <el-button class="filter-item" type="primary" plain @click="edit(dialog.isRead)">考试承诺书</el-button>
-        <el-button class="filter-item" :disabled="active === 0 || active >= 2" type="primary" plain @click="deviceCheck">检测设备</el-button>
-        <el-button class="filter-item" :disabled="active <= 1 || active >= 3 " type="primary" plain @click="tracking">活体人脸卡证匹配</el-button>
-        <el-button class="filter-item" :disabled="active < 3 || active === 4" type="primary" plain @click="connectDevices">设备监控</el-button>
-        <!--        <el-button v-if="active === 4" class="filter-item" type="success" plain @click="getExamPaper">进入考试</el-button>-->
-        <!-- todo 便于测试！！ -->
-        <el-button class="filter-item" type="success" plain @click="getExamPaper">进入考试</el-button>
-      </div>
-      <div v-if="paperShow">
-        <el-row :gutter="10">
-          <el-col :xs="24" :sm="5">
-            <!-- 题目选择器（答题卡） -->
-            <el-card
-              v-for="questions in paperQuestionMap"
-              :key="questions.typeId"
-              shadow="never"
-              class="box-card"
-              style="background-color: #f8fafb;"
-            >
-              <div slot="header">
-                <span>{{ transQuestionType(questions.typeId) }}</span>
-              </div>
-              <div style="display:flex; flex-direction: row; flex-wrap: wrap; justify-content: flex-start">
-                <el-button
-                  v-for="(question,questionIndex) in questions.list"
-                  :key="question.questionId"
-                  :type="calButtonType(question)"
-                  plain
-                  style="width: 52px; margin-bottom: 5px; margin-right: 5px; border-radius: 0"
-                  @click="goAssignBlock(question.questionId)"
-                >{{ questionIndex+1 }}</el-button>
-              </div>
-            </el-card>
-          </el-col>
-          <el-col :xs="24" :sm="19">
+  <div>
+    <el-container ref="examContainer">
+      <el-header>
+        <div style="display:flex; flex-direction: row;justify-content: space-between">
+          <p>
+            <strong>考试名称：</strong><el-tag>{{ exam.paperName }}</el-tag>
+          </p>
+          <p>
+            <strong>倒计时：</strong>
+            <el-tag type="danger">
+              <countdown-date-time
+                v-if="exam.startTime && exam.endTime"
+                :end-time="exam.endTime"
+              />
+            </el-tag>
+          </p>
+        </div>
+      </el-header>
+      <el-container style="height: 500px; border: 1px solid #eee">
+        <el-aside v-if="paperShow" style="background-color: white; border-right: 1px solid #eee" width="22%">
+          <el-divider>考试信息</el-divider>
+          <div class="view-item">
+            <div>
+              <p><strong>归属课程：</strong>《 {{ exam.courseName }} 》</p>
+            </div>
+            <div>
+              <p><strong>考试时长：</strong>{{ exam.minute }} 分钟</p>
+            </div>
+            <div>
+              <p><strong>试卷分值：</strong><el-tag type="success">{{ exam.paperScore }} 分</el-tag></p>
+            </div>
+            <div>
+              <p><strong>所在学期：</strong>{{ exam.termName }}</p>
+            </div>
+          </div>
+          <el-divider>答题卡</el-divider>
+          <div
+            v-for="questions in exam.paperQuestions"
+            :key="questions.typeId"
+            class="box-card"
+          >
+            <div slot="header">
+              <p><strong>{{ transQuestionType(questions.typeId) }}</strong></p>
+            </div>
+            <div style="display:flex; flex-direction: row; flex-wrap: wrap; justify-content: flex-start">
+              <el-button
+                v-for="(question,questionIndex) in questions.list"
+                :key="question.questionId"
+                :type="calButtonType(question)"
+                plain
+                style="width: 52px; margin-bottom: 5px; margin-right: 5px; border-radius: 0"
+                @click="goAssignBlock(question.questionId)"
+              >{{ questionIndex+1 }}</el-button>
+            </div>
+          </div>
+        </el-aside>
+        <el-main>
+          <div class="view-item" style="margin-bottom: 20px">
+
+            <!-- 考前校验 -->
+            <exam-validate
+              v-if="checkShow"
+              ref="examValidate"
+              @validateOk="enterExam"
+            />
+
             <!-- 试卷主体 -->
-            <el-card
-              v-for="questions in paperQuestionMap"
-              :key="questions.typeId"
-              shadow="never"
-              class="box-card"
-              style="background-color: #f8fafb"
-            >
-              <div slot="header">
-                <h3>{{ transQuestionType(questions.typeId) }} ({{ calTypeScore(questions.typeId) }} 分)</h3>
-              </div>
+            <div v-if="paperShow">
               <el-row :gutter="10">
-                <el-col v-for="(question,questionIndex) in questions.list" :key="question.questionId" :xs="24" :sm="24">
-                  <div :ref="`question`+question.questionId">
-                    <h4>{{ questionIndex + 1 +'：' }} {{ question.questionName }}</h4>
-                  </div>
-                  <!-- 单项选择题 -->
-                  <choice v-if="questions.typeId === 1" :question="question" @submit="updateChoice" />
-                  <!-- 多项选择题 -->
-                  <mul-choice v-if="questions.typeId === 2" :question="question" @submit="updateChoice" />
-                  <!-- 判断题 -->
-                  <judge v-if="questions.typeId === 3" :question="question" @submit="updateChoice" />
-                  <!-- 填空 -->
-                  <fill v-if="questions.typeId === 4" :question="question" @submit="updateChoice" />
-                  <!-- 主观题 -->
-                  <subjective v-if="questions.typeId === 5" :question="question" @submit="updateChoice" />
+                <el-col :xs="24" :sm="24">
+                  <!-- 试卷主体 -->
+                  <el-card
+                    v-for="questions in exam.paperQuestions"
+                    :key="questions.typeId"
+                    shadow="never"
+                    class="box-card"
+                    style="background-color: #f8fafb"
+                  >
+                    <div slot="header">
+                      <h3>{{ transQuestionType(questions.typeId) }} ({{ calTypeScore(questions.typeId) }} 分)</h3>
+                    </div>
+                    <el-row :gutter="10">
+                      <el-col v-for="(question,questionIndex) in questions.list" :key="question.questionId" :xs="24" :sm="24">
+                        <div :ref="`question`+question.questionId">
+                          <h4>{{ questionIndex + 1 +'、' }} {{ question.questionName }}</h4>
+                        </div>
+                        <!-- 单项选择题 -->
+                        <choice v-if="questions.typeId === 1" :question="question" @submit="updateChoice" />
+                        <!-- 多项选择题 -->
+                        <mul-choice v-if="questions.typeId === 2" :question="question" @submit="updateChoice" />
+                        <!-- 判断题 -->
+                        <judge v-if="questions.typeId === 3" :question="question" @submit="updateChoice" />
+                        <!-- 填空 -->
+                        <fill v-if="questions.typeId === 4" :question="question" @submit="updateChoice" />
+                        <!-- 主观题 -->
+                        <subjective v-if="questions.typeId === 5" :question="question" @submit="updateChoice" />
+                      </el-col>
+                    </el-row>
+                  </el-card>
+                  <el-button v-if="paperShow" type="success" @click="submitExam()">提交试卷</el-button>
                 </el-col>
               </el-row>
-            </el-card>
-            <el-button v-if="paperShow" type="success" @click="submitExam()">提交试卷</el-button>
-          </el-col>
-        </el-row>
-      </div>
-      <pledge
-        ref="pledge"
-        :dialog-visible="dialog.isVisible"
-        :title="dialog.title"
-        @isRead="editIsRead"
-        @close="editClose"
-      />
-      <Tracking
-        ref="tracking"
-        :dialog-visible="dialog.isTrackingVisible"
-        :type="dialog.type"
-        @close="trackingClose"
-        @success="trackingSuccess"
-      />
-    </div>
+            </div>
+          </div>
+        </el-main>
+      </el-container>
+    </el-container>
   </div>
 </template>
 
 <script>
-import { connectSocket } from '@/utils/socket'
-import Pledge from './Pledge'
+import CountdownDateTime from '@/components/CountdownDateTime'
 import Judge from './components/Judge'
 import Choice from './components/Choice'
 import MulChoice from './components/MulChoice'
 import Fill from './components/Fill'
 import Subjective from './components/Subjective'
-import Tracking from '@/components/Tracking'
-import { openCamera } from '@/utils/camera'
+import ExamValidate from './Validate'
 import { saveLog } from '@/api/exam/basic/violateLog'
-import { sendOne } from '@/api/exam/online/socket'
 
 export default {
   name: 'ExamDetail',
-  components: { Pledge, Tracking, Judge, Choice, MulChoice, Fill, Subjective },
+  components: { Judge, Choice, MulChoice, Fill, Subjective, ExamValidate, CountdownDateTime },
   data() {
     return {
-      dialog: {
-        type: '',
-        isTrackingVisible: false,
-        isVisible: false,
-        title: '',
-        isRead: false,
-        leaveTime: null
-      },
+      clientHeight: '',
       queryInfo: {
         username: '',
+        fullName: '',
         paperId: ''
       },
       violate: {
@@ -153,60 +139,74 @@ export default {
       exam: {},
       paperShow: false,
       checkShow: true,
-      paperQuestionMap: [],
       active: 0,
-      day: 0, // 天
-      hr: 0, // 时
-      min: 0, // 分
-      sec: 0, // 秒,
-      lastUpdateTime: 0,
-      localMediaStream: null,
-      localScreenStream: null,
-      websocket: null,
-      // WebRTC 相关
-      mediaConstraints: {
-        video: true,
-        audio: false
-      },
-      configuration: {
-        iceServers: [{
-          'urls': 'stun:stun.l.google.com:19302'
-        }, {
-          'urls': 'turn:106.15.202.13:3478',
-          'username': 'chachae',
-          'credential': '123456'
-        }]
-      },
-      screenConstraints: {
-        video: {
-          cursor: 'always' | 'motion' | 'never',
-          displaySurface: 'application' | 'browser' | 'monitor' | 'window'
-        }
-      },
-      offerOptions: {
-        iceRestart: true,
-        offerToReceiveAudio: false,
-        offerToReceiveVideo: true
-      },
-      rtcPeerConnection: null,
-      cmdUser: null
+      lastUpdateTime: 0
     }
   },
   computed: {
     currentUser() {
       return this.$store.state.account.user
+    },
+    device() {
+      return this.$store.state.setting.device
+    },
+    sidebar() {
+      return this.$store.state.setting.sidebar
+    }
+  },
+  watch: {
+    clientHeight: function() {
+      this.changeFixed(this.clientHeight)
     }
   },
   mounted() {
-    this.countdown()
+    this.initQueryInfo()
+    this.initValidate()
+    this.alertExamTips()
+    this.initTypes()
+    this.initPaperType()
+    this.getExamPaper()
+    // 获取浏览器可视区域高度
+    this.clientHeight = `${document.documentElement.clientHeight}`
+    window.onresize = function temp() {
+      this.clientHeight = `${document.documentElement.clientHeight}`
+    }
   },
+
   methods: {
+    changeFixed(clientHeight) { // 动态修改样式
+      // console.log(clientHeight);
+      // console.log(this.$refs.homePage.$el.style.height);
+      this.$refs.examContainer.$el.style.height = clientHeight - 20 + 'px'
+    },
+    classObj() {
+      return {
+        hideSidebar: !this.sidebar.opened,
+        openSidebar: this.sidebar.opened,
+        withoutAnimation: this.sidebar.withoutAnimation,
+        mobile: this.device === 'mobile'
+      }
+    },
     // 试题类型代码转换
     transQuestionType(typeId) {
       for (const index in this.types) {
         if (this.types[index].typeId === typeId) return this.types[index].typeName
       }
       return this.$t('common.unknown')
+    },
+    initValidate() {
+      this.$refs.examValidate.setValidateInfo({ ...this.queryInfo })
+    },
+    initTypes() {
+      this.$get('exam-basic/type/options').then((r) => {
+        this.types = r.data.data
+      }).catch((error) => {
+        console.error(error)
+        this.$message({
+          message: this.$t('tips.getDataFail'),
+          type: 'error'
+        })
+      })
     },
     // 计算试题类型总分
     calTypeScore(typeId) {
@@ -219,29 +219,12 @@ export default {
     // 获取试题数据
     getExamPaper() {
       this.$get(`exam-online/exam/${this.queryInfo.paperId}`).then((r) => {
-        const paper = r.data.data
-        this.paperQuestionMap = paper.paperQuestions
+        this.exam = r.data.data
       })
+    },
+    enterExam() {
       this.paperShow = true
       this.checkShow = false
-    },
-    // 考试倒计时
-    countdown() {
-      const end = Date.parse(new Date(this.exam.endTime).toString())
-      const now = Date.parse(new Date().toString())
-      const msec = end - now
-      const day = parseInt(msec / 1000 / 60 / 60 / 24)
-      const hr = parseInt(msec / 1000 / 60 / 60 % 24)
-      const min = parseInt(msec / 1000 / 60 % 60)
-      const sec = parseInt(msec / 1000 % 60)
-      this.day = day
-      this.hr = hr > 9 ? hr : '0' + hr
-      this.min = min > 9 ? min : '0' + min
-      this.sec = sec > 9 ? sec : '0' + sec
-      const that = this
-      setTimeout(function() {
-        that.countdown()
-      }, 1000)
     },
     // 实时提交答案
     updateChoice(question) {
@@ -268,33 +251,11 @@ export default {
         this.$post('exam-online/score', { ...this.queryInfo }).then(this.goBack())
       })
     },
-    // 关闭 Visible
-    editClose() {
-      this.dialog.isVisible = false
-    },
-    // 考试承诺书已读处理
-    editIsRead() {
-      this.dialog.isRead = true
-      this.active = 1
-    },
-    // 考试承诺书弹窗
-    edit(isRead) {
-      this.$refs.pledge.setRead(isRead)
-      this.dialog.title = this.$t('table.exam.pledgeTips')
-      this.dialog.isVisible = true
-    },
-    // 题目类型设置
-    setTypes(val) {
-      this.types = { ...val }
-    },
     // 试卷类型设置
-    initPaperType(val) {
-      this.paperType = { ...val }
-    },
-    // 试卷信息设置
-    setExam(row) {
-      this.exam = { ...row }
-      this.initQueryInfo()
+    initPaperType() {
+      this.$get(`exam-basic/paperType/options?paperId=${this.queryInfo.paperId}`).then((r) => {
+        this.paperType = { ...r.data.data }
+      })
     },
     calButtonType(answer) {
       let c = answer.answerContent
@@ -315,17 +276,10 @@ export default {
     },
     // 初始化试卷查询基本信息
     initQueryInfo() {
+      const paperId = this.$route.params.paperId
+      this.queryInfo.fullName = this.currentUser.fullName
       this.queryInfo.username = this.currentUser.username
-      this.queryInfo.paperId = this.exam.paperId
-    },
-    // 关闭人脸匹配
-    trackingClose() {
-      this.dialog.isTrackingVisible = false
-    },
-    // 人脸匹配成功处理
-    trackingSuccess() {
-      this.active = 3
-      this.dialog.isTrackingVisible = false
+      this.queryInfo.paperId = paperId
     },
     // 进入考试弹窗
     alertExamTips() {
@@ -340,80 +294,7 @@ export default {
       this.paperShow = false
       this.checkShow = true
       this.examDetailShow = false
-      this.dialog.isRead = false
-      this.paperQuestionMap = []
-      this.$emit('close')
-    },
-    // 检测平台监控设备
-    deviceCheck() {
-      if (!this.dialog.isRead) {
-        this.$message({
-          message: this.$t('tips.noPledgeSelected'),
-          type: 'warning'
-        })
-      } else {
-        if (openCamera() === null) {
-          this.$message({
-            message: '系统摄像头不可用',
-            type: 'error'
-          })
-        } else {
-          this.$message({
-            message: '摄像头检测通过',
-            type: 'success'
-          })
-          this.active = 2
-        }
-      }
-    },
-    // 打开人脸匹配模态框
-    tracking() {
-      if (!this.dialog.isRead) {
-        this.$message({
-          message: this.$t('tips.noPledgeSelected'),
-          type: 'warning'
-        }).catch((r) => {
-        })
-      } else {
-        this.dialog.type = 'tracking'
-        this.$refs.tracking.resetTracking()
-        this.dialog.isTrackingVisible = true
-      }
-    },
-    // 建立远程设备监控环境
-    connectDevices() {
-      // 打开本地音视频,用promise这样在打开视频成功后，再进行下一步操作
-      return new Promise((resolve, reject) => {
-        // 摄像头
-        navigator.mediaDevices.getUserMedia(this.mediaConstraints)
-          .then((stream) => {
-            this.localMediaStream = stream
-          })
-          .then(() => console.log('打开本地音视频设备成功'))
-          .catch(() => console.log('打开本地音视频设备失败'))
-        // 屏幕共享
-        navigator.mediaDevices.getDisplayMedia(this.screenConstraints)
-          .then((stream) => {
-            this.localScreenStream = stream
-          })
-          .then(() => console.log('打开本地音视频设备成功'))
-          .catch(() => console.log('打开本地音视频设备失败'))
-        this.connectSocket()
-        this.active = 4
-      })
-    },
-    // 连接websocket
-    connectSocket() {
-      this.websocket = connectSocket(this.websocket, this.currentUser.username, this.currentUser.fullName, this.exam.paperId)
-      this.websocket.onopen = () => {
-      }
-      this.websocket.onclose = () => {
-        console.log('Connection closed.')
-      }
-      this.websocket.onerror = () => {
-        console.log('websocket error')
-      }
-      this.websocket.onmessage = this.handleMessage
+      // this.$emit('close')
     },
     // 答题卡选择滑动
     goAssignBlock(el) {
@@ -454,114 +335,8 @@ export default {
     },
     // 违规行为日志记录
     saveViolateLog(code, violateTime) {
-      saveLog(this.exam.paperId, code, violateTime).then((r) => {
+      saveLog(this.queryInfo.paperId, code, violateTime).then((r) => {
       })
-    },
-
-    initPeer() {
-      this.rtcPeerConnection = new RTCPeerConnection(this.configuration)
-      this.rtcPeerConnection.onicecandidate = this.handleIceCandidate
-      for (const track of this.localMediaStream.getTracks()) {
-        this.rtcPeerConnection.addTrack(track, this.localMediaStream)
-      }
-    },
-
-    initScreenPeer() {
-      this.rtcPeerConnection = new RTCPeerConnection(this.configuration)
-      this.rtcPeerConnection.onicecandidate = this.handleIceCandidate
-      for (const track of this.localScreenStream.getTracks()) {
-        this.rtcPeerConnection.addTrack(track, this.localScreenStream)
-      }
-    },
-
-    initWebRTCParam() {
-      this.myPeerConnection = null
-      this.myPeerConnection = null
-      this.RTCPeerConnectionCreated = false
-    },
-
-    handleIceCandidate(event) {
-      if (event.candidate) {
-        sendOne(JSON.stringify({
-          command: 'candidate',
-          fromId: this.currentUser.username,
-          toId: this.cmdUser,
-          content: { candidate: event.candidate }
-        }))
-      }
-    },
-
-    handleCmd(message) {
-      this.cmdUser = message.toId
-      if (message.content === 'camera') {
-        this.initPeer()
-      } else if (message.content === 'screen') {
-        this.initScreenPeer()
-      }
-      this.rtcPeerConnection.createOffer(this.offerOptions).then(this.setLocalAndOffer)
-        .catch((e) => {
-          console.log(e)
-        }
-        )
-    },
-
-    setLocalAndOffer(sessionDescription) {
-      this.rtcPeerConnection.setLocalDescription(sessionDescription)
-      sendOne(JSON.stringify({
-        command: 'offer',
-        fromId: this.currentUser.username,
-        toId: this.cmdUser,
-        content: { sdp: sessionDescription }
-      }))
-    },
-
-    handleAnswer(message) {
-      const sdp = JSON.parse(message.content).sdp
-      this.rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(sdp))
-    },
-
-    handleCandidate(message) {
-      const candidate = JSON.parse(message.content).candidate
-      this.rtcPeerConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch((e) => {
-        console.log(e)
-      })
-    },
-
-    handleMsg(message) {
-      this.$message({
-        message: message.content,
-        type: 'warning'
-      })
-    },
-
-    /** *
-     * 心跳
-     */
-    checkHeart() {
-      sendOne(JSON.stringify({
-        command: 'heart',
-        fromId: this.currentUser.username,
-        toId: this.currentUser.username,
-        content: 'ok'
-      }))
-    },
-
-    handleMessage(event) {
-      const message = JSON.parse(event.data)
-      switch (message.command) {
-        case 'cmd':
-          this.handleCmd(message)
-          break
-        case 'answer':
-          this.handleAnswer(message)
-          break
-        case 'candidate':
-          this.handleCandidate(message)
-          break
-        case 'message':
-          this.handleMsg(message)
-          break
-      }
     }
   }
 }

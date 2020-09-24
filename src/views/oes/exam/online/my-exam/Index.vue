@@ -89,20 +89,12 @@
         </el-row>
       </template>
     </div>
-    <exam-detail
-      v-show="examDetailShow"
-      ref="detail"
-      :title="dialog.title"
-      @close="detailClose"
-    />
   </div>
 </template>
 <script>
 
-import ExamDetail from './Detail'
 export default {
   name: 'MyExamMange',
-  components: { ExamDetail },
   data() {
     return {
       dialog: {
@@ -124,7 +116,6 @@ export default {
   },
   mounted() {
     this.fetch()
-    this.initTypes()
   },
   methods: {
     transStatus(start, end) {
@@ -153,17 +144,6 @@ export default {
         this.loading = false
       })
     },
-    initTypes() {
-      this.$get('exam-basic/type/options').then((r) => {
-        this.types = r.data.data
-      }).catch((error) => {
-        console.error(error)
-        this.$message({
-          message: this.$t('tips.getDataFail'),
-          type: 'error'
-        })
-      })
-    },
     detailClose() {
       this.examDetailShow = false
       this.paperListShow = true
@@ -183,15 +163,12 @@ export default {
         } else {
           this.$get(`exam-online/score/check?paperId=${row.paperId}`).then((r) => {
             if (r.data) {
-              this.$refs.detail.setExam(row)
-              this.$get(`exam-basic/paperType/options?paperId=${row.paperId}`).then((r) => {
-                const paperType = { ...r.data.data }
-                this.$refs.detail.initPaperType(paperType)
+              // 跳转考试
+              const routeUrl = this.$router.resolve({
+                path: `/do-exam/${row.paperId}`,
+                params: { exam: row }
               })
-              this.$refs.detail.setTypes(this.types)
-              this.examDetailShow = true
-              this.paperListShow = false
-              this.$refs.detail.alertExamTips()
+              window.open(routeUrl.href, '_blank')
             } else {
               this.$alert(this.$t('table.exam.hasSubmit'), this.$t('table.exam.tips'), {
                 confirmButtonText: this.$t('common.confirm'),
@@ -215,10 +192,12 @@ export default {
 <style lang="scss" scoped>
   .view-item {
     margin: 7px;
+
     i {
       font-size: .120rem;
       color: #E6A23C;
     }
+
     span {
       margin-left: 5px;
     }

@@ -32,6 +32,11 @@ const constRouter = [
     component: (resolve) => require(['@/views/login/Index'], resolve)
   },
   {
+    path: '/do-exam/:paperId',
+    name: '考试页面',
+    component: (resolve) => require(['@/views/oes/exam/online/my-exam/Detail'], resolve)
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/dashboard',

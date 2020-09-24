@@ -1,8 +1,9 @@
+<!-- 判断题模板 -->
 <template>
   <div>
     <el-radio-group v-model="question.answerContent" @change="updateChoice(question)">
-      <el-radio label="1" size="medium">正确</el-radio>
-      <el-radio label="0" size="medium">错误</el-radio>
+      <el-radio label="1" size="medium" border><strong>正确</strong></el-radio>
+      <el-radio label="0" size="medium" border><strong>错误</strong></el-radio>
     </el-radio-group>
   </div>
 </template>

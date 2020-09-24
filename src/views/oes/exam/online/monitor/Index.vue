@@ -302,8 +302,12 @@ export default {
       this.remoteStream.video = true
       const remoteMediaStream = event.streams[0]
       const remoteVideo = document.getElementById('remoteVideo')
-      remoteVideo.srcObject = remoteMediaStream
-      remoteVideo.play()
+      try {
+        remoteVideo.srcObject = remoteMediaStream
+        remoteVideo.play()
+      } catch (e) {
+        // nothing to do
+      }
     },
 
     /** *

@@ -1,9 +1,12 @@
+<!-- 多选题模板 -->
 <template>
   <div>
     <el-checkbox-group v-if="initOk" v-model="answerContentArray" @change="updateChoice(question)">
       <div v-for="(item,index) in optionArray" :key="index">
         <div class="box-card">
-          <el-checkbox :label="choices[index]" size="medium">{{ choices[index] }}. {{ item }}</el-checkbox>
+          <el-checkbox :label="choices[index]" size="medium">
+            <strong>{{ choices[index] }}. {{ item }}</strong>
+          </el-checkbox>
         </div>
       </div>
     </el-checkbox-group>
