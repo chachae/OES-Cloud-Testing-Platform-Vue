@@ -4,13 +4,12 @@
       <el-header>
         <div style="display:flex; flex-direction: row;justify-content: space-between">
           <p>
-            <strong>考试名称：</strong><el-tag>{{ exam.paperName }}</el-tag>
+            <strong>考试名称：</strong><el-tag>{{ parsePaperName(exam.paperName) }}</el-tag>
           </p>
-          <p>
-            <strong>倒计时：</strong>
+          <p v-if="exam.isStart && exam.startTime && exam.endTime">
+            <strong>距离考试结束还有：</strong>
             <el-tag type="danger">
               <countdown-date-time
-                v-if="exam.startTime && exam.endTime"
                 :end-time="exam.endTime"
               />
             </el-tag>
@@ -43,13 +42,14 @@
             <div slot="header">
               <p><strong>{{ transQuestionType(questions.typeId) }}</strong></p>
             </div>
-            <div style="display:flex; flex-direction: row; flex-wrap: wrap; justify-content: flex-start">
+            <div>
               <el-button
                 v-for="(question,questionIndex) in questions.list"
                 :key="question.questionId"
                 :type="calButtonType(question)"
                 plain
-                style="width: 52px; margin-bottom: 5px; margin-right: 5px; border-radius: 0"
+                round
+                style="margin-bottom: 5px; margin-right: 5px"
                 @click="goAssignBlock(question.questionId)"
               >{{ questionIndex+1 }}</el-button>
             </div>
@@ -58,15 +58,33 @@
         <el-main>
           <div class="view-item" style="margin-bottom: 20px">
 
-            <!-- 考前校验 -->
-            <exam-validate
-              v-if="checkShow"
-              ref="examValidate"
+            <!-- 考前信息校验 -->
+            <validate-info
+              v-if="validateInfo"
+              ref="validateInfo"
+              @validateOk="initValidateDevice"
+            />
+
+            <!-- 考前设备校验 -->
+            <validate-device
+              v-show="validateDevice"
+              ref="validateDevice"
               @validateOk="enterExam"
             />
 
+            <!--            <div-->
+            <!--              v-visibility-change="violateChangeTab"-->
+            <!--              @mouseleave="violateMouseLeave($event)"-->
+            <!--              @contextmenu.prevent-->
+            <!--              @select.prevent-->
+            <!--            >-->
+
             <!-- 试卷主体 -->
-            <div v-if="paperShow">
+            <div
+              v-if="paperShow"
+              @contextmenu.prevent
+              @select.prevent
+            >
               <el-row :gutter="10">
                 <el-col :xs="24" :sm="24">
                   <!-- 试卷主体 -->
@@ -110,18 +128,21 @@
 </template>
 
 <script>
+import Judge from './question-components/Judge'
+import Choice from './question-components/Choice'
+import MulChoice from './question-components/MulChoice'
+import Fill from './question-components/Fill'
+import Subjective from './question-components/Subjective'
 import CountdownDateTime from '@/components/CountdownDateTime'
-import Judge from './components/Judge'
-import Choice from './components/Choice'
-import MulChoice from './components/MulChoice'
-import Fill from './components/Fill'
-import Subjective from './components/Subjective'
-import ExamValidate from './Validate'
+import ValidateInfo from './detail-components/ValidateInfo'
+import ValidateDevice from './detail-components/ValidateDevice'
 import { saveLog } from '@/api/exam/basic/violateLog'
-
+import { typeOptions } from '@/api/exam/basic/type'
+import { updateAnswer } from '@/api/exam/online/answer'
+import { paperTypeOptions } from '@/api/exam/basic/paperType'
 export default {
   name: 'ExamDetail',
-  components: { Judge, Choice, MulChoice, Fill, Subjective, ExamValidate, CountdownDateTime },
+  components: { Judge, Choice, MulChoice, Fill, Subjective, ValidateDevice, ValidateInfo, CountdownDateTime },
   data() {
     return {
       clientHeight: '',
@@ -138,54 +159,51 @@ export default {
       paperType: {},
       exam: {},
       paperShow: false,
-      checkShow: true,
+      validateInfo: true,
+      validateDevice: false,
       active: 0,
-      lastUpdateTime: 0
+      lastUpdateTime: 0,
+      leaveTime: null
     }
   },
   computed: {
     currentUser() {
       return this.$store.state.account.user
-    },
-    device() {
-      return this.$store.state.setting.device
-    },
-    sidebar() {
-      return this.$store.state.setting.sidebar
     }
   },
   watch: {
-    clientHeight: function() {
-      this.changeFixed(this.clientHeight)
+    clientHeight(oldVal, newVal) {
+      this.changeFixed(oldVal)
     }
   },
   mounted() {
+    // body 添加鼠标移动时间
+    // this.initMouseEvent()
+    // 初始化查询数据
     this.initQueryInfo()
-    this.initValidate()
-    this.alertExamTips()
-    this.initTypes()
-    this.initPaperType()
-    this.getExamPaper()
+    // 初始化考试信息校验组件
+    this.initValidateInfo()
+    // 初始化考试信息校验组件
+    // this.initValidate()
+    // 初始化试题类型数据
+    // this.initTypes()
+    // 初始化试卷试题类型数据
+    // this.initPaperType()
     // 获取浏览器可视区域高度
-    this.clientHeight = `${document.documentElement.clientHeight}`
-    window.onresize = function temp() {
-      this.clientHeight = `${document.documentElement.clientHeight}`
+    this.clientHeight = document.documentElement.clientHeight
+    window.onresize = () => {
+      return (() => {
+        this.clientHeight = this.initHeight()
+      })()
     }
   },
 
   methods: {
-    changeFixed(clientHeight) { // 动态修改样式
-      // console.log(clientHeight);
-      // console.log(this.$refs.homePage.$el.style.height);
-      this.$refs.examContainer.$el.style.height = clientHeight - 20 + 'px'
+    initHeight() {
+      return document.documentElement.clientHeight
     },
-    classObj() {
-      return {
-        hideSidebar: !this.sidebar.opened,
-        openSidebar: this.sidebar.opened,
-        withoutAnimation: this.sidebar.withoutAnimation,
-        mobile: this.device === 'mobile'
-      }
+    changeFixed(clientHeight) { // 动态修改样式
+      this.$refs.examContainer.$el.style.height = clientHeight - 20 + 'px'
     },
     // 试题类型代码转换
     transQuestionType(typeId) {
@@ -194,18 +212,24 @@ export default {
       }
       return this.$t('common.unknown')
     },
-    initValidate() {
-      this.$refs.examValidate.setValidateInfo({ ...this.queryInfo })
+    // 初始化考前设备校验
+    initValidateDevice(exam) {
+      this.exam = exam
+      // 初始化试题类型数据
+      this.initTypes()
+      // 初始化试卷试题类型数据
+      this.initPaperType()
+      this.validateInfo = false
+      this.validateDevice = true
+      this.$refs.validateDevice.fetchValidate({ ...this.queryInfo })
+    },
+    // 初始化考前信息校验
+    initValidateInfo() {
+      this.$refs.validateInfo.fetchValidate({ ...this.queryInfo })
     },
     initTypes() {
-      this.$get('exam-basic/type/options').then((r) => {
+      typeOptions().then((r) => {
         this.types = r.data.data
-      }).catch((error) => {
-        console.error(error)
-        this.$message({
-          message: this.$t('tips.getDataFail'),
-          type: 'error'
-        })
       })
     },
     // 计算试题类型总分
@@ -216,19 +240,22 @@ export default {
         }
       }
     },
-    // 获取试题数据
-    getExamPaper() {
-      this.$get(`exam-online/exam/${this.queryInfo.paperId}`).then((r) => {
-        this.exam = r.data.data
-      })
+    parsePaperName(paperName) {
+      return !paperName ? '获取试卷信息失败' : paperName
+    },
+    // 关闭当前页面
+    closeCurrentPage() {
+      setTimeout(() => {
+        this.$router.push('dashboard')
+      }, 1000)
     },
     enterExam() {
       this.paperShow = true
-      this.checkShow = false
+      this.validateDevice = false
     },
     // 实时提交答案
     updateChoice(question) {
-      this.$put('exam-online/answer', { ...question }).then((res) => {
+      updateAnswer(question).then((res) => {
         question.answerId = res.data.data
         // 控制并发
         if (this.banConcurrent()) {
@@ -253,7 +280,7 @@ export default {
     },
     // 试卷类型设置
     initPaperType() {
-      this.$get(`exam-basic/paperType/options?paperId=${this.queryInfo.paperId}`).then((r) => {
+      paperTypeOptions(this.queryInfo.paperId).then((r) => {
         this.paperType = { ...r.data.data }
       })
     },
@@ -265,7 +292,7 @@ export default {
           return 'danger'
         } else {
           c = JSON.parse(c)
-          return !c || c[0] === '' ? 'danger' : 'success'
+          return !c || !c[0] || c[0] === '' ? 'danger' : 'success'
         }
       }
       return !c ? 'danger' : 'success'
@@ -281,21 +308,6 @@ export default {
       this.queryInfo.username = this.currentUser.username
       this.queryInfo.paperId = paperId
     },
-    // 进入考试弹窗
-    alertExamTips() {
-      this.$alert(this.$t('table.exam.description'), this.$t('table.exam.tips'), {
-        confirmButtonText: this.$t('common.confirm'),
-        type: 'warning'
-      })
-    },
-    // 返回考试试卷页面
-    goBack() {
-      this.active = 0
-      this.paperShow = false
-      this.checkShow = true
-      this.examDetailShow = false
-      // this.$emit('close')
-    },
     // 答题卡选择滑动
     goAssignBlock(el) {
       const element = this.$refs[`question${el}`][0]
@@ -304,45 +316,49 @@ export default {
     // 作弊行为检查-鼠标移动事件检测（过于暴力）
     violateMouseLeave(e) {
       // 进入考试后才出发
-      // if (this.paperShow) {
-      //   const className = e.currentTarget
-      //   console.log(className)
-      //
-      //   this.$alert({
-      //     title: '警告',
-      //     message: `检测到你已离开考试页面，违规记录已累计 ${++this.violate.changeTabCount} 次，超过 3 次后系统将强制提交试卷`,
-      //     type: 'warning'
-      //   }).catch((r) => {})
-      // }
+      if (this.paperShow) {
+        const className = e.currentTarget
+        console.log(className)
+        this.$alert({
+          title: '警告',
+          message: `检测到你已离开考试页面，违规记录已累计 ${++this.violate.changeTabCount} 次，超过 3 次后系统将强制提交试卷`,
+          type: 'warning'
+        }).catch((r) => {})
+      }
     },
     // 作弊行为检查-切换标签
     violateChangeTab(evt, hidden) {
-      // if (this.paperShow) {
-      //   if (!hidden) {
-      //     // 写入违规行为日志
-      //     this.saveViolateLog(501, this.leaveTime)
-      //   } else if (this.paperShow) {
-      //     // 进入考试后才监听
-      //     this.$alert(`检测到你已离开考试页面，违规记录已累计 ${++this.violate.changeTabCount} 次，超过 3 次后系统将强制提交试卷`, this.$t('table.exam.tips'), {
-      //       confirmButtonText: this.$t('common.confirm'),
-      //       type: 'warning'
-      //     }).catch((r) => {
-      //     })
-      //     // 记录离开时间
-      //     this.leaveTime = new Date()
-      //   }
-      // }
+      if (this.paperShow) {
+        if (!hidden) {
+          // 写入违规行为日志
+          // this.saveViolateLog(501, this.leaveTime)
+        } else if (this.paperShow) {
+          // 进入考试后才监听
+          this.$alert(`检测到你已离开考试页面，违规记录已累计 ${++this.violate.changeTabCount} 次，超过 3 次后系统将强制提交试卷`, this.$t('table.exam.tips'), {
+            confirmButtonText: this.$t('common.confirm'),
+            type: 'warning'
+          }).catch((r) => {
+          })
+          // 记录离开时间
+          this.leaveTime = new Date()
+        }
+      }
     },
     // 违规行为日志记录
     saveViolateLog(code, violateTime) {
       saveLog(this.queryInfo.paperId, code, violateTime).then((r) => {
       })
     }
+    // 初始化鼠标离开浏览器事件（过于暴力）
+    // initMouseEvent() {
+    //   document.body.addEventListener('mouseleave', this.violateMouseLeave, false)
+    // }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+
   .paper-view {
     .img-wrapper {
       text-align: center;

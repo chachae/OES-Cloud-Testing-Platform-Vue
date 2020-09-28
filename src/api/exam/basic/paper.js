@@ -8,7 +8,7 @@ export function del(ids) {
   return request.delete(`exam-basic/paper/${ids}`)
 }
 
-export function update(params) {
+export function updatePaper(params) {
   return request.put('exam-basic/paper', { ...params })
 }
 

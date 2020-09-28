@@ -2,11 +2,11 @@
 <template>
   <div>
     <el-radio-group v-model="question.answerContent" @change="updateChoice(question)">
-      <el-radio label="1" size="medium" border><strong>正确</strong></el-radio>
-      <el-radio label="0" size="medium" border><strong>错误</strong></el-radio>
+      <el-radio label="1" size="medium"><strong>正确</strong></el-radio>
+      <el-radio label="0" size="medium"><strong>错误</strong></el-radio>
     </el-radio-group>
   </div>
-</template>
+</template>q
 <script>
 export default {
   name: 'Judge',

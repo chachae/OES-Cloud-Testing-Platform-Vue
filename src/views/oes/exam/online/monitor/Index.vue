@@ -10,14 +10,20 @@
             </el-button>
           </div>
 
-          <div
-            v-show="onlineUser"
-            class="tip custom-block"
-            style="margin: 0 0 1.2rem 0"
-          >
+          <div class="tip custom-block" style="margin: 0 0 1.2rem 0">
             <p>
-              本在线考试反作弊系统的多对一摄像头与屏幕共享远程监控服务是基于 Netty 4 与 Redis 开发的高性能 WebSocket 长连接服务，使用 WebRTC 技术实现实时流媒体传输，已知在4核8G服务器上有超强的表现能力，具备极强的高并发处理能力，通过 JMeter 连接压测，单机部署下，可同时稳定承载 500,000+ 空连接，建议在现代化浏览器（Chrome，Firefox）上使用本服务。
+              该服务为本在线考试平台的远程反作弊监控系统
             </p>
+            <blockquote>
+              <p>
+                1. 基于 <strong>Netty 4</strong> 与 <strong>Redis</strong> 开发的高性能分布式 WebSocket 网络通信服务<br>
+                2. 使用 <strong>WebRTC</strong> 技术实现秒级低延时直播能力，「淘宝直播」即使用该技术实现<br>
+                3. 基于令牌服务器资源认证，https 安全协议，保证直播数据信号传输的私密性和安全性<br>
+                4. 已知在4核8G服务器上有超强的表现能力，具备极强的高并发处理能力<br>
+                5. 通过 JMeter 连接压测，单机部署下，可同时稳定承载 <strong>500,000+</strong> 空连接<br>
+                6. 请在现代化浏览器（Chrome，Firefox）上使用本服务
+              </p>
+            </blockquote>
           </div>
 
           <el-table

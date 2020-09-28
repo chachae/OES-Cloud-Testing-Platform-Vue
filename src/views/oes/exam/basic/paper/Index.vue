@@ -186,8 +186,8 @@
     </div>
     <!-- paper view -->
     <paper-view
-      v-show="paperViewShow"
       ref="view"
+      :dialog-visible="dialog.isPaperViewVisible"
       @close="viewClose"
     />
     <!-- paper edit -->
@@ -205,7 +205,6 @@ import Pagination from '@/components/Pagination'
 import PaperView from './View'
 import PaperRandomAdd from './Random'
 import PaperEdit from './Edit'
-import { paperTypeOptions } from '@/api/exam/basic/paperType'
 import { courseOptions } from '@/api/exam/basic/course'
 import { typeOptions } from '@/api/exam/basic/type'
 import { termOptions } from '@/api/exam/basic/term'
@@ -225,6 +224,7 @@ export default {
   data() {
     return {
       dialog: {
+        isPaperViewVisible: false,
         isEditVisible: false,
         isRandomVisible: false,
         title: ''
@@ -282,14 +282,9 @@ export default {
     },
     view(row) {
       const paper = { ...row }
-      paperTypeOptions({ paperId: paper.paperId }).then((r) => {
-        const paperType = { ...r.data.data }
-        this.$refs.view.initPaperType(paperType)
-      })
-      this.$refs.view.setPaper(paper)
-      this.$refs.view.setTypes(this.types)
-      this.paperViewShow = true
+      this.dialog.isPaperViewVisible = true
       this.paperIndexShow = false
+      this.$refs.view.setPaper(paper)
     },
     editClose() {
       this.dialog.isEditVisible = false
@@ -344,7 +339,7 @@ export default {
       })
     },
     viewClose() {
-      this.paperViewShow = false
+      this.dialog.isPaperViewVisible = false
       this.paperIndexShow = true
     },
     singleDelete(row) {

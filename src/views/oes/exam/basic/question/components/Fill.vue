@@ -1,5 +1,22 @@
 <template>
   <div style="margin-top: 20px">
+    <div class="tip custom-block" style="margin: 0 0 1.2rem 0">
+      <p>
+        填空题录入约定：
+      </p>
+      <blockquote>
+        <p>
+          <i>
+            一、请使用系统提供的填空插入按钮为填空题插入填空，系统会根据插入点自动生成对应数量的填空答案输入栏<br>
+            二、若希望一个填空内可拥有多个答案，可使用"|"隔开，如"Java|java|JAVA"，系统将视作该填空包含三个答案<br>
+            三、答案内勿含"|"符号，若包含则系统会视其为一空多答案
+          </i>
+        </p>
+      </blockquote>
+      <p>
+        请遵循如上所示的提示进行填空题录入，保证题目正确性
+      </p>
+    </div>
     <el-form ref="form" :model="question" :rules="rules" label-position="right" label-width="100px">
       <el-form-item label="题干" prop="questionName">
         <el-input
@@ -12,7 +29,7 @@
           @blur="changeQuestionName"
         />
       </el-form-item>
-      <el-form-item label="题干预览" prop="questionNamePreview">
+      <el-form-item v-if="questionNamePreview" label="题干预览" prop="questionNamePreview">
         <el-input
           type="textarea"
           :autosize="{ minRows: 2, maxRows: 6}"

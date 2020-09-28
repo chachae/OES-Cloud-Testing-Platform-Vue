@@ -5,7 +5,7 @@
         <el-input-number
           v-model="optionNum"
           :min="1"
-          :max="4"
+          :max="9"
           label="选项数量"
           @change="checkOptions"
         />

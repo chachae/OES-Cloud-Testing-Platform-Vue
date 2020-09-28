@@ -3,63 +3,29 @@
     <el-page-header style="padding: 1rem;" :content="score.paperName" :visible.sync="isVisible" @back="goBack" />
     <div class="warning custom-block">
       <p class="custom-block-title">WARNING</p>
-      <p><strong>注意事项：</strong>系统会周期性（3 ~ 6 个月）清除考生的答题数据，请及时查看错题，查漏补缺。</p>
+      <p><strong>注意事项 : </strong>系统会周期性（3 ~ 6 个月）清除考生的答题数据，请及时查看错题，查漏补缺。</p>
     </div>
     <el-row :gutter="10">
-      <el-col
-        v-for="(warn) in warnAnswers"
-        :key="warn.typeId"
-        :xs="24"
-        :sm="24"
-      >
-        <el-card
-          shadow="never"
-          class="box-card"
-          style="background-color: #f8fafb; margin-bottom: 1rem"
-        >
-          <div slot="header">
-            <h3>{{ transQuestionType(warn.typeId) }}</h3>
-          </div>
-          <el-row :gutter="10">
-            <el-col
-              v-for="(warnQuestion,questionIndex) in warn.list"
-              :key="warnQuestion.questionId"
-              :xs="24"
-              :sm="24"
-            >
-              <div class="view-item">
-                <h4>{{ questionIndex + 1 +'：' }} {{ parseQuestionName(warnQuestion) }}</h4>
-              </div>
-              <!-- 选择题选项template -->
-              <template v-if="warn.typeId === 1 || warn.typeId === 2">
-                <div v-for="(item,index) in JSON.parse(warnQuestion.options)" :key="index">
-                  <div class="view-item">
-                    {{ choices[index] }}. {{ item }}
-                  </div>
-                </div>
-              </template>
-              <div class="view-item">
-                <el-link type="danger" :underline="false">考生答案：</el-link>
-                <el-link :underline="false">{{ warnQuestion.answerContent }}</el-link>
-              </div>
-              <div class="view-item">
-                <el-link type="primary" :underline="false">正确答案：</el-link>
-                <el-link :underline="false">{{ warnQuestion.rightKey }}</el-link>
-              </div>
-              <div v-if="warnQuestion.analysis" class="view-item">
-                <el-link type="primary" :underline="false">答案解析：</el-link>
-                <el-link :underline="false">{{ warnQuestion.analysis }}</el-link>
-              </div>
-            </el-col>
-          </el-row>
-        </el-card>
+      <el-col :xs="24" :sm="24">
+        <!-- 题目卡片显示 -->
+        <div v-if="warnAnswers.length === 0" class="tip custom-block">
+          <p class="custom-block-title">TIP</p>
+          <p><strong>提示 : </strong>暂无错题信息</p>
+        </div>
+        <question-card
+          v-else
+          :paper-questions="warnAnswers"
+          :paper-id="paperId"
+        />
       </el-col>
     </el-row>
   </div>
 </template>
 <script>
+import QuestionCard from '../../common-components/QuestionCard'
 export default {
   name: 'WarnAnswerView',
+  components: { QuestionCard },
   props: {
     dialogVisible: {
       type: Boolean,
@@ -72,7 +38,7 @@ export default {
       warnAnswers: [],
       types: {},
       score: {},
-      width: this.initWidth(),
+      paperId: null,
       question: {},
       choices: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
       replaceSpaces: '{{#@#}}'
@@ -88,26 +54,7 @@ export default {
       }
     }
   },
-  mounted() {
-    window.onresize = () => {
-      return (() => {
-        this.width = this.initWidth()
-      })()
-    }
-  },
   methods: {
-    initWidth() {
-      this.screenWidth = document.body.clientWidth
-      if (this.screenWidth < 550) {
-        return '95%'
-      } else if (this.screenWidth < 990) {
-        return '580px'
-      } else if (this.screenWidth < 1400) {
-        return '600px'
-      } else {
-        return '650px'
-      }
-    },
     parseQuestionName(question) {
       return question.typeId === 4 ? question.questionName.replaceAll(this.replaceSpaces, '____') : question.questionName
     },
@@ -123,7 +70,14 @@ export default {
       this.$emit('close')
     },
     setWarnAnswers(val) {
-      this.warnAnswers = { ...val }
+      if (val !== undefined) {
+        this.warnAnswers = val
+      } else {
+        this.warnAnswers = []
+      }
+    },
+    setPaperId(paperId) {
+      this.paperId = paperId
     },
     setScore(val) {
       this.score = { ...val }

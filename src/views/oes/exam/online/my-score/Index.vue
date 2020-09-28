@@ -319,6 +319,7 @@ export default {
         const warnAnswers = r.data.data
         const score = { ...row }
         this.$refs.view.setScore(score)
+        this.$refs.view.setPaperId(row.paperId)
         this.$refs.view.setWarnAnswers(warnAnswers)
         this.$refs.view.setTypes(this.types)
         this.scoreIndexShow = false

@@ -144,10 +144,6 @@ export default {
         this.loading = false
       })
     },
-    detailClose() {
-      this.examDetailShow = false
-      this.paperListShow = true
-    },
     detail(row) {
       this.$get('system/id-card/verify/check').then((r) => {
         if (!r.data) {
