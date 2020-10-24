@@ -40,6 +40,10 @@ export default {
     seriesName: {
       type: String,
       required: true
+    },
+    legendOrient: {
+      type: String,
+      default: 'vertical'
     }
   },
   data() {
@@ -72,7 +76,7 @@ export default {
           formatter: '{a} <br/>{b} : {c} ({d}%)'
         },
         legend: {
-          orient: 'vertical',
+          orient: this.legendOrient,
           left: 'left',
           bottom: '10',
           data: this.legendData

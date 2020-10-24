@@ -79,11 +79,8 @@
             <!--              @select.prevent-->
             <!--            >-->
 
-            <!-- 试卷主体 -->
             <div
               v-if="paperShow"
-              @contextmenu.prevent
-              @select.prevent
             >
               <el-row :gutter="10">
                 <el-col :xs="24" :sm="24">
@@ -101,7 +98,7 @@
                     <el-row :gutter="10">
                       <el-col v-for="(question,questionIndex) in questions.list" :key="question.questionId" :xs="24" :sm="24">
                         <div :ref="`question`+question.questionId">
-                          <h4>{{ questionIndex + 1 +'、' }} {{ question.questionName }}</h4>
+                          <h4>{{ questionIndex + 1 +' : ' }} {{ question.questionName }}</h4>
                         </div>
                         <!-- 单项选择题 -->
                         <choice v-if="questions.typeId === 1" :question="question" @submit="updateChoice" />
@@ -138,7 +135,7 @@ import ValidateInfo from './detail-components/ValidateInfo'
 import ValidateDevice from './detail-components/ValidateDevice'
 import { saveLog } from '@/api/exam/basic/violateLog'
 import { typeOptions } from '@/api/exam/basic/type'
-import { updateAnswer } from '@/api/exam/online/answer'
+import { saveAnswer } from '@/api/exam/online/answer'
 import { paperTypeOptions } from '@/api/exam/basic/paperType'
 export default {
   name: 'ExamDetail',
@@ -255,9 +252,9 @@ export default {
     },
     // 实时提交答案
     updateChoice(question) {
-      updateAnswer(question).then((res) => {
+      question.paperId = this.queryInfo.paperId
+      saveAnswer(question).then((res) => {
         question.answerId = res.data.data
-        // 控制并发
         if (this.banConcurrent()) {
           this.$alert(this.$t('table.exam.concurrent'), this.$t('table.exam.tips'), {
             confirmButtonText: this.$t('common.confirm'),
@@ -269,14 +266,16 @@ export default {
     },
     // 提交试卷
     submitExam() {
-      this.$confirm('提交后无法再次修改试卷内容，是否继续？', this.$t('common.tips'), {
-        confirmButtonText: this.$t('common.confirm'),
-        cancelButtonText: this.$t('common.cancel'),
-        type: 'warning'
-      }).then(() => {
-        this.initQueryInfo()
-        this.$post('exam-online/score', { ...this.queryInfo }).then(this.goBack())
-      })
+      this.initQueryInfo()
+      this.$post('exam-online/score', { ...this.queryInfo })
+      // this.$confirm('提交后无法再次修改试卷内容，是否继续？', this.$t('common.tips'), {
+      //   confirmButtonText: this.$t('common.confirm'),
+      //   cancelButtonText: this.$t('common.cancel'),
+      //   type: 'warning'
+      // }).then(() => {
+      //   this.initQueryInfo()
+      //   this.$post('exam-online/score', { ...this.queryInfo }).then(this.goBack())
+      // })
     },
     // 试卷类型设置
     initPaperType() {

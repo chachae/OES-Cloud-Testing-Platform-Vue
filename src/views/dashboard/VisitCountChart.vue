@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div>最近十天系统访问量</div>
-    <div id="visit-count-chart" style="width: 100%;height: 300px" />
+    <div id="visit-count-chart" style="width: 100%;height: 350px" />
   </div>
 </template>
 

@@ -67,23 +67,19 @@
           </el-card>
         </div>
       </el-col>
+    </el-row>
+    <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
-        <div class="app-container">
-          <el-row :gutter="10">
-            <el-col :xs="24" :sm="24" :lg="24">
-              <!-- 最近十天访问记录 -->
-              <VisitCountChart
-                v-if="flag"
-                ref="visitChart"
-                :last-ten-user-visit-count="lastTenUserVisitCount"
-                :last-ten-visit-count="lastTenVisitCount"
-              />
-            </el-col>
-          </el-row>
-        </div>
+        <!-- 最近十天访问记录 -->
+        <VisitCountChart
+          v-if="flag"
+          ref="visitChart"
+          :last-ten-user-visit-count="lastTenUserVisitCount"
+          :last-ten-visit-count="lastTenVisitCount"
+        />
       </el-col>
       <!-- oss 文件存储统计 -->
-      <el-col :xs="24" :sm="12" :lg="12">
+      <el-col :xs="24" :lg="12">
         <pie-chart
           v-if="ossData.length > 0"
           :id="`oss-chart`"
