@@ -12,7 +12,7 @@
       </el-form-item>
       <el-form-item label="题干" prop="questionName">
         <el-input
-          v-model=" question.questionName "
+          v-model="question.questionName"
           type="textarea"
           :autosize="{ minRows: 2, maxRows: 6}"
           maxlength="100"

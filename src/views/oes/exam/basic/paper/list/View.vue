@@ -86,7 +86,7 @@
 </template>
 
 <script>
-import QuestionCard from '../../common-components/QuestionCard'
+import QuestionCard from '../../../common-components/QuestionCard'
 
 export default {
   name: 'PaperView',
