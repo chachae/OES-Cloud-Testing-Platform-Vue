@@ -73,8 +73,8 @@
             />
 
             <!--            <div-->
-            <!--              v-visibility-change="violateChangeTab"-->
-            <!--              @mouseleave="violateMouseLeave($event)"-->
+            <!--              v-if="paperShow"-->
+            <!--              v-visibility-change="violateSwitchLabel"-->
             <!--              @contextmenu.prevent-->
             <!--              @select.prevent-->
             <!--            >-->
@@ -135,7 +135,7 @@ import ValidateInfo from './detail-components/ValidateInfo'
 import ValidateDevice from './detail-components/ValidateDevice'
 import { saveLog } from '@/api/exam/basic/violateLog'
 import { typeOptions } from '@/api/exam/basic/type'
-import { saveAnswer } from '@/api/exam/online/answer'
+import { updateAnswer } from '@/api/exam/online/answer'
 import { paperTypeOptions } from '@/api/exam/basic/paperType'
 export default {
   name: 'ExamDetail',
@@ -146,7 +146,8 @@ export default {
       queryInfo: {
         username: '',
         fullName: '',
-        paperId: ''
+        paperId: '',
+        userId: ''
       },
       violate: {
         changeTabCount: 0
@@ -174,18 +175,10 @@ export default {
     }
   },
   mounted() {
-    // body 添加鼠标移动时间
-    // this.initMouseEvent()
     // 初始化查询数据
     this.initQueryInfo()
     // 初始化考试信息校验组件
     this.initValidateInfo()
-    // 初始化考试信息校验组件
-    // this.initValidate()
-    // 初始化试题类型数据
-    // this.initTypes()
-    // 初始化试卷试题类型数据
-    // this.initPaperType()
     // 获取浏览器可视区域高度
     this.clientHeight = document.documentElement.clientHeight
     window.onresize = () => {
@@ -216,6 +209,8 @@ export default {
       this.initTypes()
       // 初始化试卷试题类型数据
       this.initPaperType()
+      // body 添加鼠标移动时间
+      this.initMouseEvent()
       this.validateInfo = false
       this.validateDevice = true
       this.$refs.validateDevice.fetchValidate({ ...this.queryInfo })
@@ -253,7 +248,8 @@ export default {
     // 实时提交答案
     updateChoice(question) {
       question.paperId = this.queryInfo.paperId
-      saveAnswer(question).then((res) => {
+      question.userId = this.queryInfo.userId
+      updateAnswer(question).then((res) => {
         question.answerId = res.data.data
         if (this.banConcurrent()) {
           this.$alert(this.$t('table.exam.concurrent'), this.$t('table.exam.tips'), {
@@ -267,15 +263,16 @@ export default {
     // 提交试卷
     submitExam() {
       this.initQueryInfo()
-      this.$post('exam-online/score', { ...this.queryInfo })
-      // this.$confirm('提交后无法再次修改试卷内容，是否继续？', this.$t('common.tips'), {
-      //   confirmButtonText: this.$t('common.confirm'),
-      //   cancelButtonText: this.$t('common.cancel'),
-      //   type: 'warning'
-      // }).then(() => {
-      //   this.initQueryInfo()
-      //   this.$post('exam-online/score', { ...this.queryInfo }).then(this.goBack())
-      // })
+      // this.$post('exam-online/score', { ...this.queryInfo })
+      this.$confirm('提交后无法再次修改试卷内容，是否继续？', this.$t('common.tips'), {
+        confirmButtonText: this.$t('common.confirm'),
+        cancelButtonText: this.$t('common.cancel'),
+        type: 'warning'
+      }).then(() => {
+        this.initQueryInfo()
+        this.$post('exam-online/score', { ...this.queryInfo })
+        this.$router.push('/')
+      })
     },
     // 试卷类型设置
     initPaperType() {
@@ -305,6 +302,7 @@ export default {
       const paperId = this.$route.params.paperId
       this.queryInfo.fullName = this.currentUser.fullName
       this.queryInfo.username = this.currentUser.username
+      this.queryInfo.userId = this.currentUser.userId
       this.queryInfo.paperId = paperId
     },
     // 答题卡选择滑动
@@ -326,11 +324,11 @@ export default {
       }
     },
     // 作弊行为检查-切换标签
-    violateChangeTab(evt, hidden) {
-      if (this.paperShow) {
+    violateSwitchLabel(evt, hidden) {
+      if (this.exam.configLabelSwitch && this.paperShow) {
         if (!hidden) {
           // 写入违规行为日志
-          // this.saveViolateLog(501, this.leaveTime)
+          this.saveViolateLog(501, this.leaveTime)
         } else if (this.paperShow) {
           // 进入考试后才监听
           this.$alert(`检测到你已离开考试页面，违规记录已累计 ${++this.violate.changeTabCount} 次，超过 3 次后系统将强制提交试卷`, this.$t('table.exam.tips'), {
@@ -347,11 +345,13 @@ export default {
     saveViolateLog(code, violateTime) {
       saveLog(this.queryInfo.paperId, code, violateTime).then((r) => {
       })
-    }
+    },
     // 初始化鼠标离开浏览器事件（过于暴力）
-    // initMouseEvent() {
-    //   document.body.addEventListener('mouseleave', this.violateMouseLeave, false)
-    // }
+    initMouseEvent() {
+      if (this.exam.configLabelSwitch) {
+        // document.body.addEventListener('mouseleave', this.violateMouseLeave, false)
+      }
+    }
   }
 }
 </script>

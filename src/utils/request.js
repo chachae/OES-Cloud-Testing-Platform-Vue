@@ -7,8 +7,8 @@ import { getToken, getRefreshToken, getExpireTime } from '@/utils/auth'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
-// 请求超时时间，10s
-const requestTimeOut = 10 * 1000
+// 请求超时时间，100s
+const requestTimeOut = 100 * 1000
 const success = 200
 // 更换令牌的时间区间
 const checkRegion = 5 * 60 * 1000

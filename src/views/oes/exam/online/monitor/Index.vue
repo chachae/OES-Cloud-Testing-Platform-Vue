@@ -236,7 +236,7 @@ export default {
         command: 'cmd',
         fromId: this.currentUser.username,
         toId: this.monitorUsername,
-        content: 'camera'
+        content: { monitorType: 'camera' }
       }))
     },
 
@@ -256,7 +256,7 @@ export default {
         command: 'cmd',
         fromId: this.currentUser.username,
         toId: this.monitorUsername,
-        content: 'screen'
+        content: { monitorType: 'screen' }
       }))
     },
 
@@ -281,7 +281,7 @@ export default {
      *处理candidate
      */
     handleCandidate(message) {
-      const candidate = JSON.parse(message.content).candidate
+      const candidate = message.content.candidate
       this.myPeerConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch((e) => {
         console.log(e)
       })
@@ -324,7 +324,7 @@ export default {
         this.initPeer()
       }
       const sdpMessage = message.content
-      const sdp = JSON.parse(sdpMessage).sdp
+      const sdp = sdpMessage.sdp
       this.myPeerConnection.setRemoteDescription(new RTCSessionDescription(sdp))
       this.myPeerConnection.createAnswer().then(this.setLocalAndAnswer)
         .catch((e) => {
@@ -337,7 +337,7 @@ export default {
      * 处理answer
      */
     handleAnswer(message) {
-      const sdp = JSON.parse(message.content).sdp
+      const sdp = message.content.sdp
       this.myPeerConnection.setRemoteDescription(new RTCSessionDescription(sdp))
     },
 

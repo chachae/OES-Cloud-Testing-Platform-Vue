@@ -91,10 +91,7 @@ export default {
             label: {
               normal: {
                 show: true,
-                formatter: '{b}: {c} ({d}%)',
-                textStyle: {
-                  fontWeight: 'bold'
-                }
+                formatter: '{b}: {c} ({d}%)'
               }
             },
             data: this.seriesData,

@@ -21,7 +21,7 @@
           <el-divider v-if="questionIndex > 0" />
           <p>
             <strong>
-              {{ questionIndex + 1 +' : ' }} {{ parseQuestionName(question) }}
+              {{ questionIndex + 1 +' : ' }} {{ question.questionName }}
             </strong>
           </p>
           <!-- 选择题选项 -->
@@ -74,7 +74,6 @@ export default {
   },
   data() {
     return {
-      replaceSpaces: '{{#@#}}',
       choices: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
       paperType: [],
       types: []
@@ -85,13 +84,6 @@ export default {
     this.getPaperType()
   },
   methods: {
-    parseQuestionName(question) {
-      if (question.typeId === 4) {
-        return question.questionName.replaceAll(this.replaceSpaces, '____')
-      } else {
-        return question.questionName
-      }
-    },
     getPaperType() {
       if (this.paperId !== null) {
         paperTypeOptions(this.paperId).then((r) => {

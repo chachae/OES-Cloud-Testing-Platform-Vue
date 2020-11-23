@@ -26,6 +26,7 @@
           :autosize="{ minRows: 2, maxRows: 6}"
           maxlength="200"
           show-word-limit
+          :readonly="question.questionId !== ''"
           @blur="changeQuestionName"
         />
       </el-form-item>
@@ -42,7 +43,7 @@
         <el-button type="primary" plain @click="addFill">光标处插入填空</el-button>
       </el-form-item>
       <el-form-item
-        v-for="(item,index) in fillNum"
+        v-for="(item,index) in question.fillCount"
         :key="index"
         :inline="true"
         :label="`填空 ${fills[index]}`"
@@ -56,12 +57,12 @@
             maxlength="100"
             style="width: 80%"
           />
-          <el-button class="filter-item" type="danger" plain @click="removeFill(index)">移除当前填空</el-button>
+          <el-button v-if="question.questionId === ''" class="filter-item" type="danger" plain @click="removeFill(index)">移除当前填空</el-button>
         </div>
       </el-form-item>
       <el-form-item label="题目解析" prop="analysis">
         <el-input
-          v-model="question.analysis "
+          v-model="question.analysis"
           type="textarea"
           :autosize="{ minRows: 3, maxRows: 6}"
           maxlength="250"
@@ -95,7 +96,6 @@ export default {
   },
   data() {
     return {
-      fillNum: 0,
       fills: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
       question: this.initQuestion(),
       questionNamePreview: '',
@@ -112,7 +112,7 @@ export default {
     submitForm() {
       this.$refs.form.validate((valid) => {
         if (valid) {
-          this.question.createTime = null
+          this.question.createTime = this.question.updateTime = null
           this.question.rightKey = JSON.stringify(this.question.fillArray)
           if (this.question.questionId) {
             updateQuestion(this.question).then((r) => {
@@ -162,30 +162,39 @@ export default {
     },
 
     removeFill(index) {
+      this.calFillArray(index)
       const c = this.question.questionName
-      for (let i = 0, count = 0; i < c.length; i++) {
-        if (c.charAt(i) === '{' && i + 7 <= c.length && c.slice(i, i + 7) === this.replaceSpaces) {
-          if (count === index) {
-            this.question.questionName = c.substring(0, i) + c.substring(i + 7)
-            break
-          } else {
-            i += 7
-            count++
-          }
+      let count = -1
+      let idx = -1
+      c.replace(/{{#@#}}/g, function(m, i) {
+        ++count
+        if (index === count) {
+          idx = i
         }
-      }
+      })
+      this.question.questionName = c.substring(0, idx) + c.substring(idx + 7)
       this.changeQuestionName()
     },
 
+    calFillArray(index) {
+      if (index === this.question.fillCount - 1) {
+        this.question.fillArray.pop()
+      } else {
+        this.question.fillArray.splice(index, 1)
+      }
+    },
+
     changeQuestionName() {
-      const c = this.question.questionName
-      let count = 0
-      if (c !== null) {
-        this.questionNamePreview = c.replaceAll(this.replaceSpaces, '____')
-        for (let i = 0; i < c.length; i++) {
-          count += c.charAt(i) === '{' && i + 7 <= c.length && c.slice(i, i + 7) === this.replaceSpaces ? 1 : 0
+      if (this.question.questionId === '') {
+        const c = this.question.questionName
+        if (c !== null) {
+          let count = 0
+          this.questionNamePreview = c.replace(/{{#@#}}/g, '____')
+          c.replace(/{{#@#}}/g, function(m, i) {
+            ++count
+          })
+          this.question.fillCount = count
         }
-        this.fillNum = count
       }
     },
 
@@ -193,7 +202,6 @@ export default {
       this.question = question
       const fills = JSON.parse(question.rightKey)
       this.$set(this.question, 'fillArray', fills)
-      this.fillNum = fills.length
       this.questionNamePreview = question.questionName
       this.changeQuestionName()
     },
@@ -207,6 +215,7 @@ export default {
 
     initQuestion() {
       return {
+        questionId: '',
         typeId: 4,
         courseId: this.courseId,
         fillArray: [],

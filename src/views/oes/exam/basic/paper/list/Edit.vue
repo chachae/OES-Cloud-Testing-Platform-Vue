@@ -7,40 +7,72 @@
     :close-on-press-escape="false"
     :visible.sync="isEditVisible"
   >
-    <el-form ref="form" :model="paper" :rules="rules" label-position="right" label-width="100px">
-      <el-form-item :label="$t('table.paper.paperId')" prop="paperId">
-        <el-input v-model="paper.paperId" :readonly="true" />
-      </el-form-item>
-      <el-form-item :label="$t('table.paper.paperName')" prop="paperName">
-        <el-input v-model="paper.paperName" :readonly="true" />
-      </el-form-item>
-      <el-form-item :label="$t('table.paper.courseName')" prop="courseName">
-        <el-input v-model="paper.courseName" :readonly="true" />
-      </el-form-item>
-      <el-form-item :label="$t('table.paper.status')" prop="status">
-        <el-switch
-          v-model="paper.status"
-          :active-text="$t('common.active')"
-          :inactive-text="$t('common.inactive')"
-          :active-value="1"
-          :inactive-value="0"
-          :disabled="paper.isEnd"
-        />
-      </el-form-item>
-      <el-form-item :label="$t('table.paper.deptNames')" prop="deptIds">
-        <el-tree
-          ref="deptTree"
-          :data="deptTree"
-          :check-strictly="true"
-          :default-checked-keys="paper.deptIds"
-          show-checkbox
-          accordion
-          node-key="id"
-          highlight-current
-          style="border: 1px solid #DCDFE6;border-radius: 3px;padding: 6px;"
-        />
-      </el-form-item>
-    </el-form>
+    <div class="el-dialog-div">
+      <el-form ref="form" :model="paper" :rules="rules" label-position="right" label-width="100px">
+        <el-form-item :label="$t('table.paper.paperId')" prop="paperId">
+          <el-input v-model="paper.paperId" :readonly="true" />
+        </el-form-item>
+        <el-form-item :label="$t('table.paper.paperName')" prop="paperName">
+          <el-input v-model="paper.paperName" :readonly="true" />
+        </el-form-item>
+        <el-form-item :label="$t('table.paper.courseName')" prop="courseName">
+          <el-input v-model="paper.courseName" :readonly="true" />
+        </el-form-item>
+        <el-form-item :label="$t('table.paper.status')" prop="status">
+          <el-switch
+            v-model="paper.status"
+            :active-text="$t('common.active')"
+            :inactive-text="$t('common.inactive')"
+            :active-value="1"
+            :inactive-value="0"
+            :disabled="paper.isEnd"
+          />
+        </el-form-item>
+        <el-form-item label="试题乱序">
+          <el-switch
+            v-model="paper.configRandomQuestionOrder"
+            :active-value="true"
+            :inactive-value="false"
+            active-text="开启"
+            inactive-text="关闭"
+            :disabled="paper.isEnd"
+          />
+        </el-form-item>
+        <el-form-item label="标签切换检测">
+          <el-switch
+            v-model="paper.configLabelSwitch"
+            :active-value="true"
+            :inactive-value="false"
+            active-text="开启"
+            inactive-text="关闭"
+            :disabled="paper.isEnd"
+          />
+        </el-form-item>
+        <el-form-item label="远程监控">
+          <el-switch
+            v-model="paper.configRemote"
+            :active-value="true"
+            :inactive-value="false"
+            active-text="开启"
+            inactive-text="关闭"
+            :disabled="paper.isEnd"
+          />
+        </el-form-item>
+        <el-form-item :label="$t('table.paper.deptNames')" prop="deptIds">
+          <el-tree
+            ref="deptTree"
+            :data="deptTree"
+            :check-strictly="true"
+            :default-checked-keys="paper.deptIds"
+            show-checkbox
+            accordion
+            node-key="id"
+            highlight-current
+            style="border: 1px solid #DCDFE6;border-radius: 3px;padding: 6px;"
+          />
+        </el-form-item>
+      </el-form>
+    </div>
     <div slot="footer" class="dialog-footer">
       <el-button type="warning" plain :loading="buttonLoading" @click="isEditVisible = false">
         {{ $t('common.cancel') }}
@@ -74,6 +106,7 @@ export default {
       initFlag: false,
       buttonLoading: false,
       screenWidth: 0,
+      screenHeight: 0,
       width: this.initWidth(),
       rules: {
         paperId: { required: true, message: this.$t('rules.require'), trigger: 'blur' },
@@ -103,6 +136,7 @@ export default {
     window.onresize = () => {
       return (() => {
         this.width = this.initWidth()
+        this.hight = this.initHeight()
       })()
     }
   },
@@ -124,7 +158,10 @@ export default {
         courseName: '',
         deptIds: [],
         status: '',
-        isEnd: ''
+        isEnd: '',
+        configRandomQuestionOrder: '',
+        configLabelSwitch: '',
+        configRemote: ''
       }
     },
     resetDeptTree() {

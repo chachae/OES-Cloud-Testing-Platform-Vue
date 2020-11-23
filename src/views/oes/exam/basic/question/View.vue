@@ -53,7 +53,7 @@
     <el-row :gutter="10">
       <el-col :xs="24" :sm="12">
         <div class="view-item">
-          <i class="el-icon-burger" /> <span>{{ $t('table.question.consumption') +'：' }}</span> {{ question.consumption }} 次
+          <i class="el-icon-burger" /> <span>{{ $t('table.question.consumption') +'：' }}</span> {{ question.usedCount }} 次
         </div>
       </el-col>
     </el-row>
@@ -169,7 +169,7 @@ export default {
     },
     parseQuestionName(question) {
       if (question.typeId === 4) {
-        return question.questionName.replaceAll(this.replaceSpaces, '____')
+        return question.questionName.replace(/{{#@#}}/g, '____')
       } else {
         return question.questionName
       }

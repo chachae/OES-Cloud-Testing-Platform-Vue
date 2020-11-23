@@ -193,7 +193,7 @@ export default {
   components: { Pagination, QuestionView, AddQuestion },
   filters: {
     replaceFill(target) {
-      return target.replaceAll('{{#@#}}', '____')
+      return target.replace(/{{#@#}}/g, '____')
     }
   },
   data() {

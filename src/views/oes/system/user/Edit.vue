@@ -7,67 +7,69 @@
     :close-on-press-escape="false"
     :visible.sync="isVisible"
   >
-    <el-form ref="form" :model="user" :rules="rules" label-position="right" label-width="100px">
-      <el-form-item :label="$t('table.user.username')" prop="username">
-        <el-input v-model="user.username" :readonly="user.userId === '' ? false : 'readonly'" />
-      </el-form-item>
-      <el-form-item v-show="user.userId === ''" :label="$t('table.user.password')" prop="password">
-        <el-tooltip class="item" :enterable="false" effect="dark" :content="$t('tips.defaultPassword')" placement="top-start">
-          <el-input value="123456" type="password" :disabled="true" />
-        </el-tooltip>
-      </el-form-item>
-      <el-form-item :label="$t('table.user.email')" prop="email">
-        <el-input v-model="user.email" />
-      </el-form-item>
-      <el-form-item :label="$t('table.user.mobile')" prop="mobile">
-        <el-input v-model="user.mobile" />
-      </el-form-item>
-      <el-form-item :label="$t('table.user.dept')" prop="deptId">
-        <treeselect
-          v-model="user.deptId"
-          :multiple="false"
-          :options="depts"
-          :clear-value-text="$t('common.clear')"
-          placeholder=" "
-          style="width:100%"
-        />
-      </el-form-item>
-      <el-form-item :label="$t('table.user.role')" prop="roleId">
-        <el-select v-model="user.roleId" multiple value="" placeholder="" style="width:100%">
-          <el-option
-            v-for="item in roles"
-            :key="item.roleId"
-            :label="item.roleName"
-            :value="String(item.roleId)"
+    <div class="el-dialog-div">
+      <el-form ref="form" :model="user" :rules="rules" label-position="right" label-width="100px">
+        <el-form-item :label="$t('table.user.username')" prop="username">
+          <el-input v-model="user.username" :readonly="user.userId === '' ? false : 'readonly'" />
+        </el-form-item>
+        <el-form-item v-show="user.userId === ''" :label="$t('table.user.password')" prop="password">
+          <el-tooltip class="item" :enterable="false" effect="dark" :content="$t('tips.defaultPassword')" placement="top-start">
+            <el-input value="123456" type="password" :disabled="true" />
+          </el-tooltip>
+        </el-form-item>
+        <el-form-item :label="$t('table.user.email')" prop="email">
+          <el-input v-model="user.email" />
+        </el-form-item>
+        <el-form-item :label="$t('table.user.mobile')" prop="mobile">
+          <el-input v-model="user.mobile" />
+        </el-form-item>
+        <el-form-item :label="$t('table.user.dept')" prop="deptId">
+          <treeselect
+            v-model="user.deptId"
+            :multiple="false"
+            :options="depts"
+            :clear-value-text="$t('common.clear')"
+            placeholder=" "
+            style="width:100%"
           />
-        </el-select>
-      </el-form-item>
-      <el-form-item :label="$t('table.user.dataPermission')" prop="deptIds">
-        <el-tree
-          ref="deptTree"
-          :data="deptTree"
-          :default-checked-keys="user.deptIdsArr"
-          show-checkbox
-          accordion
-          node-key="id"
-          highlight-current
-          style="border: 1px solid #DCDFE6;border-radius: 3px;padding: 6px;"
-        />
-      </el-form-item>
-      <el-form-item :label="$t('table.user.sex')" prop="sex">
-        <el-select v-model="user.sex" value="" placeholder="" style="width:100%">
-          <el-option value="0" :label="$t('common.sex.male') " />
-          <el-option value="1" :label="$t('common.sex.female') " />
-          <el-option value="2" :label="$t('common.sex.secret') " />
-        </el-select>
-      </el-form-item>
-      <el-form-item :label="$t('table.user.status')" prop="status">
-        <el-radio-group v-model="user.status">
-          <el-radio label="1">{{ $t('common.status.valid') }}</el-radio>
-          <el-radio label="0">{{ $t('common.status.invalid') }}</el-radio>
-        </el-radio-group>
-      </el-form-item>
-    </el-form>
+        </el-form-item>
+        <el-form-item :label="$t('table.user.role')" prop="roleId">
+          <el-select v-model="user.roleId" multiple value="" placeholder="" style="width:100%">
+            <el-option
+              v-for="item in roles"
+              :key="item.roleId"
+              :label="item.roleName"
+              :value="String(item.roleId)"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="$t('table.user.dataPermission')" prop="deptIds">
+          <el-tree
+            ref="deptTree"
+            :data="deptTree"
+            :default-checked-keys="user.deptIdsArr"
+            show-checkbox
+            accordion
+            node-key="id"
+            highlight-current
+            style="border: 1px solid #DCDFE6;border-radius: 3px;padding: 6px;"
+          />
+        </el-form-item>
+        <el-form-item :label="$t('table.user.sex')" prop="sex">
+          <el-select v-model="user.sex" value="" placeholder="" style="width:100%">
+            <el-option value="0" :label="$t('common.sex.male') " />
+            <el-option value="1" :label="$t('common.sex.female') " />
+            <el-option value="2" :label="$t('common.sex.secret') " />
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="$t('table.user.status')" prop="status">
+          <el-radio-group v-model="user.status">
+            <el-radio label="1">{{ $t('common.status.valid') }}</el-radio>
+            <el-radio label="0">{{ $t('common.status.invalid') }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+    </div>
     <div slot="footer" class="dialog-footer">
       <el-button type="warning" plain :loading="buttonLoading" @click="isVisible = false">
         {{ $t('common.cancel') }}

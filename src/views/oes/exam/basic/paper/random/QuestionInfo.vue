@@ -2,7 +2,7 @@
   <div>
     <el-divider v-if="typeIds.length > 0" content-position="left">题型分布数据明细</el-divider>
     <el-row v-for="typeId in typeIds" :key="typeId" :gutter="10">
-      <el-col :xs="24" :sm="8">
+      <el-col :xs="24" :sm="6">
         <el-form-item :label="calTypeName(typeId) + ` : 数量`">
           <el-input-number
             v-model="paperTypes[calTypeIdIndex(typeId)].num"
@@ -52,17 +52,6 @@ export default {
   watch: {
     types(newVal, oldVal) {
       this.initPaperType()
-    },
-    typeIds(newVal, oldVal) {
-      if (newVal.length < oldVal.length) {
-        for (let i = 0; i < oldVal.length; i++) {
-          if (newVal[i] !== oldVal[i]) {
-            this.paperTypes[i].score = 0
-            this.paperTypes[i].num = 1
-            break
-          }
-        }
-      }
     }
   },
 

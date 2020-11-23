@@ -8,7 +8,7 @@
     :visible.sync="isVisible"
   >
     <el-form ref="form" :model="message" :rules="rules" label-position="right" label-width="100px">
-      <el-input v-model="message.content" />
+      <el-input v-model="message.content.msg" />
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button type="warning" plain :loading="buttonLoading" @click="isVisible = false">
@@ -49,7 +49,9 @@ export default {
         command: 'message',
         fromId: '',
         toId: '',
-        content: ''
+        content: {
+          msg: ''
+        }
       }
     }
   },
@@ -96,7 +98,7 @@ export default {
             message: '发送成功',
             type: 'success'
           })
-          this.message.content = null
+          this.message.content.msg = ''
           this.$emit('success')
         }
       })

@@ -55,9 +55,6 @@ export default {
     }
   },
   methods: {
-    parseQuestionName(question) {
-      return question.typeId === 4 ? question.questionName.replaceAll(this.replaceSpaces, '____') : question.questionName
-    },
     transQuestionType(typeId) {
       for (const index in this.types) {
         if (this.types[index].typeId === typeId) { return this.types[index].typeName }

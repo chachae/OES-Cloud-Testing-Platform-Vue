@@ -216,9 +216,9 @@ export default {
     // cmd 命令
     handleCmd(message) {
       this.cmdUser = message.toId
-      if (message.content === 'camera') {
+      if (message.content.monitorType === 'camera') {
         this.initPeer()
-      } else if (message.content === 'screen') {
+      } else if (message.content.monitorType === 'screen') {
         this.initScreenPeer()
       }
       this.rtcPeerConnection.createOffer(this.offerOptions).then(this.setLocalAndOffer)
@@ -229,12 +229,12 @@ export default {
     },
     // answer 命令
     handleAnswer(message) {
-      const sdp = JSON.parse(message.content).sdp
+      const sdp = message.content.sdp
       this.rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(sdp))
     },
     // candidate 命令
     handleCandidate(message) {
-      const candidate = JSON.parse(message.content).candidate
+      const candidate = message.content.candidate
       this.rtcPeerConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch((e) => {
         console.log(e)
       })
@@ -242,7 +242,7 @@ export default {
     // message 命令
     handleMsg(message) {
       this.$message({
-        message: message.content,
+        message: message.content.msg,
         type: 'warning'
       })
     },
@@ -284,7 +284,7 @@ export default {
         sendOne(JSON.stringify({
           command: 'candidate',
           fromId: this.queryInfo.username,
-          toId: this.monitorUsername,
+          toId: this.cmdUser,
           content: { candidate: event.candidate }
         }))
       }

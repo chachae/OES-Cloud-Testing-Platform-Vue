@@ -104,6 +104,38 @@
           </el-form-item>
         </el-col>
       </el-row>
+
+      <!-- 反作弊配置 -->
+      <el-divider content-position="left">反作弊设置</el-divider>
+      <el-row :gutter="10">
+        <el-col :xs="24" :sm="4">
+          <el-form-item label="试题乱序">
+            <el-switch
+              v-model="paper.configRandomQuestionOrder"
+              active-value="1"
+              inactive-value="0"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :xs="24" :sm="4">
+          <el-form-item label="切换标签检测">
+            <el-switch
+              v-model="paper.configLabelSwitch"
+              active-value="1"
+              inactive-value="0"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :xs="24" :sm="4">
+          <el-form-item label="远程监控">
+            <el-switch
+              v-model="paper.configRemote"
+              active-value="1"
+              inactive-value="0"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
       <el-divider content-position="left">数据汇总</el-divider>
       <el-row :gutter="10">
         <el-col :xs="24" :sm="8">
@@ -236,7 +268,10 @@ export default {
         scores: [],
         minute: '',
         creatorId: '',
-        termId: ''
+        termId: '',
+        configRandomQuestionOrder: 0,
+        configRemote: 0,
+        configLabelSwitch: 0
       }
     },
     calScore() {
@@ -257,8 +292,7 @@ export default {
     },
     initPaperType() {
       for (let i = 0; i < this.types.length; i++) {
-        // 便于测试，实际：const obj = { 'score': 0, 'num': 0 }
-        const obj = { 'score': i + 1, 'num': i + 1 }
+        const obj = { 'score': 0, 'num': 1 }
         this.$set(this.paperTypes, i, obj)
       }
     },
@@ -303,6 +337,7 @@ export default {
       this.$refs.form.clearValidate()
       this.$refs.form.resetFields()
       this.paperTypes = []
+      this.initPaperType()
     }
   }
 }

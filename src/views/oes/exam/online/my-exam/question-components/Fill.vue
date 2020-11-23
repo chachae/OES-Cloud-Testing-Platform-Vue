@@ -2,7 +2,7 @@
 <template>
   <div v-if="initOk">
     <el-input
-      v-for="(item,index) in fillNum"
+      v-for="(item,index) in question.fillCount"
       :key="index"
       v-model="answerContentArray[index]"
       :maxlength="20"
@@ -29,7 +29,6 @@ export default {
     return {
       initOk: false,
       replaceSpaces: '{{#@#}}',
-      fillNum: 0,
       answerContentArray: []
     }
   },
@@ -47,28 +46,16 @@ export default {
     },
     // 处理选择题
     dealQuestion() {
-      this.calFillNum()
-      this.question.questionName = this.question.questionName.replaceAll(this.replaceSpaces, '____')
       this.parseAnswerContent()
     },
     // 处理学生回答的问题
     parseAnswerContent() {
       if (this.question.answerContent) {
         this.answerContentArray = JSON.parse(this.question.answerContent)
-      }
-    },
-    // 计算填空数量
-    calFillNum() {
-      const c = this.question.questionName
-      let count = 0
-      if (c !== null) {
-        for (let i = 0; i < c.length; i++) {
-          count += c.charAt(i) === '{' && i + 7 <= c.length && c.slice(i, i + 7) === this.replaceSpaces ? 1 : 0
+      } else {
+        for (let i = 0; i < this.question.fillCount; i++) {
+          this.answerContentArray.push('')
         }
-        this.fillNum = count
-      }
-      for (let i = 0; i < count; i++) {
-        this.answerContentArray[i] = ''
       }
     }
   }
